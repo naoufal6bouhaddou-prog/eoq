@@ -77,7 +77,7 @@ export function Field({
 
       <div className="col-start-1 row-start-2 flex items-center justify-end pr-1">
         {symbol === undefined || symbol === '' ? null : (
-          <span aria-hidden="true" className="t-body italic text-[color:var(--c-ink-muted)]">
+          <span aria-hidden="true" className="symbol t-body text-[color:var(--c-ink-muted)]">
             {symbol}
           </span>
         )}

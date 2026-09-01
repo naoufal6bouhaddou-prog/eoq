@@ -43,7 +43,7 @@ export default function Page() {
   const [locale, setLocale] = useState<Locale>('fr');
   const [currency, setCurrency] = useState<CurrencyCode>('MAD');
   const [theme, setTheme] = useState<ThemeChoice>('system');
-  const [state, setState] = useState<ToolState>(() => reformatState(EXAMPLE_STATE, 'en', 'fr'));
+  const [state, setState] = useState<ToolState>(() => reformatState(BLANK_STATE, 'en', 'fr'));
   const [revealErrors, setRevealErrors] = useState(false);
   const ready = useRef(false);
 
@@ -63,8 +63,10 @@ export default function Page() {
     if (stored.currency !== undefined) setCurrency(stored.currency);
     if (stored.theme !== undefined) setTheme(stored.theme);
 
+    // A clear field unless the URL carries one: the tool opens ready for the
+    // user's own numbers, and the worked example is one button away.
     const shared = decodeState(window.location.search, resolved);
-    setState(shared ?? reformatState(EXAMPLE_STATE, 'en', resolved));
+    setState(shared ?? reformatState(BLANK_STATE, 'en', resolved));
     ready.current = true;
   }, []);
 

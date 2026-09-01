@@ -69,7 +69,8 @@ export const BLANK_STATE: ToolState = {
 };
 
 /**
- * A worked example, loaded on a first visit so the page is never blank.
+ * A worked example, loaded on request from the title block. The tool itself
+ * opens on a clear field.
  *
  * A distributor buying a mid-value part: 300 working days at 80 units a day is
  * the 24 000 annual demand, so the reorder inputs and the EOQ inputs describe
@@ -178,8 +179,8 @@ export function encodeState(state: ToolState, locale: Locale): string {
 
 /**
  * Read inputs back out of a query string, formatted for display in the given
- * locale. Returns null when the query carries none of our keys, so a bare URL
- * still gets the worked example.
+ * locale. Returns null when the query carries none of our keys, which is how a
+ * bare URL ends up on a clear field.
  */
 export function decodeState(search: string, locale: Locale): ToolState | null {
   const params = new URLSearchParams(search);

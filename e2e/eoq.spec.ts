@@ -30,10 +30,30 @@ async function expectFigure(page: Page, name: string, expected: string): Promise
   await expect.poll(() => figure(page, name)).toBe(expected);
 }
 
-test('opens on a worked example rather than an empty form', async ({ page }) => {
+test('opens on a clear field', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('[data-testid="result-quantity"]:visible')).toBeVisible();
+
+  await expect(page.getByTestId('empty-state')).toBeVisible();
+  await expect(page.getByLabel('Annual demand', { exact: true })).toHaveValue('');
+  await expect(page.getByLabel('Cost per order', { exact: true })).toHaveValue('');
+});
+
+test('fills itself in from the worked example on request', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Load example' }).click();
+
+  await expect(page.getByLabel('Annual demand', { exact: true })).not.toHaveValue('');
   await expect.poll(() => figure(page, 'result-quantity')).toMatch(/\d/);
+});
+
+test('clears back to an empty field', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Load example' }).click();
+  await expect(page.getByLabel('Annual demand', { exact: true })).not.toHaveValue('');
+
+  await page.getByRole('button', { name: 'Clear all fields' }).click();
+  await expect(page.getByLabel('Annual demand', { exact: true })).toHaveValue('');
+  await expect(page.getByTestId('empty-state')).toBeVisible();
 });
 
 test('reproduces the first verification case', async ({ page }) => {

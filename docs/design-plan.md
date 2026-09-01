@@ -43,25 +43,36 @@ to.
 
 ## 2. Type
 
-**IBM Plex Mono, and nothing else.** It descends from the same IBM typographic
-programme as the printouts the palette comes from, its tabular figures are
-genuinely well made, and it is not the default developer-portfolio mono.
+Revised after the first review: the original plan set the whole page in one
+monospace, and that read as machine-made on sight. Everything-in-mono is itself
+the tell, and IBM Plex Mono is the face that tell usually wears.
 
-One family, on purpose. This tool has almost no prose — every string is a label
-attached to a number. Adding a sans for the two sentences of explanatory copy
-would mean pairing Plex Mono with a near-neighbour, which the brief rightly
-calls a tell, or with a contrasting face doing almost no work.
+**Overpass Mono carries the figures.** It descends from Overpass, which is drawn
+from the US Federal Highway Administration's signage alphabet: type meant to be
+read fast and without ambiguity off a sign or an instrument. Practically, its
+punctuation is tight for a monospace, which matters more here than it sounds.
+Monospace gives a comma and a full stop a whole character cell, so a wider face
+sets 1,414.21 as `1, 414. 21`; six candidates were set side by side at display
+size and in a seven-column money table before this one was picked.
 
-Mono is load-bearing here, not garnish: it holds every figure in every table,
-where column alignment is the point.
+**Archivo carries the words.** A grotesque built for dense print, sturdy at
+small sizes, and a different genre from a signage mono rather than a
+near-neighbour of it.
 
-| Step         | Size | Weight | Tracking | Used for                             |
-| ------------ | ---- | ------ | -------- | ------------------------------------ |
-| `figure-lg`  | 30px | 600    | -0.02em  | Q\*, the reorder point               |
-| `figure`     | 19px | 500    | -0.01em  | results band, table totals           |
-| `body`       | 13px | 400    | 0        | input values, labels                 |
-| `label`      | 11px | 500    | 0.03em   | column headers, section names        |
-| `micro`      | 10px | 400    | 0.02em   | units, currency, endpoint notes      |
+The division is strict, and it is the point: mono is load-bearing on the numeric
+layer, where telling digits apart and holding a column in line is the actual
+job, and it appears nowhere else. Labels, headings and the two sentences of
+prose are Archivo. Units and currency symbols are Archivo too, set smaller and
+lighter beside the figure they qualify, so the eye reads the digits first and
+the annotation second.
+
+| Step        | Size          | Family  | Weight | Used for                        |
+| ----------- | ------------- | ------- | ------ | ------------------------------- |
+| `figure-lg` | 20-29px fluid | mono    | 700    | Q\*, the reorder point          |
+| `figure`    | 18px          | mono    | 400    | results band, table totals      |
+| `body`      | 13px          | Archivo | 400    | input values, labels            |
+| `label`     | 11.5px        | Archivo | 600    | column headers, section names   |
+| `micro`     | 11px          | Archivo | 400    | units, currency, notes          |
 
 Sentence case throughout, including column headers. No tracked-out caps.
 
@@ -71,6 +82,9 @@ Figures are split at the decimal mark and laid out in a two-cell grid so
 columns align on the point, not ragged right, even where rows carry different
 precision. Result slots reserve their width so live updates do not shift the
 layout.
+
+The symbol stripe sets its variables in italic, as they are set in print. The
+mono has no true italic, so the symbols borrow the text face for it.
 
 ## 3. Layout
 
@@ -194,9 +208,18 @@ rounded boxes. Replaced with a single ruled band divided by vertical hairlines:
 a meter panel, not a card grid. It also removes the temptation to give each
 card an icon.
 
-**A second type family — cut.** Plex Mono plus Plex Sans was the obvious pairing
-and is exactly the near-neighbour the brief warns about. There are two
-sentences of prose in the entire tool; they can be mono.
+**A second type family — cut, then restored.** The first plan set everything in
+one monospace, on the reasoning that a tool with two sentences of prose does not
+need a text face. That was wrong twice over: a page entirely in mono is itself a
+generated-design signature, and it wastes the contrast between a figure and the
+label naming it. The pairing now carries real information — mono means this is a
+number, Archivo means this is a word — and the two faces come from different
+genres rather than from one superfamily.
+
+**The blank first view.** The brief asked for a worked example preloaded on
+first visit; the client asked for a clear field instead, with the example one
+button away. The empty state has to earn its place accordingly: it names the
+three figures still needed rather than sitting there empty.
 
 **Border radius.** Not zero, which would be a deliberate hard-edge statement and
 part of the broadsheet pastiche the brief rules out. 2px on fields and buttons
