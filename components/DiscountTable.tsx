@@ -41,39 +41,39 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
       : `${formatQuantity(tier.minQty, locale)}–${formatQuantity(tier.maxQty, locale)}`;
 
   return (
-    <section className="border-b border-[color:var(--c-rule)]">
+    <section className="panel">
       <div className="px-4 pt-3">
         <h2 className="t-label">{t.sections.discounts}</h2>
-        <p className="t-micro mt-1 max-w-[75ch] text-[color:var(--c-ink-muted)]">
+        <p className="t-micro mt-1 max-w-[75ch] text-[color:var(--text-2)]">
           {t.discounts.model}
         </p>
         {basis?.kind === 'rate' ? (
-          <p className="t-micro mt-0.5 max-w-[75ch] text-[color:var(--c-ink-muted)]">
+          <p className="t-micro mt-0.5 max-w-[75ch] text-[color:var(--text-2)]">
             {t.discounts.holdingNote}
           </p>
         ) : null}
         {hasRoundingMultiple ? (
-          <p className="t-micro mt-0.5 max-w-[75ch] text-[color:var(--c-ink-muted)]">
+          <p className="t-micro mt-0.5 max-w-[75ch] text-[color:var(--text-2)]">
             {t.discounts.roundingNote}
           </p>
         ) : null}
       </div>
 
       {analysis === null ? (
-        <p className="t-micro px-4 py-3 text-[color:var(--c-ink-muted)]">
+        <p className="t-micro px-4 py-3 text-[color:var(--text-2)]">
           {t.empty.discountNeeds}
         </p>
       ) : analysis.best === null ? (
-        <p className="t-micro px-4 py-3 text-[color:var(--c-signal)]">
+        <p className="t-micro px-4 py-3 text-[color:var(--signal)]">
           {t.discounts.noneFeasible}
         </p>
       ) : (
         <>
           <p className="t-body flex flex-wrap items-baseline gap-x-2 gap-y-1 px-4 pt-2">
-            <span className="t-micro text-[color:var(--c-ink-muted)]">
+            <span className="t-micro text-[color:var(--text-2)]">
               {t.discounts.withSchedule}
             </span>
-            <span className="num text-[color:var(--c-signal)]">
+            <span className="num text-[color:var(--signal)]">
               <Figure
                 value={analysis.best.candidateQuantity}
                 decimals={0}
@@ -81,7 +81,7 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
               />
             </span>
             <span className="unit">{t.units.units}</span>
-            <span className="t-micro text-[color:var(--c-ink-muted)]">{t.discounts.at}</span>
+            <span className="t-micro text-[color:var(--text-2)]">{t.discounts.at}</span>
             <span className="num">
               <Figure value={analysis.best.unitCost} decimals={2} />
             </span>
@@ -156,10 +156,10 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
                       <td className="n">
                         <Figure value={tier.holdingCost} decimals={2} />
                       </td>
-                      <td className={`n ${best ? 'text-[color:var(--c-signal)]' : ''}`}>
+                      <td className={`n ${best ? 'text-[color:var(--signal)]' : ''}`}>
                         <Figure value={tier.totalCost} decimals={2} />
                       </td>
-                      <td className="t-micro text-[color:var(--c-ink-muted)]">
+                      <td className="t-micro text-[color:var(--text-2)]">
                         {statusText(tier.status)}
                       </td>
                     </tr>

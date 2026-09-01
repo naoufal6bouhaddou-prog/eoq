@@ -282,10 +282,10 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
   }, [geometry.xMin, geometry.xMax, readAt]);
 
   return (
-    <section aria-label={t.a11y.chartRegion} className="border-b border-[color:var(--c-rule)]">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 pt-3">
+    <section aria-label={t.a11y.chartRegion} className="panel">
+      <div className="panel-head">
         <h2 className="t-label">{t.sections.chart}</h2>
-        <p className="t-micro text-[color:var(--c-ink-muted)]">
+        <p className="t-micro text-[color:var(--text-2)]">
           {discounts === null ? t.chart.readoutHint : t.chart.includesPurchase}
         </p>
       </div>
@@ -327,7 +327,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   x2={geometry.plotRight}
                   y1={geometry.y(tick)}
                   y2={geometry.y(tick)}
-                  stroke="var(--c-grid)"
+                  stroke="var(--grid)"
                   strokeWidth={1}
                 />
               ))}
@@ -362,7 +362,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               x2={geometry.plotRight}
               y1={geometry.plotBottom}
               y2={geometry.plotBottom}
-              stroke="var(--c-rule)"
+              stroke="var(--line)"
               strokeWidth={1}
             />
             <line
@@ -370,7 +370,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               x2={geometry.plotLeft}
               y1={geometry.plotTop}
               y2={geometry.plotBottom}
-              stroke="var(--c-rule)"
+              stroke="var(--line)"
               strokeWidth={1}
             />
 
@@ -378,14 +378,14 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               <g fill="none">
                 <path
                   d={geometry.orderingPath}
-                  stroke="var(--c-trace-part)"
+                  stroke="var(--trace-2)"
                   strokeWidth={1}
                   strokeDasharray="5 3"
                   data-testid="trace-ordering"
                 />
                 <path
                   d={geometry.holdingPath}
-                  stroke="var(--c-trace-part)"
+                  stroke="var(--trace-2)"
                   strokeWidth={1}
                   strokeDasharray="1 3"
                   strokeLinecap="round"
@@ -393,7 +393,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                 />
                 <path
                   d={geometry.totalPath}
-                  stroke="var(--c-trace-total)"
+                  stroke="var(--trace)"
                   strokeWidth={1.75}
                   data-testid="trace-total"
                 />
@@ -404,7 +404,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   <path
                     key={`seg-${index}`}
                     d={segmentPath}
-                    stroke="var(--c-trace-total)"
+                    stroke="var(--trace)"
                     strokeWidth={1.75}
                     data-testid="discount-segment"
                   />
@@ -428,7 +428,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                         x2={geometry.x(segment.from)}
                         y1={geometry.plotTop}
                         y2={geometry.plotBottom}
-                        stroke="var(--c-rule)"
+                        stroke="var(--line)"
                         strokeWidth={1}
                         strokeDasharray="2 4"
                       />
@@ -436,7 +436,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                         cx={geometry.x(first.quantity)}
                         cy={geometry.y(first.total)}
                         r={3}
-                        fill="var(--c-trace-total)"
+                        fill="var(--trace)"
                         data-testid="endpoint-closed"
                       />
                     </>
@@ -446,8 +446,8 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                       cx={geometry.x(last.quantity)}
                       cy={geometry.y(last.total)}
                       r={3}
-                      fill="var(--c-surface)"
-                      stroke="var(--c-trace-total)"
+                      fill="var(--surface)"
+                      stroke="var(--trace)"
                       strokeWidth={1.25}
                       data-testid="endpoint-open"
                     />
@@ -464,20 +464,20 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   x2={optimumX}
                   y1={geometry.y(eoq.relevantCostCore)}
                   y2={geometry.plotBottom}
-                  stroke="var(--c-signal)"
+                  stroke="var(--signal)"
                   strokeWidth={1}
                 />
                 <circle
                   cx={optimumX}
                   cy={geometry.y(eoq.relevantCostCore / 2)}
                   r={3.5}
-                  fill="var(--c-signal)"
+                  fill="var(--signal)"
                 />
                 <circle
                   cx={optimumX}
                   cy={geometry.y(eoq.relevantCostCore)}
                   r={3.5}
-                  fill="var(--c-signal)"
+                  fill="var(--signal)"
                 />
                 <text
                   x={optimumX}
@@ -513,7 +513,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   x2={cursorX}
                   y1={geometry.plotTop}
                   y2={geometry.plotBottom}
-                  stroke="var(--c-ink)"
+                  stroke="var(--text)"
                   strokeWidth={1}
                   strokeDasharray="3 3"
                 />
@@ -521,8 +521,8 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   cx={cursorX}
                   cy={geometry.y(readout.total)}
                   r={3.5}
-                  fill="var(--c-paper)"
-                  stroke="var(--c-ink)"
+                  fill="var(--surface)"
+                  stroke="var(--text)"
                   strokeWidth={1.5}
                 />
               </g>
@@ -544,50 +544,50 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
       {/* Readout. Width is reserved so the figures do not shift the row. */}
       <div
         aria-live="polite"
-        className="chart-readout flex flex-wrap items-baseline gap-x-6 gap-y-1 border-t border-[color:var(--c-rule)] px-4 py-2"
+        className="chart-readout flex flex-wrap items-baseline gap-x-6 gap-y-1 border-t border-[color:var(--line)] px-4 py-2"
       >
-        <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--c-ink-muted)]">
+        <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--text-2)]">
           {t.chart.readoutQuantity}
           <Figure
             value={readout.quantity}
             decimals={0}
             width={7}
-            className="text-[color:var(--c-ink)]"
+            className="text-[color:var(--text)]"
             testId="readout-quantity"
           />
           <span className="unit">{t.units.units}</span>
         </span>
-        <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--c-ink-muted)]">
+        <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--text-2)]">
           {t.chart.readoutCost}
           <Figure
             value={readout.total}
             decimals={2}
             width={11}
-            className="text-[color:var(--c-ink)]"
+            className="text-[color:var(--text)]"
             testId="readout-cost"
           />
           <span className="unit">{symbol}</span>
         </span>
-        <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--c-ink-muted)]">
+        <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--text-2)]">
           {t.chart.readoutPenalty}
           <Figure
             value={readout.penaltyPercent}
             decimals={2}
             signed
             width={7}
-            className="text-[color:var(--c-ink)]"
+            className="text-[color:var(--text)]"
             testId="readout-penalty"
           />
           <span className="unit">%</span>
         </span>
         {readout.unitCost === null ? null : (
-          <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--c-ink-muted)]">
+          <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--text-2)]">
             {t.discounts.columns.unitCost}
             <Figure
               value={readout.unitCost}
               decimals={2}
               width={7}
-              className="text-[color:var(--c-ink)]"
+              className="text-[color:var(--text)]"
               testId="readout-unit-cost"
             />
             <span className="unit">{symbol}</span>

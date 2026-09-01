@@ -1,65 +1,83 @@
 @import 'tailwindcss';
 
 /* ==================================================================
-   Tokens
-   Palette and type scale from docs/design-plan.md. Seven colour
-   tokens, one of which is an accent. Light is the default; dark is a
-   second deliberate palette on the same seven names, not a sweep.
+   Supply Chain Tools — shared design tokens
+
+   This block is the part a sibling tool inherits unchanged. Nothing
+   below it knows anything about economic order quantities.
+
+   A neutral system with two marked colours and nothing else:
+   --accent is structure and the one primary action, --signal is a
+   threshold crossed. Everything else is unmarked ground.
+   See docs/design-plan.md.
    ================================================================== */
 
 :root {
-  --c-paper: #f6f8f5;
-  --c-band: #e3ebe0;
-  --c-surface: #ffffff;
-  --c-rule: #c3d0c0;
-  --c-ink: #16211a;
-  --c-ink-muted: #56655a;
-  --c-signal: #b3352a;
+  --ground: #eef1f4;
+  --surface: #ffffff;
+  --surface-2: #f5f7f9;
+  --line: #dce1e6;
+  --line-strong: #b7c0c9;
+  --text: #0f151b;
+  --text-2: #586470;
+  --accent: #14456b;
+  --on-accent: #ffffff;
+  --signal: #b3261e;
 
-  /* Chart traces: ink at three weights, plus the one accent. */
-  --c-trace-total: var(--c-ink);
-  --c-trace-part: var(--c-ink-muted);
-  --c-grid: color-mix(in srgb, var(--c-rule) 55%, transparent);
+  /* Chart traces: text at two weights, plus the one marked colour. */
+  --trace: var(--text);
+  --trace-2: var(--text-2);
+  --grid: color-mix(in srgb, var(--line) 70%, transparent);
+
+  --radius-panel: 6px;
+  --radius-control: 4px;
 
   color-scheme: light;
 }
 
-/* No explicit choice: follow the system. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --c-paper: #171e1a;
-    --c-band: #1e2722;
-    --c-surface: #121815;
-    --c-rule: #37453c;
-    --c-ink: #e4ebe4;
-    --c-ink-muted: #9aaa9d;
-    --c-signal: #e76257;
+    --ground: #12161a;
+    --surface: #1a1f25;
+    --surface-2: #20262d;
+    --line: #2e3640;
+    --line-strong: #3e4854;
+    --text: #e8ecf0;
+    --text-2: #9aa6b2;
+    --accent: #7fb2dc;
+    /* The accent is light in the dark palette, so what sits on it is dark. */
+    --on-accent: #12161a;
+    --signal: #f08076;
 
     color-scheme: dark;
   }
 }
 
-/* An explicit choice wins in both directions. */
 :root[data-theme='dark'] {
-  --c-paper: #171e1a;
-  --c-band: #1e2722;
-  --c-surface: #121815;
-  --c-rule: #37453c;
-  --c-ink: #e4ebe4;
-  --c-ink-muted: #9aaa9d;
-  --c-signal: #e76257;
+  --ground: #12161a;
+  --surface: #1a1f25;
+  --surface-2: #20262d;
+  --line: #2e3640;
+  --line-strong: #3e4854;
+  --text: #e8ecf0;
+  --text-2: #9aa6b2;
+  --accent: #7fb2dc;
+  --on-accent: #12161a;
+  --signal: #f08076;
 
   color-scheme: dark;
 }
 
 @theme inline {
-  --color-paper: var(--c-paper);
-  --color-band: var(--c-band);
-  --color-surface: var(--c-surface);
-  --color-rule: var(--c-rule);
-  --color-ink: var(--c-ink);
-  --color-muted: var(--c-ink-muted);
-  --color-signal: var(--c-signal);
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-accent: var(--accent);
+  --color-signal: var(--signal);
 
   --font-mono: var(--font-figure), ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
   --font-sans: var(--font-text), system-ui, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -70,12 +88,12 @@
    ================================================================== */
 
 html {
-  background: var(--c-paper);
+  background: var(--ground);
 }
 
 body {
-  background: var(--c-paper);
-  color: var(--c-ink);
+  background: var(--ground);
+  color: var(--text);
   font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.45;
@@ -98,7 +116,6 @@ table.banded td {
   font-feature-settings: 'tnum' 1;
 }
 
-/* Column headers name things, so they stay in the text face. */
 table.banded th {
   font-family: var(--font-sans);
 }
@@ -111,21 +128,26 @@ table.banded th {
   font-weight: 500;
 }
 
-/* ---- Type scale ------------------------------------------------- */
+/* ---- Type scale --------------------------------------------------- */
+
+.t-display {
+  font-size: clamp(30px, 4.4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
 
 .t-figure-lg {
-  /* 29px where there is room, 20px at 360, so the results band stays two
-     across on a phone and short enough to pin without eating the viewport. */
-  font-size: clamp(20px, 5.4vw, 29px);
+  font-size: clamp(20px, 2.4vw, 24px);
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .t-figure {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .t-body {
@@ -145,24 +167,49 @@ table.banded th {
   letter-spacing: 0.005em;
 }
 
-/* ---- Focus ------------------------------------------------------ */
+/* ---- Panels -------------------------------------------------------
+   Ground against surface is the whole hierarchy. The work is raised
+   on white; the page behind it is recessed. No shadows, no gradients.
+   ------------------------------------------------------------------ */
 
-:focus-visible {
-  outline: 2px solid var(--c-signal);
-  outline-offset: 2px;
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
 }
 
-/* ---- Decimal alignment ------------------------------------------
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-body {
+  padding: 12px 14px;
+}
+
+/* ---- Focus -------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ---- Decimal alignment --------------------------------------------
    Figures are split at the decimal mark into two cells: the integer
    part flush right against the mark, the fraction flush left after
-   it. Columns then line up on the point even when rows carry a
-   different number of decimals.
+   it. Columns line up on the point even when rows carry a different
+   number of decimals.
    ------------------------------------------------------------------ */
 
 .figure-cell {
   display: inline-grid;
   grid-template-columns: 1fr auto;
-  font-variant-numeric: tabular-nums;
 }
 
 .figure-cell > .int {
@@ -177,43 +224,43 @@ table.banded th {
    the text face, smaller and lighter, so the eye reads the digits first. */
 .unit {
   font-family: var(--font-sans);
-  color: var(--c-ink-muted);
+  color: var(--text-2);
   font-size: 0.68em;
   font-weight: 500;
   font-variant-numeric: normal;
   letter-spacing: 0.01em;
 }
 
-/* ---- Chart text --------------------------------------------------- */
+/* ---- Chart text ---------------------------------------------------- */
 
 .chart-tick {
   font-family: var(--font-mono);
   font-size: 10px;
   font-variant-numeric: tabular-nums;
-  fill: var(--c-ink-muted);
+  fill: var(--text-2);
 }
 
 .chart-mark {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  fill: var(--c-signal);
+  fill: var(--signal);
 }
 
 .chart-label {
   font-family: var(--font-sans);
   font-size: 10.5px;
   font-weight: 600;
-  fill: var(--c-ink-muted);
+  fill: var(--text-2);
   paint-order: stroke;
-  stroke: var(--c-paper);
+  stroke: var(--surface);
   stroke-width: 3px;
   stroke-linejoin: round;
 }
 
-/* ---- Greenbar banding -------------------------------------------
-   Alternating bands, not row rules: the bands do the separating, the
-   way the printer paper did.
+/* ---- Tables --------------------------------------------------------
+   Stripes, because a wide numeric table needs them to hold a row
+   across. Low contrast, and carrying no reference to anything.
    ------------------------------------------------------------------ */
 
 table.banded {
@@ -229,8 +276,8 @@ table.banded td {
 }
 
 table.banded thead th {
-  border-bottom: 1px solid var(--c-rule);
-  color: var(--c-ink-muted);
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--text-2);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.005em;
@@ -243,25 +290,23 @@ table.banded th[scope='row'] {
   text-align: left;
 }
 
-/* Figures right-align, which with one precision per column is decimal
-   alignment. Mixed-precision columns use the split figure cell instead. */
 table.banded .n {
   text-align: right;
 }
 
 table.banded > tbody > tr:nth-child(even) {
-  background: var(--c-band);
+  background: var(--surface-2);
 }
 
-/* The recommended row, and only it, carries the accent. */
+/* The recommended row is a threshold reached, so it carries the marked
+   colour. Nothing else in a table does. */
 table.banded > tbody > tr[data-best='true'] {
-  box-shadow: inset 3px 0 0 0 var(--c-signal);
+  box-shadow: inset 3px 0 0 0 var(--signal);
 }
 
-/* The reference row of a sensitivity table is a landmark, not an action, so
-   it is marked in ink rather than in the accent. */
+/* The reference row of a sensitivity table is a landmark, not an action. */
 table.banded > tbody > tr[data-optimum='true'] {
-  box-shadow: inset 3px 0 0 0 var(--c-ink);
+  box-shadow: inset 3px 0 0 0 var(--line-strong);
 }
 
 table.banded > tbody > tr[data-optimum='true'] > th,
@@ -274,7 +319,7 @@ table.banded > tbody > tr[data-optimum='true'] > th[scope='rowgroup'] {
 }
 
 table.banded > tbody > tr[data-feasible='false'] {
-  color: var(--c-ink-muted);
+  color: var(--text-2);
 }
 
 /* A wide table scrolls inside itself; the page body never scrolls sideways. */
@@ -283,14 +328,14 @@ table.banded > tbody > tr[data-feasible='false'] {
   overscroll-behavior-x: contain;
 }
 
-/* ---- Fields ------------------------------------------------------ */
+/* ---- Fields -------------------------------------------------------- */
 
 .field-input {
   width: 100%;
-  background: var(--c-surface);
-  color: var(--c-ink);
-  border: 1px solid var(--c-rule);
-  border-radius: 2px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
   padding: 5px 8px;
   font: inherit;
   font-variant-numeric: tabular-nums;
@@ -298,46 +343,112 @@ table.banded > tbody > tr[data-feasible='false'] {
 }
 
 .field-input:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--c-ink-muted) 55%, var(--c-rule));
+  border-color: var(--text-2);
 }
 
 .field-input[aria-invalid='true'] {
-  border-color: var(--c-signal);
+  border-color: var(--signal);
 }
 
 .field-input:disabled {
   opacity: 0.5;
 }
 
-/* ---- Controls ---------------------------------------------------- */
+/* ---- Controls -------------------------------------------------------
+   Three weights, so a language toggle does not look like a primary
+   action and a destructive one does not look like a label.
+   ------------------------------------------------------------------ */
 
-.control {
-  background: var(--c-surface);
-  color: var(--c-ink);
-  border: 1px solid var(--c-rule);
-  border-radius: 2px;
-  padding: 4px 9px;
+.btn {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: 4px 10px;
   font: inherit;
   cursor: pointer;
 }
 
-.control:hover:not(:disabled) {
-  border-color: var(--c-ink-muted);
+.btn:hover:not(:disabled) {
+  border-color: var(--text-2);
 }
 
-.control[aria-pressed='true'],
-.control[data-active='true'] {
-  background: var(--c-ink);
-  color: var(--c-paper);
-  border-color: var(--c-ink);
-}
-
-.control:disabled {
+.btn:disabled {
   cursor: default;
   opacity: 0.45;
 }
 
-/* ---- Motion ------------------------------------------------------ */
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.12);
+  border-color: var(--accent);
+}
+
+/* Quiet: a text button for actions that are available but not offered. */
+.btn-quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-2);
+  padding-inline: 6px;
+}
+
+.btn-quiet:hover:not(:disabled) {
+  color: var(--text);
+  border-color: transparent;
+  background: var(--surface-2);
+}
+
+/* A segmented control: one choice out of a few, sharing one outline. */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.seg > label {
+  padding: 4px 10px;
+  cursor: pointer;
+  color: var(--text-2);
+  border-left: 1px solid var(--line);
+  text-align: center;
+}
+
+.seg > label:first-of-type {
+  border-left: 0;
+}
+
+.seg > label:hover {
+  color: var(--text);
+}
+
+.seg > label[data-active='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.seg-stack {
+  flex-direction: column;
+}
+
+.seg-stack > label {
+  border-left: 0;
+  border-top: 1px solid var(--line);
+  text-align: left;
+}
+
+.seg-stack > label:first-of-type {
+  border-top: 0;
+}
+
+/* ---- Motion --------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -350,7 +461,6 @@ table.banded > tbody > tr[data-feasible='false'] {
   }
 }
 
-/* Screen-reader-only, for the chart's data table and skip link. */
 .sr-only:not(:focus):not(:active) {
   position: absolute;
   width: 1px;
@@ -363,24 +473,27 @@ table.banded > tbody > tr[data-feasible='false'] {
   border: 0;
 }
 
-/* ==================================================================
-   Print — filled in at the export step
-   ================================================================== */
-
 /* Screen only: the print sheet's own header and footer. */
 .print-only {
   display: none;
 }
 
+/* ==================================================================
+   Print
+   ================================================================== */
+
 @media print {
   :root {
-    --c-paper: #ffffff;
-    --c-band: #f0f0f0;
-    --c-surface: #ffffff;
-    --c-rule: #999999;
-    --c-ink: #000000;
-    --c-ink-muted: #444444;
-    --c-signal: #000000;
+    --ground: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f0f0f0;
+    --line: #999999;
+    --line-strong: #666666;
+    --text: #000000;
+    --text-2: #444444;
+    --accent: #000000;
+    --on-accent: #ffffff;
+    --signal: #000000;
 
     color-scheme: light;
   }
@@ -406,15 +519,20 @@ table.banded > tbody > tr[data-feasible='false'] {
     display: block;
   }
 
-  /* Below the wide breakpoint Q* and the total are carried by the pinned
-     summary, which is chrome and does not print. On paper the band's own copy
-     has to come back, or a sheet printed from a phone would carry every
-     figure except the two that matter. */
-  .results-pair {
-    display: contents !important;
+  /* Panels are a screen device for separating the work from the page. On paper
+     the sheet already does that, so they flatten to rules. */
+  .panel {
+    border: 0;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
   }
 
-  /* One column, edge to edge: there is no second pane on a sheet of paper. */
+  .panel-head,
+  .panel-body {
+    padding-inline: 0;
+    padding-block: 4px;
+  }
+
   main {
     max-width: none !important;
     padding: 0 !important;
@@ -424,13 +542,13 @@ table.banded > tbody > tr[data-feasible='false'] {
     display: block !important;
   }
 
-  /* Tables print in full rather than scrolling, and are kept whole. */
   .table-scroll {
     overflow: visible !important;
   }
 
   section,
-  table {
+  table,
+  .panel {
     break-inside: avoid;
   }
 
@@ -438,16 +556,14 @@ table.banded > tbody > tr[data-feasible='false'] {
     display: table-header-group;
   }
 
-  /* Bands are a reading aid, and they have to survive the printer's default
-     of dropping backgrounds. */
   table.banded > tbody > tr:nth-child(even) {
     background: #f0f0f0 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  /* The accent has no colour on paper, so the recommended row is marked by
-     weight and a rule instead. */
+  /* Neither marked colour survives a monochrome printer, so the rows that
+     carried them are marked by weight and a rule instead. */
   table.banded > tbody > tr[data-best='true'] {
     box-shadow: none;
     border-left: 2.5pt solid #000000;
@@ -459,11 +575,14 @@ table.banded > tbody > tr[data-feasible='false'] {
     border-left: 2.5pt solid #000000;
   }
 
-  .t-figure-lg {
-    font-size: 15pt;
+  .t-display {
+    font-size: 17pt;
   }
 
-  /* The chart is vector and stays, but it does not need half the page. */
+  .t-figure-lg {
+    font-size: 12pt;
+  }
+
   svg[role='img'] {
     max-height: 52mm;
   }
@@ -488,7 +607,7 @@ table.banded > tbody > tr[data-feasible='false'] {
   }
 
   /* The readout exists to follow a pointer. On paper it only ever repeats the
-     optimum, which the results band already carries. */
+     optimum, which the results panel already carries. */
   .chart-readout {
     display: none !important;
   }

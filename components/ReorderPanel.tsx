@@ -14,7 +14,7 @@ export interface ReorderPanelProps {
 
 function Line({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--c-ink-muted)]">
+    <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--text-2)]">
       {label}
       {children}
     </span>
@@ -35,9 +35,9 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
 
   if (reorder === null) {
     return (
-      <section className="border-b border-[color:var(--c-rule)] px-4 py-3">
+      <section className="panel panel-body">
         <h2 className="t-label mb-1">{t.sections.reorder}</h2>
-        <p className="t-micro text-[color:var(--c-ink-muted)]">
+        <p className="t-micro text-[color:var(--text-2)]">
           {missingLabels.length > 0
             ? `${t.empty.needs} ${missingLabels.join(', ')}`
             : t.empty.reorderNeeds}
@@ -47,16 +47,16 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
   }
 
   return (
-    <section className="border-b border-[color:var(--c-rule)]">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 pt-3">
+    <section className="panel">
+      <div className="panel-head">
         <h2 className="t-label">{t.sections.reorder}</h2>
-        <p className="t-micro text-[color:var(--c-ink-muted)]">{t.results.serviceLevelNote}</p>
+        <p className="t-micro text-[color:var(--text-2)]">{t.results.serviceLevelNote}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-x-4 px-4 py-2 sm:grid-cols-4">
         <div className="min-w-0">
-          <p className="t-label mb-1 text-[color:var(--c-ink-muted)]">{t.results.reorderPoint}</p>
-          <p className="t-figure-lg num text-[color:var(--c-signal)]">
+          <p className="t-label mb-1 text-[color:var(--text-2)]">{t.results.reorderPoint}</p>
+          <p className="t-figure-lg num text-[color:var(--signal)]">
             <Measure
               value={Math.ceil(reorder.reorderPoint)}
               decimals={0}
@@ -68,7 +68,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
         </div>
 
         <div className="min-w-0">
-          <p className="t-label mb-1 text-[color:var(--c-ink-muted)]">{t.results.safetyStock}</p>
+          <p className="t-label mb-1 text-[color:var(--text-2)]">{t.results.safetyStock}</p>
           <p className="t-figure-lg num">
             <Measure
               value={Math.ceil(reorder.safetyStock)}
@@ -85,7 +85,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
             <Figure
               value={reorder.demandDuringLeadTime}
               decimals={1}
-              className="text-[color:var(--c-ink)]"
+              className="text-[color:var(--text)]"
             />
             <span className="unit">{t.units.units}</span>
           </Line>
@@ -93,7 +93,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
             <Figure
               value={reorder.sigmaDdlt}
               decimals={2}
-              className="text-[color:var(--c-ink)]"
+              className="text-[color:var(--text)]"
               testId="sigma-ddlt"
             />
           </Line>
@@ -101,19 +101,19 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
             <Figure
               value={reorder.z}
               decimals={4}
-              className="text-[color:var(--c-ink)]"
+              className="text-[color:var(--text)]"
               testId="safety-factor"
             />
           </Line>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-[color:var(--c-rule)] px-4 py-1.5">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-[color:var(--line)] px-4 py-1.5">
         <Line label={`${t.results.reorderPoint} (${t.results.beforeRounding})`}>
           <Figure
             value={reorder.reorderPoint}
             decimals={2}
-            className="text-[color:var(--c-ink)]"
+            className="text-[color:var(--text)]"
             testId="reorder-point-exact"
           />
         </Line>
@@ -121,7 +121,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
           <Figure
             value={reorder.safetyStock}
             decimals={2}
-            className="text-[color:var(--c-ink)]"
+            className="text-[color:var(--text)]"
             testId="safety-stock-exact"
           />
         </Line>
@@ -130,7 +130,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
             <Figure
               value={eoq.safetyStockHoldingCost}
               decimals={2}
-              className="text-[color:var(--c-ink)]"
+              className="text-[color:var(--text)]"
               testId="safety-stock-cost"
             />
             <span className="unit">{symbol}</span>

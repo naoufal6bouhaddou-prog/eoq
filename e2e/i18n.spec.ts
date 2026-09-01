@@ -14,11 +14,17 @@ async function figure(page: Page, name: string): Promise<string> {
 }
 
 /**
- * The language buttons, matched exactly. Substring matching would also catch
- * the Next.js dev-tools button, whose label contains "en" in "Open".
+ * The language switch is a segmented control: a radio group whose inputs are
+ * visually hidden behind their labels, the same component the input rail uses
+ * for its modes. A real user clicks the label, so the test does too.
  */
 function language(page: Page, code: 'FR' | 'EN') {
-  return page.getByRole('button', { name: code, exact: true });
+  return page.getByRole('radio', { name: code, exact: true });
+}
+
+async function switchTo(page: Page, code: 'FR' | 'EN'): Promise<void> {
+  await page.getByText(code, { exact: true }).click();
+  await expect(language(page, code)).toBeChecked();
 }
 
 /** Wait until React has hydrated and read the URL. */
@@ -39,7 +45,7 @@ test('switches the whole interface, not only the labels', async ({ page }) => {
   await page.goto(CASE);
   await expect.poll(() => figure(page, 'result-trc')).toBe('1,414.21');
 
-  await language(page, 'FR').click();
+  await switchTo(page, 'FR');
 
   // Words.
   await expect(shown(page, 'Quantité économique de commande')).toBeVisible();
@@ -54,7 +60,7 @@ test('sets the lang attribute so the page is announced correctly', async ({ page
   await ready(page);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
-  await language(page, 'FR').click();
+  await switchTo(page, 'FR');
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
 });
 
@@ -62,7 +68,7 @@ test('rewrites what is already typed into the other convention', async ({ page }
   await page.goto(CASE);
   await expect(page.getByLabel('Annual demand', { exact: true })).toHaveValue('10,000');
 
-  await language(page, 'FR').click();
+  await switchTo(page, 'FR');
   await expect(page.getByLabel('Demande annuelle', { exact: true })).toHaveValue(/10.000/);
 
   // The same number, not a different one: the result did not move.
@@ -78,7 +84,7 @@ test('carries a French-entered value into English unchanged', async ({ page }) =
   await page.getByLabel('Coût de possession unitaire', { exact: true }).fill('2');
   await page.getByLabel('Coût de passation par commande', { exact: true }).blur();
 
-  await language(page, 'EN').click();
+  await switchTo(page, 'EN');
   await expect(page.getByLabel('Annual demand', { exact: true })).toHaveValue('1,234.56');
 });
 
@@ -101,7 +107,7 @@ test('defaults to dirhams', async ({ page }) => {
 test('remembers the language on the next visit', async ({ page }) => {
   await page.goto(CASE);
   await ready(page);
-  await language(page, 'FR').click();
+  await switchTo(page, 'FR');
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
 
   // A bare URL, so the choice can only have come from the stored preference.
@@ -113,7 +119,7 @@ test('remembers the language on the next visit', async ({ page }) => {
 test('lets a shared link override the stored language', async ({ page }) => {
   await page.goto(CASE);
   await ready(page);
-  await language(page, 'FR').click();
+  await switchTo(page, 'FR');
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
 
   await page.goto(CASE);

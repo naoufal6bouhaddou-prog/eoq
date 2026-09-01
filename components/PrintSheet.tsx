@@ -17,7 +17,7 @@ export interface PrintSheetProps {
 export function PrintHeader() {
   const { t } = useSettings();
   return (
-    <div className="print-only mb-2 border-b border-[color:var(--c-rule)] pb-1">
+    <div className="print-only mb-2 border-b border-[color:var(--line)] pb-1">
       <h1 className="t-body font-semibold">{t.app.name}</h1>
     </div>
   );
@@ -45,12 +45,12 @@ export function PrintFooter({ state, derived }: PrintSheetProps) {
   const rows = assumptions({ state, derived, t, locale, currency });
 
   return (
-    <footer className="print-only mt-3 border-t border-[color:var(--c-rule)] pt-2">
+    <footer className="print-only mt-3 border-t border-[color:var(--line)] pt-2">
       <h2 className="t-label mb-1">{t.print.assumptions}</h2>
       <ul className="grid grid-cols-3 gap-x-6 gap-y-0.5">
         {rows.map((row) => (
           <li key={row.label} className="t-micro flex items-baseline justify-between gap-2">
-            <span className="text-[color:var(--c-ink-muted)]">{row.label}</span>
+            <span className="text-[color:var(--text-2)]">{row.label}</span>
             <span className="num">
               {row.value}
               {row.unit === '' ? null : <span className="unit"> {row.unit}</span>}
@@ -58,7 +58,7 @@ export function PrintFooter({ state, derived }: PrintSheetProps) {
           </li>
         ))}
       </ul>
-      <p className="t-micro mt-1.5 flex flex-wrap justify-between gap-x-6 text-[color:var(--c-ink-muted)]">
+      <p className="t-micro mt-1.5 flex flex-wrap justify-between gap-x-6 text-[color:var(--text-2)]">
         <span>{t.print.model}</span>
         <span>
           {t.print.generated} {printedOn}

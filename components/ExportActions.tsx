@@ -54,18 +54,18 @@ export function ExportActions({ state, derived }: ExportActionsProps) {
 
   return (
     <>
-      <button type="button" className="control t-micro" onClick={copyLink}>
+      <button type="button" className="btn btn-quiet t-micro" onClick={copyLink}>
         {copied ? t.actions.linkCopied : t.actions.copyLink}
       </button>
       <button
         type="button"
-        className="control t-micro"
+        className="btn t-micro"
         onClick={downloadCsv}
         data-testid="download-csv"
       >
         {t.actions.downloadCsv}
       </button>
-      <button type="button" className="control t-micro" onClick={() => window.print()}>
+      <button type="button" className="btn t-micro" onClick={() => window.print()}>
         {t.actions.print}
       </button>
     </>

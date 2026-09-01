@@ -157,11 +157,16 @@ test('keeps the answer in view on a 360px screen', async ({ page }, testInfo) =>
   test.skip(testInfo.project.name !== 'mobile', 'viewport-specific');
 
   await page.goto(VERIFICATION_CASE);
-  await expect(page.locator('[data-testid="result-quantity"]:visible')).toBeInViewport();
 
-  // Scroll down to the inputs; the headline figures stay pinned.
-  await page.getByLabel('Cost per order', { exact: true }).scrollIntoViewIfNeeded();
-  await expect(page.locator('[data-testid="result-quantity"]:visible')).toBeInViewport();
+  // The answer is the first thing on the page, before any input.
+  await expect(page.getByTestId('result-quantity')).toBeInViewport();
+  await expect(page.getByTestId('pinned-quantity')).toHaveCount(0);
+
+  // Scroll past it to the inputs: the pinned copy takes over, so the answer is
+  // still on screen while the fields that produce it are being edited.
+  await page.getByLabel('Order in multiples of', { exact: true }).scrollIntoViewIfNeeded();
+  await expect(page.getByTestId('pinned-quantity')).toBeInViewport();
+  await expect(page.getByTestId('result-quantity')).not.toBeInViewport();
 });
 
 test('never scrolls the page sideways at 360px', async ({ page }, testInfo) => {

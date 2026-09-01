@@ -36,11 +36,11 @@ export function SensitivityTables({ penaltyRows, sensitivityRows }: SensitivityT
     t.sensitivity.parameters[parameter];
 
   return (
-    <div className="sensitivity-pair grid gap-x-8 xl:grid-cols-2">
-      <section className="border-b border-[color:var(--c-rule)]">
+    <div className="sensitivity-pair grid gap-4">
+      <section className="panel">
         <div className="px-4 pt-3">
           <h2 className="t-label">{t.sections.penalty}</h2>
-          <p className="t-micro mt-1 max-w-[62ch] text-[color:var(--c-ink-muted)]">
+          <p className="t-micro mt-1 max-w-[62ch] text-[color:var(--text-2)]">
             {t.penalty.caption}
           </p>
         </div>
@@ -94,10 +94,10 @@ export function SensitivityTables({ penaltyRows, sensitivityRows }: SensitivityT
         </div>
       </section>
 
-      <section className="border-b border-[color:var(--c-rule)]">
+      <section className="panel">
         <div className="px-4 pt-3">
           <h2 className="t-label">{t.sections.sensitivity}</h2>
-          <p className="t-micro mt-1 max-w-[62ch] text-[color:var(--c-ink-muted)]">
+          <p className="t-micro mt-1 max-w-[62ch] text-[color:var(--text-2)]">
             {t.sensitivity.caption}
           </p>
         </div>
@@ -147,7 +147,7 @@ export function SensitivityTables({ penaltyRows, sensitivityRows }: SensitivityT
                       ) : null}
                       <td className="n">
                         {row.isBaseline ? (
-                          <span className="text-[color:var(--c-ink-muted)]">
+                          <span className="text-[color:var(--text-2)]">
                             {t.sensitivity.baseline}
                           </span>
                         ) : (

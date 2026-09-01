@@ -33,12 +33,12 @@ export function ChoiceGroup<T extends string>({
       <p aria-hidden="true" className="col-start-2 t-label mb-1">
         {legend}
       </p>
-      <div className={`col-start-2 flex gap-1 ${stack ? 'flex-col items-stretch' : 'flex-wrap'}`}>
+      <div className={`col-start-2 seg t-micro ${stack ? 'seg-stack' : ''}`}>
         {choices.map((choice) => {
           const id = `${name}-${choice.value}`;
           const active = choice.value === value;
           return (
-            <span key={choice.value} className="contents">
+            <label key={choice.value} htmlFor={id} data-active={active}>
               <input
                 id={id}
                 className="sr-only"
@@ -48,14 +48,8 @@ export function ChoiceGroup<T extends string>({
                 checked={active}
                 onChange={() => onChange(choice.value)}
               />
-              <label
-                htmlFor={id}
-                className="control t-micro text-center"
-                data-active={active ? 'true' : 'false'}
-              >
-                {choice.label}
-              </label>
-            </span>
+              {choice.label}
+            </label>
           );
         })}
       </div>
@@ -80,11 +74,11 @@ export function SectionToggle({
       <input
         id={id}
         type="checkbox"
-        className="size-3.5 accent-[var(--c-ink)]"
+        className="size-3.5 accent-[var(--text)]"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
       />
-      <label htmlFor={id} className="t-micro cursor-pointer text-[color:var(--c-ink-muted)]">
+      <label htmlFor={id} className="t-micro cursor-pointer text-[color:var(--text-2)]">
         {label}
       </label>
     </span>
@@ -102,7 +96,7 @@ export function RailSection({
   action?: ReactNode;
 }) {
   return (
-    <section className="border-t border-[color:var(--c-rule)] pt-3">
+    <section className="border-t border-[color:var(--line)] pt-3 first:border-t-0 first:pt-0">
       <div className="mb-2 flex items-baseline justify-between gap-2">
         <h2 className="t-label">{title}</h2>
         {action}

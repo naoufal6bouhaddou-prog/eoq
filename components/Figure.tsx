@@ -47,7 +47,7 @@ export function Figure({
         style={width === undefined ? undefined : { minWidth: `${width}ch` }}
         data-testid={testId}
       >
-        <span className="int text-[color:var(--c-ink-muted)]">{EMPTY_VALUE}</span>
+        <span className="int text-[color:var(--text-2)]">{EMPTY_VALUE}</span>
         <span className="frac" />
       </span>
     );

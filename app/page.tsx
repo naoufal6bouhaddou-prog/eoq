@@ -2,18 +2,18 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
+import { AnswerPanel } from '@/components/AnswerPanel';
+import { AppShell } from '@/components/AppShell';
 import { CostCurve } from '@/components/CostCurve';
 import { DiscountTable } from '@/components/DiscountTable';
 import { ExportActions } from '@/components/ExportActions';
 import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
+import { PinnedAnswer } from '@/components/PinnedAnswer';
 import { PrintFooter, PrintHeader } from '@/components/PrintSheet';
-import { ResultsBand } from '@/components/ResultsBand';
 import { SensitivityTables } from '@/components/SensitivityTables';
 import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
-import { StickySummary } from '@/components/StickySummary';
-import { TitleBlock } from '@/components/TitleBlock';
 import { derive } from '@/lib/derive';
 import type { CurrencyCode, Locale } from '@/lib/format';
 import { getDictionary } from '@/lib/i18n';
@@ -176,7 +176,7 @@ export default function Page() {
         {t.a11y.skipToResults}
       </a>
 
-      <TitleBlock
+      <AppShell
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
         onThemeChange={setTheme}
@@ -184,7 +184,7 @@ export default function Page() {
           <>
             <button
               type="button"
-              className="control t-micro"
+              className="btn btn-quiet t-micro"
               onClick={() => {
                 setState(reformatState(EXAMPLE_STATE, 'en', locale));
                 setRevealErrors(false);
@@ -194,7 +194,7 @@ export default function Page() {
             </button>
             <button
               type="button"
-              className="control t-micro"
+              className="btn btn-quiet t-micro"
               onClick={() => {
                 setState(reformatState(BLANK_STATE, 'en', locale));
                 setRevealErrors(false);
@@ -207,15 +207,15 @@ export default function Page() {
         }
       />
 
-      <StickySummary eoq={derived.eoq} />
+      <PinnedAnswer eoq={derived.eoq} />
 
-      <main className="mx-auto max-w-[1440px] px-4 pb-16">
+      <main className="mx-auto max-w-[1440px] px-4 pb-16 pt-4 sm:px-6">
         <PrintHeader />
 
-        <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
+        <div className="grid items-start gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
           <form
             aria-label={t.a11y.inputRail}
-            className="no-print order-2 pt-4 lg:order-1 lg:border-r lg:border-[color:var(--c-rule)] lg:pr-6"
+            className="panel no-print order-2 p-4 lg:order-1"
             onSubmit={(event) => {
               event.preventDefault();
               setRevealErrors(true);
@@ -230,8 +230,8 @@ export default function Page() {
             />
           </form>
 
-          <div id="results" className="order-1 min-w-0 pt-4 lg:order-2">
-            <ResultsBand
+          <div id="results" className="order-1 grid min-w-0 gap-4 lg:order-2">
+            <AnswerPanel
               eoq={derived.eoq}
               practical={derived.practical}
               missingLabels={missingLabels}
@@ -268,48 +268,6 @@ export default function Page() {
               />
             )}
 
-            {derived.eoq === null ? null : (
-              <section className="border-b border-[color:var(--c-rule)] px-4 py-3">
-                <dl className="grid grid-cols-2 gap-x-8 gap-y-1.5 sm:grid-cols-3">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <dt className="t-micro text-[color:var(--c-ink-muted)]">
-                      {t.results.averageInventory}
-                    </dt>
-                    <dd className="t-body num">
-                      <Figure value={derived.eoq.averageInventory} decimals={1} />
-                    </dd>
-                  </div>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <dt className="t-micro text-[color:var(--c-ink-muted)]">
-                      {t.results.closedForm}
-                    </dt>
-                    <dd className="t-body num">
-                      <Figure value={derived.eoq.relevantCostClosedForm} decimals={2} />
-                    </dd>
-                  </div>
-                  {derived.eoq.purchaseCost === null ? null : (
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="t-micro text-[color:var(--c-ink-muted)]">
-                        {t.results.purchaseCost}
-                      </dt>
-                      <dd className="t-body num">
-                        <Figure value={derived.eoq.purchaseCost} decimals={2} />
-                      </dd>
-                    </div>
-                  )}
-                  {derived.eoq.totalCost === null ? null : (
-                    <div className="flex items-baseline justify-between gap-3">
-                      <dt className="t-micro text-[color:var(--c-ink-muted)]">
-                        {t.results.totalCost}
-                      </dt>
-                      <dd className="t-body num">
-                        <Figure value={derived.eoq.totalCost} decimals={2} />
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              </section>
-            )}
           </div>
         </div>
 

@@ -1,235 +1,190 @@
 # Design plan
 
-Written before any CSS, per the brief. The self-critique at the end is part of
-the plan, not a postscript: three decisions changed because of it.
+Second revision. The first, kept at `design-plan-v1.md`, was reviewed and
+rejected: it still read as machine-made, and the brief it was written against has
+changed. This tool is now one of several in a family called **Supply Chain
+Tools**, and the client's three criteria are **clean, simple, and of the domain**.
 
----
+That reframes the job. A family needs a system its siblings can inherit — tokens,
+a shell, one way of setting a figure, one way of building a table — not a look
+invented for this page. Anything here that only makes sense for an EOQ
+calculator is a mistake.
 
-## 1. Colour
+## What was wrong with revision 1, in its own words
 
-**Source: greenbar continuous-form printer paper.** The banded pale-green and
-white fanfold stock that ran through IBM 1403 line printers, and that every
-stock listing, MRP report and purchase order came out on from the 1960s to the
-1980s. It is the native output medium of this exact subject, and its central
-idea is functional rather than decorative: the bands exist so the eye can hold
-a row across a wide numeric table. That is the same problem this tool has.
+Written down so the same reflexes are not repeated:
 
-The red is separate and older. On a stores bin card the reorder level was
-written in red, and a red signal clip marked the card when stock crossed it.
-Red here means one thing only: **the number you act on.**
+1. **The concept lived in the document, not on the screen.** Revision 1 was about
+   greenbar printer paper and a bin card's reorder red. On screen there were no
+   bands, because there were no tables yet, and no red at all. What a reader
+   actually saw was off-white, near-black and grey.
+2. **`#F6F8F5` against `#FFFFFF` against `#E3EBE0`** sit so close together that
+   they read as an absence of a decision rather than as a decision.
+3. **Uniform full-width bands.** Header, results, sub-results, chart, tables:
+   every section edge to edge, every one separated by the same hairline, all
+   evenly weighted. Nothing anywhere for the eye to hold on to.
+4. **The results row was a KPI strip.** Removing the border radius did not stop
+   it being four equal cells with a label over a number.
+5. **A period costume ages badly and does not generalise.** Greenbar was
+   specific, which was the point, but a family of a dozen tools cannot all be
+   1970s line-printer output without it becoming a gimmick.
 
-| Token         | Light     | Dark      | Job                                        |
-| ------------- | --------- | --------- | ------------------------------------------ |
-| `--paper`     | `#F6F8F5` | `#171E1A` | page ground                                |
-| `--band`      | `#E3EBE0` | `#1E2722` | the greenbar stripe, on alternating rows   |
-| `--surface`   | `#FFFFFF` | `#121815` | input fields and the chart plot area       |
-| `--rule`      | `#C3D0C0` | `#37453C` | hairlines, used sparingly                  |
-| `--ink`       | `#16211A` | `#E4EBE4` | figures and labels                         |
-| `--ink-muted` | `#56655A` | `#9AAA9D` | units, annotations, column headers         |
-| `--signal`    | `#B3352A` | `#E76257` | Q\*, the reorder point, the winning tier   |
+## 1. Where the domain shows up
 
-Seven tokens, one of which is an accent. Contrast measured, not assumed: ink on
-paper 15.5:1, muted on paper 5.8:1, muted on band 5.1:1, signal on paper 5.7:1,
-and every dark pairing at or above 4.6:1. All clear AA for normal text. The
-dark accent was moved twice to get there: the first two candidates read fine on
-the page ground and failed on the band.
+Not in the palette. A warehouse photograph, a truck glyph or a pallet-coloured
+accent would be decoration, and decoration is the first thing to read as
+generated.
 
-Dark mode earns its place: this is a long-dwell tool, read against a
-spreadsheet on a second screen, and the chart's thin traces hold up better on a
-dark ground. It is a second deliberate palette on the same seven tokens, not a
-`dark:` sweep. It is a green-slate, not a tinted near-black, and the accent is
-a true red rather than the acid-green-on-black that dark technical UIs default
-to.
+It shows up in **content only this domain has**:
 
-## 2. Type
+- **The sawtooth.** Inventory over time is the diagram every supply chain course
+  draws: stock falls at the demand rate, reaches the reorder point, an order goes
+  out, the lead time elapses, the delivery lands and the cycle restarts. This
+  tool already computes all four quantities that diagram needs — Q, the reorder
+  point, safety stock and the lead time — and does not draw it. Adding it is the
+  most domain-honest change available, and it is information rather than
+  ornament.
+- **The vocabulary**, already done: quantité économique de commande, coût de
+  passation, taux de service par cycle.
+- **The thresholds.** A reorder point is a line on a floor that stock crosses.
+  Warehouse floors are marked to ISO 3864: red stops you, everything else is
+  unmarked ground. That is the whole colour logic below.
 
-Revised after the first review: the original plan set the whole page in one
-monospace, and that read as machine-made on sight. Everything-in-mono is itself
-the tell, and IBM Plex Mono is the face that tell usually wears.
+## 2. Colour
 
-**Overpass Mono carries the figures.** It descends from Overpass, which is drawn
-from the US Federal Highway Administration's signage alphabet: type meant to be
-read fast and without ambiguity off a sign or an instrument. Practically, its
-punctuation is tight for a monospace, which matters more here than it sounds.
-Monospace gives a comma and a full stop a whole character cell, so a wider face
-sets 1,414.21 as `1, 414. 21`; six candidates were set side by side at display
-size and in a seven-column money table before this one was picked.
+A neutral system with two marked colours and nothing else.
 
-**Archivo carries the words.** A grotesque built for dense print, sturdy at
-small sizes, and a different genre from a signage mono rather than a
-near-neighbour of it.
+| Token           | Light     | Dark      | Job                                        |
+| --------------- | --------- | --------- | ------------------------------------------ |
+| `--ground`      | `#EEF1F4` | `#12161A` | the page behind the work                    |
+| `--surface`     | `#FFFFFF` | `#1A1F25` | the working surface, raised on the ground   |
+| `--surface-2`   | `#F5F7F9` | `#20262D` | table stripes, recessed cells               |
+| `--line`        | `#DCE1E6` | `#2E3640` | borders                                     |
+| `--line-strong` | `#B7C0C9` | `#3E4854` | table heads, dividers that carry weight     |
+| `--text`        | `#0F151B` | `#E8ECF0` | figures and headings                        |
+| `--text-2`      | `#586470` | `#9AA6B2` | labels, units, annotations                  |
+| `--accent`      | `#14456B` | `#7FB2DC` | structure and the primary action            |
+| `--signal`      | `#B3261E` | `#F08076` | a threshold: the reorder point, and only it |
 
-The division is strict, and it is the point: mono is load-bearing on the numeric
-layer, where telling digits apart and holding a column in line is the actual
-job, and it appears nowhere else. Labels, headings and the two sentences of
-prose are Archivo. Units and currency symbols are Archivo too, set smaller and
-lighter beside the figure they qualify, so the eye reads the digits first and
-the annotation second.
+**Ground against surface is the whole hierarchy.** Revision 1 had no containment,
+so every section floated at the same level. A recessed ground with the work
+raised on a white surface gives structure without a single shadow, gradient or
+rounded-card grid.
+
+**Two marked colours, one meaning each.** `--accent` is structure and the single
+primary action. `--signal` is a threshold crossed: the reorder point, and the
+recommended row of the discount comparison. If a third meaning ever wants a
+colour, the answer is that it does not get one.
+
+The accent is a deep slate navy, not a saturated brand blue: it sits under text
+without competing with it, and it is neither Tailwind's `blue-500` nor
+`indigo-600`.
+
+## 3. Type
+
+Unchanged from revision 1, because that part was arrived at by testing rather
+than by taste.
+
+**Overpass Mono** carries every figure. Descended from Overpass, drawn from the
+US highway signage alphabet. Chosen over five other monospaces on evidence:
+monospace gives a comma a whole character cell, so a wide face sets 1,414.21 as
+`1, 414. 21`. Candidates were set side by side at display size and in a
+seven-column money table before this one was picked.
+
+**Archivo** carries every word: labels, headings, units, currency symbols.
+
+The division is strict and load-bearing: mono means *this is a number*, Archivo
+means *this is a word*. Neither ever does the other's job.
 
 | Step        | Size          | Family  | Weight | Used for                        |
 | ----------- | ------------- | ------- | ------ | ------------------------------- |
-| `figure-lg` | 20-29px fluid | mono    | 700    | Q\*, the reorder point          |
-| `figure`    | 18px          | mono    | 400    | results band, table totals      |
-| `body`      | 13px          | Archivo | 400    | input values, labels            |
-| `label`     | 11.5px        | Archivo | 600    | column headers, section names   |
-| `micro`     | 11px          | Archivo | 400    | units, currency, notes          |
+| `display`   | 30-40px fluid | mono    | 700    | the one answer                  |
+| `figure-lg` | 20-24px       | mono    | 700    | supporting results              |
+| `figure`    | 16px          | mono    | 400    | table figures                   |
+| `body`      | 13px          | Archivo | 400    | input values, prose             |
+| `label`     | 11.5px        | Archivo | 600    | column heads, section names     |
+| `micro`     | 11px          | Archivo | 400    | units, annotations              |
 
-Sentence case throughout, including column headers. No tracked-out caps.
+Precision is unchanged and stated: money two decimals, quantities zero or one,
+percentages one — except a penalty measured against the optimum, which gets two,
+because how small it is happens to be the point of it.
 
-`font-variant-numeric: tabular-nums` on every figure. Money always two
-decimals, quantities zero (one where the fraction matters), percentages one.
-The single exception, stated rather than drifted into: a penalty measured
-against the optimum gets two decimals, because how small that number is happens
-to be the entire point of it. That covers the cost-penalty table, the chart
-readout and the cost of rounding to a case pack.
+## 4. Layout
 
-Figures are split at the decimal mark and laid out in a two-cell grid so
-columns align on the point, not ragged right, even where rows carry different
-precision. Result slots reserve their width so live updates do not shift the
-layout.
-
-The symbol stripe sets its variables in italic, as they are set in print. The
-mono has no true italic, so the symbols borrow the text face for it.
-
-## 3. Layout
-
-A 12-column grid, 24px gutter, 1440px maximum. The input rail is a fixed 340px;
-everything else flows. Alignment logic: **one vertical stripe of mathematical
-symbols runs down the left edge of the input rail** — D, S, H, i, C, d̄, L, σ_d,
-σ_L — so the rail reads like the variables list in a paper, and the input boxes
-that follow them share one left edge and one right edge.
-
-### Desktop, at or above 1100px
+### The shell, shared by every tool in the family
 
 ```
-┌─────────────────────────────────────────────┬──────────────────────────────┐
-│ Inventory ordering calculator               │ FR EN │ MAD ▾ │ Reset │ CSV  │  title block
-├──────────────────────┬──────────────────────┴──────────────────────────────┤
-│ Demand and cost      │  Q*            N            T            TRC        │
-│  D  [     10 000   ] │  707           14.14        25.8         1 414.21    │  results band
-│  S  [         50   ] │  units         orders/yr    days         MAD/yr     │
-│  H  (o) per unit     │  ordering 707.11 = holding 707.11   balanced        │
-│     ( ) rate × cost  ├─────────────────────────────────────────────────────┤
-│  i  [       20 %   ] │  cost                                               │
-│  C  [       5,00   ] │    |·.                                    ,-        │
-│                      │    | ·.                                ,-'  total   │
-│ Working year         │    |   `·._                        _,-'             │
-│  d  [        365   ] │    |       `-.__            __,--''                 │
-│ Case pack            │    |            `--+-------'      _,,--   holding   │
-│  m  [        100   ] │    |          _,-' | `--..__,,--''                  │
-│                      │    |      _,-'     |        ordering                │
-│ Reorder point        │    +----------------+--------------------------- Q  │
-│  mode (o)( )( )      │                    Q*                               │
-│  d  [ 50 ] L [  9 ]  ├─────────────────────────────────────────────────────┤
-│  sd [  8 ] sL [ 0 ]  │ All-units discount comparison                       │
-│  CSL[     95 %   ]   │ tier  range      C     Q     purchase  ord  hold  TC│
-│                      │ 1     1–999      5,00  700   25 000    350  350  ···│  banded rows
-│ Price breaks         │ 2     1000–1999  4,85  1000  24 250    245  485  ···│
-│  qty >=   unit cost  │ 3     2000+      4,75  2000  23 750    122  950  ···│  <- winner
-│  1        5,00    x  ├───────────────────────────┬─────────────────────────┤
-│  1000     4,85    x  │ Cost of the wrong Q       │ Sensitivity to input err│
-│  2000     4,75    x  │ Q/Q*   Q      TRC    +%   │ param  dev   Q*    TRC  │
-│  + add tier          │ 0.5    354    1 768  25.0 │ D      -20%  632   1265 │
-│                      │ 1.0    707    1 414   0.0 │ D      -10%  671   1342 │
-└──────────────────────┴───────────────────────────┴─────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│ Supply Chain Tools / Inventory ordering          FR EN  MAD  ...     │  shell
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│   ┌────────────────────┐  ┌───────────────────────────────────────┐  │
+│   │ Demand and cost    │  │  Order                                │  │
+│   │                    │  │       707.1 units                     │  │  the answer,
+│   │ D  [     10 000  ] │  │  ───────────────────────────────────  │  │  given room
+│   │ S  [        50   ] │  │  14.14 /yr   25.8 days  1 414,21 MAD  │  │
+│   │ H  [         2   ] │  └───────────────────────────────────────┘  │
+│   │                    │  ┌───────────────────────────────────────┐  │
+│   │ Reorder point      │  │  Inventory over time    (sawtooth)    │  │
+│   │ ...                │  └───────────────────────────────────────┘  │
+│   │                    │  ┌───────────────────────────────────────┐  │
+│   │ Price breaks       │  │  Annual cost            (cost curve)  │  │
+│   │ ...                │  └───────────────────────────────────────┘  │
+│   └────────────────────┘  ┌───────────────────────────────────────┐  │
+│                           │  comparison and sensitivity tables    │  │
+│                           └───────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────┘
+      ground shows between panels; every panel is a surface
 ```
 
-Inputs, the four headline results and the curve all sit above the fold at
-1280×800. The tables are the only thing you scroll for.
+The shell carries the family name and the tool name, and is the piece a sibling
+tool imports unchanged. Everything below it belongs to this tool.
 
-### Mobile, 360px and up
+**The answer gets its own panel and its own size.** Q\* is why someone opened the
+page; the other three figures are supporting detail, set smaller and beneath a
+rule rather than beside it as equals. That asymmetry is the hierarchy revision 1
+lacked.
 
-```
-┌────────────────────────┐
-│ Inventory ordering     │
-│ calculator             │
-│ FR EN │ MAD ▾ │ ⋯      │
-├────────────────────────┤
-│ Q*   707 units         │  sticky: stays put while
-│ TRC  1 414,21 MAD/yr   │  you edit the inputs below
-├────────────────────────┤
-│ Demand and cost        │
-│  D  [      10 000    ] │
-│  S  [          50    ] │
-│  ...                   │
-├────────────────────────┤
-│ [ chart, full width ]  │
-├────────────────────────┤
-│ [ tables, scroll-x     │
-│   inside their own     │
-│   container ]          │
-└────────────────────────┘
-```
+### Narrow, 360px and up
 
-One column. The two figures a buyer came for stay pinned to the top of the
-viewport while the inputs are edited, so the answer never has to be hunted
-for. Tables scroll horizontally inside themselves; the page body never does.
+One column. Answer panel first and pinned, then inputs, then diagrams, then
+tables. Unchanged in substance from what is already built and tested.
 
-## 4. Signature element
+## 5. Signature element
 
-**The crossing point on the cost curve.** Ordering cost and holding cost meet
-exactly at Q\*, and that intersection is the whole argument of the EOQ model.
-So it gets the boldness budget:
+**The sawtooth.** It is the domain's own picture, it is drawn from numbers the
+tool already has, and it puts the reorder point where it belongs: a marked line
+that a falling stock level crosses. That crossing is the only place `--signal`
+appears in the diagram, and it is the same red that marks the reorder point in
+the results.
 
-- Three traces, all in ink, separated by weight and dash pattern rather than by
-  colour, and labelled inline at their right-hand ends the way a plotted
-  technical chart is, rather than by a legend.
-- A red drop-line from the crossing to the x-axis, the only red on the page
-  besides the reorder point.
-- A crosshair that tracks pointer, touch and keyboard, reading out cost at any
-  Q and the penalty against the optimum, into a fixed-width panel that does not
-  reflow as the numbers change.
-- Under a discount schedule the total-cost trace breaks at each price break,
-  drawn with a filled endpoint where a tier starts and a hollow one where it
-  ends — the standard notation for a half-open interval.
+The cost curve stays, and keeps its crossing at Q\*, but it is no longer asked to
+be the hero as well as the explanation. Two diagrams, one job each: the sawtooth
+says *what happens*, the cost curve says *why this quantity*.
 
-Everything else stays quiet: no shadows, no cards, no fills, rules only where a
-band cannot do the job.
+## 6. Self-critique
 
----
+Would I have produced this for any other calculator brief?
 
-## 5. Self-critique
+**The ground-and-surface shell — partly.** It is the standard clean-application
+shape and I would reach for it again. It stays because a family of tools needs a
+consistent frame, and because revision 1's flat bands failed for the opposite
+reason. What stops it being generic is what it contains, not its outline.
 
-The test: would I have produced roughly this for any other calculator brief?
+**The sawtooth — no.** It exists only in inventory management, it is drawn from
+values this tool already computes, and it would be meaningless on any other
+calculator. This is where the domain lives.
 
-**Colour — passes.** Greenbar banding is specific to bulk numeric report
-output. I would not reach for it on a mortgage or tip calculator, and the red
-carries a domain meaning rather than an emphasis level.
+**A navy accent — yes, and that is the risk.** Neutral grey plus navy plus red is
+the conventional operational palette, and conventional is a step from generic. It
+stays, because across a family of tools legibility and neutrality beat novelty,
+and because the discipline is the point: two marked colours, one meaning each,
+everything else unmarked. If it reads flat once built, the fix is more contrast
+between ground and surface, not a more interesting hue.
 
-**A 340px input rail beside a large result panel — fails.** That is the shape of
-every calculator I would ever draw, and information adjacency demands it here,
-so the layout stays. What changed is what fills it: the **symbol stripe** down
-the left edge, D / S / H / i / C as a column of mathematical variables. Specific
-to a tool driven by named formulas, and meaningless on a tip calculator.
+**Cut: greenbar banding.** Table stripes remain, because a wide numeric table
+genuinely needs them, but they are `--surface-2` at low contrast now and carry no
+period reference. The idea was sound; the costume was not.
 
-**Three colour-coded curves — cut.** My first instinct was the universal
-dashboard move: a colour per series plus a legend with three chips. Replaced
-with one ink colour, three dash weights and inline end-labels. Reads as an
-engineering plot instead of an analytics widget, survives colour blindness,
-and leaves red free to mean one thing.
-
-**Four result cards — cut.** First instinct was Q\*, N, T and TRC in four
-rounded boxes. Replaced with a single ruled band divided by vertical hairlines:
-a meter panel, not a card grid. It also removes the temptation to give each
-card an icon.
-
-**A second type family — cut, then restored.** The first plan set everything in
-one monospace, on the reasoning that a tool with two sentences of prose does not
-need a text face. That was wrong twice over: a page entirely in mono is itself a
-generated-design signature, and it wastes the contrast between a figure and the
-label naming it. The pairing now carries real information — mono means this is a
-number, Archivo means this is a word — and the two faces come from different
-genres rather than from one superfamily.
-
-**The blank first view.** The brief asked for a worked example preloaded on
-first visit; the client asked for a clear field instead, with the example one
-button away. The empty state has to earn its place accordingly: it names the
-three figures still needed rather than sitting there empty.
-
-**Border radius.** Not zero, which would be a deliberate hard-edge statement and
-part of the broadsheet pastiche the brief rules out. 2px on fields and buttons
-only, which is what an instrument fascia actually looks like. Panels have none.
-
-**Rules.** Bands separate rows, not rules. Hairlines appear in four places: under
-the title block, under a table header, between results in the band, and around
-the chart plot area. Anywhere else would be the hairline-everywhere tell.
+**Cut: a third diagram.** An order-cycle timeline was drafted beside the
+sawtooth. It said the same thing with less information. One diagram per idea.

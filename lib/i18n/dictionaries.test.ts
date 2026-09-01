@@ -41,6 +41,8 @@ const SHARED_BY_DESIGN = new Set([
   'fields.demandStdDev.symbol',
   'fields.leadTimeStdDev.symbol',
   'holdingMode.derived',
+  // A product name, not a phrase to translate.
+  'app.family',
   // Cognates: the French word is the English word.
   'penalty.optimum',
   'csv.section',

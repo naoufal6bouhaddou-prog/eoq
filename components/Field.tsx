@@ -77,7 +77,7 @@ export function Field({
 
       <div className="col-start-1 row-start-2 flex items-center justify-end pr-1">
         {symbol === undefined || symbol === '' ? null : (
-          <span aria-hidden="true" className="symbol t-body text-[color:var(--c-ink-muted)]">
+          <span aria-hidden="true" className="symbol t-body text-[color:var(--text-2)]">
             {symbol}
           </span>
         )}
@@ -102,7 +102,7 @@ export function Field({
       </div>
 
       {showError ? (
-        <p id={errorId} className="col-start-2 row-start-3 t-micro pt-1 text-[color:var(--c-signal)]">
+        <p id={errorId} className="col-start-2 row-start-3 t-micro pt-1 text-[color:var(--signal)]">
           {error}
         </p>
       ) : null}

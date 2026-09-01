@@ -42,8 +42,8 @@ export function PriceBreakEditor({ rows, onChange, issues, disabled = false }: P
   return (
     <div className="space-y-1.5">
       <div className="grid grid-cols-[1fr_1fr_1.75rem] gap-x-2">
-        <span className="t-micro text-[color:var(--c-ink-muted)]">{t.discounts.minQty}</span>
-        <span className="t-micro text-[color:var(--c-ink-muted)]">
+        <span className="t-micro text-[color:var(--text-2)]">{t.discounts.minQty}</span>
+        <span className="t-micro text-[color:var(--text-2)]">
           {t.discounts.columns.unitCost} <span className="unit">{symbol}</span>
         </span>
         <span />
@@ -90,7 +90,7 @@ export function PriceBreakEditor({ rows, onChange, issues, disabled = false }: P
 
               <button
                 type="button"
-                className="control t-micro justify-self-center px-1.5 py-1"
+                className="btn btn-quiet t-micro justify-self-center px-1.5 py-1"
                 disabled={disabled || rows.length <= 1}
                 aria-label={`${t.actions.removeTier}, ${tierName}`}
                 onClick={() => removeRow(index)}
@@ -100,7 +100,7 @@ export function PriceBreakEditor({ rows, onChange, issues, disabled = false }: P
             </div>
 
             {rowIssues.map((issue) => (
-              <p key={issue.code} className="t-micro text-[color:var(--c-signal)]">
+              <p key={issue.code} className="t-micro text-[color:var(--signal)]">
                 {t.schedule[issue.code]}
               </p>
             ))}
@@ -109,10 +109,10 @@ export function PriceBreakEditor({ rows, onChange, issues, disabled = false }: P
       })}
 
       {scheduleIssue === undefined ? null : (
-        <p className="t-micro text-[color:var(--c-signal)]">{t.schedule[scheduleIssue.code]}</p>
+        <p className="t-micro text-[color:var(--signal)]">{t.schedule[scheduleIssue.code]}</p>
       )}
 
-      <button type="button" className="control t-micro" disabled={disabled} onClick={addRow}>
+      <button type="button" className="btn t-micro" disabled={disabled} onClick={addRow}>
         {t.actions.addTier}
       </button>
     </div>

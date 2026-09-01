@@ -59,7 +59,9 @@ test('reads out cost where the pointer is', async ({ page }) => {
   expect(box).not.toBeNull();
   if (box === null) return;
 
-  await page.mouse.move(box.x + box.width * 0.85, box.y + box.height / 2);
+  // hover() with a position scrolls the element into view and resolves the
+  // coordinates against it, rather than against a viewport that may have moved.
+  await plot.hover({ position: { x: box.width * 0.85, y: box.height / 2 } });
   await expect
     .poll(async () => Number((await figure(page, 'readout-quantity')).replace(/,/g, '')))
     .toBeGreaterThan(1000);
