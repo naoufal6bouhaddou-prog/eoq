@@ -126,6 +126,26 @@ page and a half.
 - The case pack multiple applies to the classic result, not to the discount
   comparison.
 
+## Accessibility
+
+Audited against the rendered page rather than against intentions, and held
+there by `e2e/accessibility.spec.ts`: every control and every diagram carries an
+accessible name, headings run without gaps under a single `h1`, focus is
+visible on everything reachable, the chart readout is a real slider that
+responds to arrow keys and announces its value, targets meet the 24px minimum,
+motion is suppressed on request, and the page never scrolls sideways at 360,
+390, 768, 1024 or 1440.
+
+Both diagrams publish their data as a table for anyone not reading the picture.
+Those tables uncovered a subtle bug worth knowing about: `.sr-only` does not
+work applied to a `<table>`, because a table box will not shrink below its
+min-content and simply ignores `width: 1px`. They are wrapped in a hidden
+`div` instead.
+
+Contrast was measured across every token pairing before any of it was written.
+Everything clears WCAG AA in both palettes; the accent needed a companion
+`--on-accent` token because it cannot carry white text in the dark palette.
+
 ## Verification
 
 `lib/eoq.test.ts` carries the worked cases the models are checked against,

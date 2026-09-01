@@ -18,7 +18,7 @@ export function PrintHeader() {
   const { t } = useSettings();
   return (
     <div className="print-only mb-2 border-b border-[color:var(--line)] pb-1">
-      <h1 className="t-body font-semibold">{t.app.name}</h1>
+      <p className="t-body font-semibold">{t.app.name}</p>
     </div>
   );
 }

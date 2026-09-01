@@ -595,27 +595,32 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
         )}
       </div>
 
-      <table className="sr-only">
-        <caption>{t.chart.tableCaption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{t.chart.tableQuantity}</th>
-            {discounts === null ? <th scope="col">{t.chart.tableOrdering}</th> : null}
-            {discounts === null ? <th scope="col">{t.chart.tableHolding}</th> : null}
-            <th scope="col">{t.chart.tableTotal}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tableRows.map((row) => (
-            <tr key={row.quantity}>
-              <td>{formatQuantity(row.quantity, locale)}</td>
-              {discounts === null ? <td>{formatMoney(row.ordering ?? 0, locale)}</td> : null}
-              {discounts === null ? <td>{formatMoney(row.holding ?? 0, locale)}</td> : null}
-              <td>{formatMoney(row.total, locale)}</td>
+      {/* Wrapped rather than hidden directly: a table box will not shrink
+          below its min-content, so width:1px on the table itself is ignored
+          and it keeps occupying layout even while clipped out of sight. */}
+      <div className="sr-only">
+        <table>
+          <caption>{t.chart.tableCaption}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t.chart.tableQuantity}</th>
+              {discounts === null ? <th scope="col">{t.chart.tableOrdering}</th> : null}
+              {discounts === null ? <th scope="col">{t.chart.tableHolding}</th> : null}
+              <th scope="col">{t.chart.tableTotal}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tableRows.map((row) => (
+              <tr key={row.quantity}>
+                <td>{formatQuantity(row.quantity, locale)}</td>
+                {discounts === null ? <td>{formatMoney(row.ordering ?? 0, locale)}</td> : null}
+                {discounts === null ? <td>{formatMoney(row.holding ?? 0, locale)}</td> : null}
+                <td>{formatMoney(row.total, locale)}</td>
+              </tr>
+            ))}
+          </tbody>
+          </table>
+      </div>
     </section>
   );
 }

@@ -188,3 +188,87 @@ period reference. The idea was sound; the costume was not.
 
 **Cut: a third diagram.** An order-cycle timeline was drafted beside the
 sawtooth. It said the same thing with less information. One diagram per idea.
+
+---
+
+## 7. Final pass against the banned-patterns list
+
+Step 12 of the build order: reread §3.3 line by line against what was actually
+built, mechanically wherever a grep can settle it.
+
+### Checked and absent
+
+No gradients of any kind, no gradient text, no animated blobs, no
+glassmorphism, no `backdrop-blur`. No box shadows: the hierarchy is ground
+against surface, which is why none were needed. Tailwind's default `blue-500`,
+`indigo-600`, and every violet, purple, sky and cyan: not present, in either
+palette.
+
+No transitions and no keyframes anywhere, so there is no fade-and-slide-up
+entrance and no hover lift to suppress. The reduced-motion block guards
+something that does not currently exist, which is the right way round.
+
+No tracked-out capitals: the label step is 11.5px at 600 weight with 0.005em
+tracking, sentence case, and there are no eyebrow labels above headings at all.
+No accented word in a headline. No arrows appended to buttons or links. No
+01 / 02 / 03 markers. No icon library, no icon circles, no emoji: the interface
+contains no icons whatsoever.
+
+In the copy: none of the eleven banned words, no exclamation marks, no
+rhetorical headings, no "not just X but Y", and no em dashes. Those last four
+are held by tests rather than by vigilance. Buttons name what happens —
+Download CSV, Load example, Clear all fields, Add tier — and errors say what is
+wrong and how to fix it without apologising.
+
+The only middle dots in the interface are multiplication signs inside the
+formula `TRC = √(2·D·S·H)`. They are not a meta separator, and the one place a
+meta separator had crept in was removed at step 4.
+
+### Judged, and kept, with reasons
+
+**Panels of uniform treatment.** Six sections share one container style, which
+is adjacent to "content chopped into identical rounded cards". What the brief
+identifies as the tell is specifically the large radius and the soft grey
+shadow; these have a 6px radius, a 1px border and no shadow, and uniform
+containers are how an application organises work rather than how a landing page
+decorates it. The answer is separated by size, not by a different box: 40px
+against 24px and below. Adding a coloured stripe to mark it further was
+considered and rejected as ornament.
+
+**A tinted near-black in the dark palette.** `--ground` is `#12161A`, which is a
+blue-tinted near-black, and the brief rules those out where they stand in for a
+considered dark. This one does not stand in for anything: it is one of nine
+tokens with a measured ramp — ground, surface, surface-2, two line weights, two
+text weights and two marked colours — and every pairing was measured against
+WCAG before a line of it was written.
+
+**Navy, grey and red is a conventional operational palette.** Flagged in §6 and
+still true. It stays because across a family of tools legibility and neutrality
+beat novelty, and the discipline is the point: two marked colours, one meaning
+each, everything else unmarked.
+
+**The header takes about 210px before the answer on a 360px screen.** The five
+actions wrap to four rows in French, where the labels are longest. The answer
+panel's figure is still on the first screen of a 780px viewport, so it was left
+alone rather than solved with icons, which would have introduced the decorative
+icon set the brief rules out.
+
+### Found and fixed in the accessibility pass
+
+Four defects, none of them cosmetic, all found by auditing the rendered page
+rather than by rereading the source:
+
+1. **`.sr-only` does not work on a `<table>`.** A table box will not shrink
+   below its min-content, so `width: 1px` was ignored and both hidden data
+   tables kept occupying about 320 by 150 pixels of layout while clipped out of
+   sight. That was the whole of the remaining horizontal overflow at 360px.
+   They are wrapped in a hidden `div` now.
+2. **Flex items default to `min-width: auto`**, so the identity line in a panel
+   head refused to shrink and pushed its panel past the viewport.
+3. **Grid items default the same way**, so a panel holding a wide table pushed
+   the page sideways instead of letting its own scroller do the work.
+4. **The remove-tier buttons were 22px wide**, under the 24px minimum target
+   size WCAG 2.2 asks for. Controls now have a 28px floor.
+
+Also: there were two `<h1>` elements, the shell's and the print sheet's. The
+print sheet's title line is a paragraph now.

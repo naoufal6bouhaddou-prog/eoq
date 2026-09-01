@@ -323,27 +323,32 @@ export function InventoryProfile({
         </svg>
       </div>
 
-      <table className="sr-only">
-        <caption>{t.profile.tableCaption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{t.profile.tableEvent}</th>
-            <th scope="col">{t.profile.tableTime}</th>
-            <th scope="col">{t.profile.tableLevel}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {events.map((event) => (
-            <tr key={event.key}>
-              <td>{event.label}</td>
-              <td>
-                {formatQuantity(event.time, locale, 1)} {periodLabel}
-              </td>
-              <td>{formatQuantity(event.level, locale)}</td>
+      {/* Wrapped rather than hidden directly: a table box will not shrink
+          below its min-content, so width:1px on the table itself is ignored
+          and it keeps occupying layout even while clipped out of sight. */}
+      <div className="sr-only">
+        <table>
+          <caption>{t.profile.tableCaption}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t.profile.tableEvent}</th>
+              <th scope="col">{t.profile.tableTime}</th>
+              <th scope="col">{t.profile.tableLevel}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {events.map((event) => (
+              <tr key={event.key}>
+                <td>{event.label}</td>
+                <td>
+                  {formatQuantity(event.time, locale, 1)} {periodLabel}
+                </td>
+                <td>{formatQuantity(event.level, locale)}</td>
+              </tr>
+            ))}
+          </tbody>
+          </table>
+      </div>
     </section>
   );
 }
