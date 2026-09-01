@@ -8,6 +8,7 @@ import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
 import { ResultsBand } from '@/components/ResultsBand';
+import { SensitivityTables } from '@/components/SensitivityTables';
 import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
 import { StickySummary } from '@/components/StickySummary';
 import { TitleBlock } from '@/components/TitleBlock';
@@ -238,6 +239,13 @@ export default function Page() {
                 input={derived.eoqInput}
                 eoq={derived.eoq}
                 discounts={discountChart}
+              />
+            )}
+
+            {derived.penaltyRows.length === 0 ? null : (
+              <SensitivityTables
+                penaltyRows={derived.penaltyRows}
+                sensitivityRows={derived.sensitivityRows}
               />
             )}
 

@@ -89,7 +89,7 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
           </p>
 
           <div className="table-scroll px-4 py-2">
-            <table className="banded t-body">
+            <table className="banded t-body" data-testid="discount-table">
               <caption className="sr-only">{t.sections.discounts}</caption>
               <thead>
                 <tr>

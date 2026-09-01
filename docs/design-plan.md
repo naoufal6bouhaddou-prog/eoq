@@ -78,6 +78,11 @@ Sentence case throughout, including column headers. No tracked-out caps.
 
 `font-variant-numeric: tabular-nums` on every figure. Money always two
 decimals, quantities zero (one where the fraction matters), percentages one.
+The single exception, stated rather than drifted into: a penalty measured
+against the optimum gets two decimals, because how small that number is happens
+to be the entire point of it. That covers the cost-penalty table, the chart
+readout and the cost of rounding to a case pack.
+
 Figures are split at the decimal mark and laid out in a two-cell grid so
 columns align on the point, not ragged right, even where rows carry different
 precision. Result slots reserve their width so live updates do not shift the

@@ -258,6 +258,21 @@ table.banded > tbody > tr[data-best='true'] {
   box-shadow: inset 3px 0 0 0 var(--c-signal);
 }
 
+/* The reference row of a sensitivity table is a landmark, not an action, so
+   it is marked in ink rather than in the accent. */
+table.banded > tbody > tr[data-optimum='true'] {
+  box-shadow: inset 3px 0 0 0 var(--c-ink);
+}
+
+table.banded > tbody > tr[data-optimum='true'] > th,
+table.banded > tbody > tr[data-optimum='true'] > td {
+  font-weight: 700;
+}
+
+table.banded > tbody > tr[data-optimum='true'] > th[scope='rowgroup'] {
+  font-weight: 400;
+}
+
 table.banded > tbody > tr[data-feasible='false'] {
   color: var(--c-ink-muted);
 }

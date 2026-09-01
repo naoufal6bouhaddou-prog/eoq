@@ -11,8 +11,14 @@ import { expect, test, type Page } from '@playwright/test';
 const SCHEDULE =
   '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&br=1:38.5,1500:37.2,4000:36.1&lang=en';
 
+/** Rows of the comparison table specifically: the sensitivity tables on the
+ *  same page share its banded styling. */
+function rows(page: Page) {
+  return page.getByTestId('discount-table').locator('tbody tr');
+}
+
 function cell(page: Page, row: number, column: number) {
-  return page.locator('table.banded tbody tr').nth(row).locator('td.n').nth(column);
+  return rows(page).nth(row).locator('td.n').nth(column);
 }
 
 /** Column order of the numeric cells in the comparison table. */
@@ -26,7 +32,7 @@ const TOTAL = 6;
 
 test('evaluates every tier, not just the winner', async ({ page }) => {
   await page.goto(SCHEDULE);
-  await expect(page.locator('table.banded tbody tr')).toHaveCount(3);
+  await expect(rows(page)).toHaveCount(3);
 });
 
 test('discards a tier whose own EOQ sits above the range where its price applies', async ({
@@ -38,7 +44,7 @@ test('discards a tier whose own EOQ sits above the range where its price applies
   await expect(cell(page, 0, TIER_EOQ)).toHaveText('1,596.9');
   await expect(cell(page, 0, ORDER_QUANTITY)).toHaveText('–');
   await expect(cell(page, 0, TOTAL)).toHaveText('–');
-  await expect(page.locator('tbody tr').nth(0)).toContainText('EOQ above this range');
+  await expect(rows(page).nth(0)).toContainText('EOQ above this range');
 });
 
 test('keeps a tier at its own EOQ when that falls inside its range', async ({ page }) => {
@@ -46,7 +52,7 @@ test('keeps a tier at its own EOQ when that falls inside its range', async ({ pa
 
   await expect(cell(page, 1, TIER_EOQ)).toHaveText('1,624.6');
   await expect(cell(page, 1, ORDER_QUANTITY)).toHaveText('1,624.6');
-  await expect(page.locator('tbody tr').nth(1)).toContainText('EOQ falls in range');
+  await expect(rows(page).nth(1)).toContainText('EOQ falls in range');
 });
 
 test('buys up to the break when a tier EOQ falls below it', async ({ page }) => {
@@ -54,7 +60,7 @@ test('buys up to the break when a tier EOQ falls below it', async ({ page }) => 
 
   await expect(cell(page, 2, TIER_EOQ)).toHaveText('1,649.2');
   await expect(cell(page, 2, ORDER_QUANTITY)).toHaveText('4,000.0');
-  await expect(page.locator('tbody tr').nth(2)).toContainText('Raised to the break');
+  await expect(rows(page).nth(2)).toContainText('Raised to the break');
 });
 
 test('adds purchase, ordering and holding into the tier total', async ({ page }) => {
@@ -124,15 +130,15 @@ test('refuses a fractional break quantity', async ({ page }) => {
 
 test('adds and removes tiers', async ({ page }) => {
   await page.goto(SCHEDULE);
-  await expect(page.locator('table.banded tbody tr')).toHaveCount(3);
+  await expect(rows(page)).toHaveCount(3);
 
   await page.getByRole('button', { name: 'Add tier' }).click();
   await page.getByLabel('Quantity from, Tier 4', { exact: true }).fill('8000');
   await page.getByLabel('Unit cost, Tier 4', { exact: true }).fill('35.40');
-  await expect(page.locator('table.banded tbody tr')).toHaveCount(4);
+  await expect(rows(page)).toHaveCount(4);
 
   await page.getByRole('button', { name: 'Remove tier, Tier 4' }).click();
-  await expect(page.locator('table.banded tbody tr')).toHaveCount(3);
+  await expect(rows(page)).toHaveCount(3);
 });
 
 test('holds the comparison back until the schedule is valid', async ({ page }) => {
@@ -140,5 +146,5 @@ test('holds the comparison back until the schedule is valid', async ({ page }) =
 
   await page.getByLabel('Unit cost, Tier 2', { exact: true }).fill('0');
   await expect(page.getByText('Unit cost must be greater than 0')).toBeVisible();
-  await expect(page.locator('table.banded tbody tr')).toHaveCount(0);
+  await expect(rows(page)).toHaveCount(0);
 });
