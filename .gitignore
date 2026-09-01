@@ -7,3 +7,6 @@ next-env.d.ts
 .vercel
 playwright-report/
 test-results/
+
+# local preview screenshots, not part of the app
+.preview/
