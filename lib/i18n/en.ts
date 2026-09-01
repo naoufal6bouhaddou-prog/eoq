@@ -110,6 +110,8 @@ export const en = {
     notBalanced: 'Ordering and holding cost differ, so this is not Q*',
     closedForm: 'TRC = √(2·D·S·H)',
     orderWhole: 'Order in whole units: round up to',
+    serviceLevelNote:
+      'The probability of not stocking out during a replenishment cycle. This is not fill rate.',
   },
 
   units: {

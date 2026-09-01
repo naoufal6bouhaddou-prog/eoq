@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CostCurve } from '@/components/CostCurve';
 import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
+import { ReorderPanel } from '@/components/ReorderPanel';
 import { ResultsBand } from '@/components/ResultsBand';
 import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
 import { StickySummary } from '@/components/StickySummary';
@@ -117,9 +118,23 @@ export default function Page() {
     [locale],
   );
 
-  const missingLabels = derived.missing.map(
-    (field: FieldName) => t.fields[field].label,
-  );
+  const labelFor = (field: FieldName): string => t.fields[field].label;
+
+  // Split what is still missing by the section that is waiting on it, so each
+  // empty state names its own gaps rather than the whole form's.
+  const REORDER_FIELDS: FieldName[] = [
+    'averageDemand',
+    'leadTime',
+    'demandStdDev',
+    'leadTimeStdDev',
+    'cycleServiceLevel',
+  ];
+  const missingLabels = derived.missing
+    .filter((field) => !REORDER_FIELDS.includes(field))
+    .map(labelFor);
+  const missingReorderLabels = derived.missing
+    .filter((field) => REORDER_FIELDS.includes(field))
+    .map(labelFor);
 
   const settings = useMemo(() => ({ locale, currency, theme, t }), [locale, currency, theme, t]);
 
@@ -199,6 +214,15 @@ export default function Page() {
               practical={derived.practical}
               missingLabels={missingLabels}
             />
+
+            {state.reorderEnabled ? (
+              <ReorderPanel
+                reorder={derived.reorder}
+                eoq={derived.eoq}
+                periodUnit={state.periodUnit}
+                missingLabels={missingReorderLabels}
+              />
+            ) : null}
 
             {derived.eoq === null || derived.eoqInput === null ? null : (
               <CostCurve

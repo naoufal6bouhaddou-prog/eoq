@@ -113,6 +113,8 @@ export const fr: Dictionary = {
     notBalanced: 'Les deux coûts diffèrent, cette quantité n’est donc pas Q*',
     closedForm: 'CTP = √(2·D·S·H)',
     orderWhole: 'Commander en unités entières : arrondir à',
+    serviceLevelNote:
+      'Probabilité de ne pas être en rupture pendant un cycle de réapprovisionnement. Ce n’est pas le taux de satisfaction.',
   },
 
   units: {
