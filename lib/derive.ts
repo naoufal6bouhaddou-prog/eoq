@@ -54,6 +54,8 @@ export interface Derived {
   practical: PracticalQuantity | null;
   reorder: ReorderResult | null;
   discounts: DiscountAnalysis | null;
+  /** The parsed schedule, so the chart draws exactly what the table compares. */
+  priceBreaks: PriceBreak[];
   penaltyRows: CostPenaltyRow[];
   sensitivityRows: InputSensitivityRow[];
 }
@@ -202,8 +204,10 @@ export function derive(state: ToolState, locale: Locale): Derived {
   /* Discounts. */
   let scheduleIssues: ScheduleIssue[] = [];
   let discounts: DiscountAnalysis | null = null;
+  let priceBreaks: PriceBreak[] = [];
   if (state.discountsEnabled) {
     const breaks = parsePriceBreaks(state, locale);
+    priceBreaks = breaks;
     scheduleIssues = validatePriceBreaks(breaks);
     if (
       scheduleIssues.length === 0 &&
@@ -228,6 +232,7 @@ export function derive(state: ToolState, locale: Locale): Derived {
     practical,
     reorder,
     discounts,
+    priceBreaks,
     penaltyRows,
     sensitivityRows,
   };

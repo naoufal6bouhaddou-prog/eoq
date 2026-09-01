@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { CostCurve } from '@/components/CostCurve';
 import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ResultsBand } from '@/components/ResultsBand';
@@ -122,6 +123,20 @@ export default function Page() {
 
   const settings = useMemo(() => ({ locale, currency, theme, t }), [locale, currency, theme, t]);
 
+  // The chart draws the discount curve only when there is a valid schedule to
+  // draw; otherwise it shows the three classic traces.
+  const discountChart = useMemo(
+    () =>
+      derived.discounts !== null && derived.basis !== null
+        ? {
+            basis: derived.basis,
+            breaks: derived.priceBreaks,
+            analysis: derived.discounts,
+          }
+        : null,
+    [derived.discounts, derived.basis, derived.priceBreaks],
+  );
+
   return (
     <SettingsProvider value={settings}>
       <a href="#results" className="sr-only">
@@ -184,6 +199,14 @@ export default function Page() {
               practical={derived.practical}
               missingLabels={missingLabels}
             />
+
+            {derived.eoq === null || derived.eoqInput === null ? null : (
+              <CostCurve
+                input={derived.eoqInput}
+                eoq={derived.eoq}
+                discounts={discountChart}
+              />
+            )}
 
             {derived.eoq === null ? null : (
               <section className="border-b border-[color:var(--c-rule)] px-4 py-3">

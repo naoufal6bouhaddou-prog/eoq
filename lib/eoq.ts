@@ -585,15 +585,22 @@ export function sampleCostCurve(
 export interface DiscountCurveSegment {
   tierIndex: number;
   unitCost: number;
+  /** Left end of the drawn segment, clipped to the visible window. */
   from: number;
-  /** Upper end of this segment. The last tier is drawn to the chart edge. */
+  /** Right end of the drawn segment, clipped to the visible window. */
   to: number;
-  /** The segment includes its left endpoint: the break price applies at minQty. */
-  startClosed: true;
-  /** The segment excludes its right endpoint: the next tier's price applies there. */
-  endClosed: false;
-  /** True on the final, unbounded tier, where no open endpoint is drawn. */
-  unbounded: boolean;
+  /**
+   * The segment starts where its tier starts, so the price break is reached
+   * here and the endpoint belongs to this segment: draw it closed. False when
+   * the tier began off the left edge of the chart.
+   */
+  startsAtBreak: boolean;
+  /**
+   * The segment stops where the next tier starts, so this price no longer
+   * applies at that quantity: draw the endpoint open. False on the last tier
+   * and wherever the chart edge cut the segment short.
+   */
+  endsAtBreak: boolean;
   points: { quantity: number; total: number }[];
 }
 
@@ -608,6 +615,7 @@ export function sampleDiscountCurve(
   orderCost: number,
   basis: HoldingBasis,
   breaks: readonly PriceBreak[],
+  chartMin: number,
   chartMax: number,
   stepsPerSegment: number,
 ): DiscountCurveSegment[] {
@@ -615,16 +623,20 @@ export function sampleDiscountCurve(
 
   breaks.forEach((tier, index) => {
     const next = breaks[index + 1];
-    const unbounded = next === undefined;
-    const to = unbounded ? chartMax : next.minQty;
-    if (to <= tier.minQty) return;
+    const tierEnd = next === undefined ? chartMax : next.minQty;
+
+    // Clip to the window the chart is actually showing, so a tier that starts
+    // off the left edge is drawn from the edge rather than from its own break.
+    const from = Math.max(tier.minQty, chartMin);
+    const to = Math.min(tierEnd, chartMax);
+    if (to <= from) return;
 
     const holdingCostPerUnit = holdingCostForTier(basis, tier.unitCost);
     const purchase = annualDemand * tier.unitCost;
     const points: { quantity: number; total: number }[] = [];
 
     for (let step = 0; step <= stepsPerSegment; step += 1) {
-      const quantity = tier.minQty + ((to - tier.minQty) * step) / stepsPerSegment;
+      const quantity = from + ((to - from) * step) / stepsPerSegment;
       if (quantity <= 0) continue;
       points.push({
         quantity,
@@ -638,11 +650,10 @@ export function sampleDiscountCurve(
     segments.push({
       tierIndex: index,
       unitCost: tier.unitCost,
-      from: tier.minQty,
+      from,
       to,
-      startClosed: true,
-      endClosed: false,
-      unbounded,
+      startsAtBreak: from === tier.minQty,
+      endsAtBreak: next !== undefined && to === tierEnd,
       points,
     });
   });

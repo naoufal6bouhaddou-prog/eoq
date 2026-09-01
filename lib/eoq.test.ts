@@ -361,19 +361,58 @@ describe('the discount cost curve', () => {
     { minQty: 1, unitCost: 5.0 },
     { minQty: 1000, unitCost: 4.85 },
   ];
-  const segments = sampleDiscountCurve(5000, 49, { kind: 'rate', rate: 0.2 }, breaks, 3000, 40);
+  const segments = sampleDiscountCurve(5000, 49, { kind: 'rate', rate: 0.2 }, breaks, 1, 3000, 40);
 
   it('returns one segment per tier', () => {
     expect(segments).toHaveLength(2);
     expect(segments[0].from).toBe(1);
     expect(segments[0].to).toBe(1000);
     expect(segments[1].from).toBe(1000);
-    expect(segments[1].unbounded).toBe(true);
+    expect(segments[1].to).toBe(3000);
   });
 
-  it('marks each segment closed at its start and open at its end', () => {
-    expect(segments[0].startClosed).toBe(true);
-    expect(segments[0].endClosed).toBe(false);
+  it('marks a segment closed where its tier starts and open where the next begins', () => {
+    expect(segments[0].startsAtBreak).toBe(true);
+    expect(segments[0].endsAtBreak).toBe(true);
+    // The last tier runs off the edge of the chart, not into another break.
+    expect(segments[1].endsAtBreak).toBe(false);
+  });
+
+  it('clips to the visible window instead of drawing off the edge', () => {
+    const clipped = sampleDiscountCurve(
+      5000,
+      49,
+      { kind: 'rate', rate: 0.2 },
+      breaks,
+      600,
+      1400,
+      20,
+    );
+    expect(clipped[0].from).toBe(600);
+    expect(clipped[0].startsAtBreak).toBe(false);
+    expect(clipped[0].to).toBe(1000);
+    expect(clipped[0].endsAtBreak).toBe(true);
+    expect(clipped[1].from).toBe(1000);
+    expect(clipped[1].startsAtBreak).toBe(true);
+    expect(clipped[1].to).toBe(1400);
+    for (const point of clipped.flatMap((segment) => segment.points)) {
+      expect(point.quantity).toBeGreaterThanOrEqual(600);
+      expect(point.quantity).toBeLessThanOrEqual(1400);
+    }
+  });
+
+  it('drops a tier entirely when it falls outside the window', () => {
+    const narrow = sampleDiscountCurve(
+      5000,
+      49,
+      { kind: 'rate', rate: 0.2 },
+      breaks,
+      1200,
+      2000,
+      20,
+    );
+    expect(narrow).toHaveLength(1);
+    expect(narrow[0].tierIndex).toBe(1);
   });
 
   it('drops at the price break rather than joining up', () => {

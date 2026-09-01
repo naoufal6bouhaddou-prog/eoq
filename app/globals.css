@@ -184,6 +184,33 @@ table.banded th {
   letter-spacing: 0.01em;
 }
 
+/* ---- Chart text --------------------------------------------------- */
+
+.chart-tick {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  fill: var(--c-ink-muted);
+}
+
+.chart-mark {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--c-signal);
+}
+
+.chart-label {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  fill: var(--c-ink-muted);
+  paint-order: stroke;
+  stroke: var(--c-paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
 /* ---- Greenbar banding -------------------------------------------
    Alternating bands, not row rules: the bands do the separating, the
    way the printer paper did.
