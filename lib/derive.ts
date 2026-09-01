@@ -24,7 +24,7 @@ import {
   type PriceBreak,
   type ReorderResult,
 } from './eoq';
-import { parseNumber, type Locale } from './format';
+import { parseNumber, type Locale } from '@/shared/lib/format';
 import type { ToolState } from './state';
 import {
   checkField,

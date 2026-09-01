@@ -2,12 +2,12 @@
 
 import type { VariabilityMode } from '@/lib/eoq';
 import type { FieldIssues } from '@/lib/derive';
-import { currencySymbol } from '@/lib/format';
+import { currencySymbol } from '@/shared/lib/format';
 import type { HoldingMode, PeriodUnit, ToolState } from '@/lib/state';
 import type { ScheduleIssue } from '@/lib/validate';
 
-import { ChoiceGroup, RailSection, SectionToggle } from './Controls';
-import { Field } from './Field';
+import { ChoiceGroup, RailSection, SectionToggle } from '@/shared/ui/Controls';
+import { Field } from '@/shared/ui/Field';
 import { PriceBreakEditor } from './PriceBreakEditor';
 import { useSettings } from './Settings';
 

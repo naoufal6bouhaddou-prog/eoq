@@ -8,12 +8,12 @@
  */
 
 import type { Derived } from './derive';
-import type { CsvSection } from './csv';
+import type { CsvSection } from '@/shared/lib/csv';
 import {
   formatForCsv,
   type CurrencyCode,
   type Locale,
-} from './format';
+} from '@/shared/lib/format';
 import type { Dictionary } from './i18n';
 import type { ToolState } from './state';
 

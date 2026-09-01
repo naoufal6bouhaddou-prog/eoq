@@ -1,4 +1,4 @@
-import type { Locale } from '../format';
+import type { Locale } from '@/shared/lib/format';
 
 import { en, type Dictionary } from './en';
 import { fr } from './fr';

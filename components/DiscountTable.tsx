@@ -1,8 +1,8 @@
 'use client';
 
 import type { DiscountAnalysis, DiscountTier, HoldingBasis } from '@/lib/eoq';
-import { currencySymbol, formatQuantity, EMPTY_VALUE } from '@/lib/format';
-import { Figure } from './Figure';
+import { currencySymbol, formatQuantity, EMPTY_VALUE } from '@/shared/lib/format';
+import { Figure } from '@/shared/ui/Figure';
 import { useSettings } from './Settings';
 
 export interface DiscountTableProps {

@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { sampleInventoryProfile } from '@/lib/eoq';
-import { formatQuantity } from '@/lib/format';
-import { clamp, linearScale, niceTicks } from '@/lib/scale';
+import { formatQuantity } from '@/shared/lib/format';
+import { clamp, linearScale, niceTicks } from '@/shared/lib/scale';
 
 import { useSettings } from './Settings';
 

@@ -1,10 +1,29 @@
 'use client';
 
-import { CURRENCIES, LOCALES, type CurrencyCode, type Locale } from '@/lib/format';
+import { CURRENCIES, LOCALES, type CurrencyCode, type Locale } from '@/shared/lib/format';
 
-import { useSettings, type ThemeChoice } from './Settings';
+import { useSettings, type ThemeChoice } from './settings';
+
+/**
+ * Every word the shell puts on screen, supplied by the tool that mounts it.
+ *
+ * They are props rather than dictionary lookups on purpose: a shared component
+ * that reaches into a particular tool's strings is not shared, it is borrowed.
+ * This is the whole boundary, expressed as a type.
+ */
+export interface AppShellLabels {
+  family: string;
+  tool: string;
+  language: string;
+  currency: string;
+  theme: string;
+  themeSystem: string;
+  themeLight: string;
+  themeDark: string;
+}
 
 export interface AppShellProps {
+  labels: AppShellLabels;
   onLocaleChange: (locale: Locale) => void;
   onCurrencyChange: (currency: CurrencyCode) => void;
   onThemeChange: (theme: ThemeChoice) => void;
@@ -18,31 +37,29 @@ const LOCALE_LABEL: Record<Locale, string> = { fr: 'FR', en: 'EN' };
  *
  * It names the family first and the tool second, because a reader arriving from
  * a sibling tool needs to know where they are before what they are looking at.
- * Nothing below this component knows anything about economic order quantities,
- * so a sibling imports it unchanged and passes its own tool name through the
- * dictionary.
  */
 export function AppShell({
+  labels,
   onLocaleChange,
   onCurrencyChange,
   onThemeChange,
   actions,
 }: AppShellProps) {
-  const { locale, currency, theme, t } = useSettings();
+  const { locale, currency, theme } = useSettings();
 
   return (
     <header className="no-print border-b border-[color:var(--line)] bg-[color:var(--surface)]">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-2.5 sm:px-6">
         <h1 className="flex flex-wrap items-baseline gap-x-2">
-          <span className="t-label text-[color:var(--text-2)]">{t.app.family}</span>
+          <span className="t-label text-[color:var(--text-2)]">{labels.family}</span>
           <span aria-hidden="true" className="t-label text-[color:var(--line-strong)]">
             /
           </span>
-          <span className="t-body font-semibold">{t.app.tool}</span>
+          <span className="t-body font-semibold">{labels.tool}</span>
         </h1>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <div className="seg t-micro" role="group" aria-label={t.app.language}>
+          <div className="seg t-micro" role="group" aria-label={labels.language}>
             {LOCALES.map((option) => (
               <label
                 key={option}
@@ -63,7 +80,7 @@ export function AppShell({
           </div>
 
           <label htmlFor="currency" className="sr-only">
-            {t.app.currency}
+            {labels.currency}
           </label>
           <select
             id="currency"
@@ -79,7 +96,7 @@ export function AppShell({
           </select>
 
           <label htmlFor="theme" className="sr-only">
-            {t.app.theme}
+            {labels.theme}
           </label>
           <select
             id="theme"
@@ -87,9 +104,9 @@ export function AppShell({
             value={theme}
             onChange={(event) => onThemeChange(event.target.value as ThemeChoice)}
           >
-            <option value="system">{t.app.themeSystem}</option>
-            <option value="light">{t.app.themeLight}</option>
-            <option value="dark">{t.app.themeDark}</option>
+            <option value="system">{labels.themeSystem}</option>
+            <option value="light">{labels.themeLight}</option>
+            <option value="dark">{labels.themeDark}</option>
           </select>
 
           {actions === undefined ? null : (

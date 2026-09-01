@@ -14,10 +14,10 @@ import {
   type HoldingBasis,
   type PriceBreak,
 } from '@/lib/eoq';
-import { currencySymbol, formatMoney, formatQuantity } from '@/lib/format';
-import { clamp, invertLinear, linearScale, niceTicks } from '@/lib/scale';
+import { currencySymbol, formatMoney, formatQuantity } from '@/shared/lib/format';
+import { clamp, invertLinear, linearScale, niceTicks } from '@/shared/lib/scale';
 
-import { Figure } from './Figure';
+import { Figure } from '@/shared/ui/Figure';
 import { useSettings } from './Settings';
 
 export interface DiscountChartInput {

@@ -2,9 +2,9 @@
 
 import type { CostPenaltyRow, InputSensitivityRow, SensitivityParameter } from '@/lib/eoq';
 import { SENSITIVITY_PARAMETERS } from '@/lib/eoq';
-import { currencySymbol } from '@/lib/format';
+import { currencySymbol } from '@/shared/lib/format';
 
-import { Figure } from './Figure';
+import { Figure } from '@/shared/ui/Figure';
 import { useSettings } from './Settings';
 
 export interface SensitivityTablesProps {

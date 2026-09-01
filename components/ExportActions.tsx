@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { csvFilename, toCsv } from '@/lib/csv';
+import { csvFilename, toCsv } from '@/shared/lib/csv';
 import type { Derived } from '@/lib/derive';
 import { reportSections } from '@/lib/report';
 import type { ToolState } from '@/lib/state';

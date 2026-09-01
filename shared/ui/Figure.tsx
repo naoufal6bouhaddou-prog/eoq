@@ -5,9 +5,9 @@ import {
   formatNumber,
   splitFormatted,
   type FormatOptions,
-} from '@/lib/format';
+} from '@/shared/lib/format';
 
-import { useSettings } from './Settings';
+import { useSettings } from './settings';
 
 export interface FigureProps extends FormatOptions {
   value: number | null | undefined;

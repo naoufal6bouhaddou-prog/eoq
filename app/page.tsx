@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AnswerPanel } from '@/components/AnswerPanel';
-import { AppShell } from '@/components/AppShell';
+import { AppShell } from '@/shared/ui/AppShell';
 import { CostCurve } from '@/components/CostCurve';
 import { DiscountTable } from '@/components/DiscountTable';
 import { InventoryProfile } from '@/components/InventoryProfile';
 import { ExportActions } from '@/components/ExportActions';
-import { Figure } from '@/components/Figure';
+import { Figure } from '@/shared/ui/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
 import { PinnedAnswer } from '@/components/PinnedAnswer';
@@ -16,7 +16,7 @@ import { PrintFooter, PrintHeader } from '@/components/PrintSheet';
 import { SensitivityTables } from '@/components/SensitivityTables';
 import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
 import { derive } from '@/lib/derive';
-import type { CurrencyCode, Locale } from '@/lib/format';
+import type { CurrencyCode, Locale } from '@/shared/lib/format';
 import { getDictionary } from '@/lib/i18n';
 import {
   BLANK_STATE,
@@ -212,6 +212,16 @@ export default function Page() {
       </a>
 
       <AppShell
+        labels={{
+          family: t.app.family,
+          tool: t.app.tool,
+          language: t.app.language,
+          currency: t.app.currency,
+          theme: t.app.theme,
+          themeSystem: t.app.themeSystem,
+          themeLight: t.app.themeLight,
+          themeDark: t.app.themeDark,
+        }}
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
         onThemeChange={setTheme}

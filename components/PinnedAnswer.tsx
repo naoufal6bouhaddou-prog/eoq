@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 
 import type { EoqResult } from '@/lib/eoq';
-import { currencySymbol } from '@/lib/format';
+import { currencySymbol } from '@/shared/lib/format';
 
 import { ANSWER_PANEL_ID } from './AnswerPanel';
-import { Measure } from './Figure';
+import { Measure } from '@/shared/ui/Figure';
 import { useSettings } from './Settings';
 
 /**

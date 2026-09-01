@@ -8,7 +8,7 @@
  */
 
 import type { PriceBreak } from './eoq';
-import { parseNumber, type Locale } from './format';
+import { parseNumber, type Locale } from '@/shared/lib/format';
 
 export type FieldName =
   | 'annualDemand'

@@ -7,7 +7,7 @@
  */
 
 import type { VariabilityMode } from './eoq';
-import { formatForInput, parseNumber, type Locale } from './format';
+import { formatForInput, parseNumber, type Locale } from '@/shared/lib/format';
 
 export type HoldingMode = 'perUnit' | 'rate';
 export type PeriodUnit = 'day' | 'week';

@@ -1,9 +1,9 @@
 'use client';
 
 import type { EoqResult, PracticalQuantity } from '@/lib/eoq';
-import { currencySymbol } from '@/lib/format';
+import { currencySymbol } from '@/shared/lib/format';
 
-import { Figure, Measure } from './Figure';
+import { Figure, Measure } from '@/shared/ui/Figure';
 import { useSettings } from './Settings';
 
 export interface AnswerPanelProps {

@@ -46,15 +46,16 @@ by publishing the contents of `out/`.
 ## How it is put together
 
 ```
+shared/           the layer a sibling tool inherits unchanged: tokens,
+                  the stylesheet, number formatting, axis arithmetic, CSV
+                  writing, and the interface primitives. See shared/README.md
 lib/eoq.ts        the models: EOQ, all-units discounts, reorder point,
                   sensitivity, curve sampling. Plain numbers in and out.
 lib/stats.ts      inverse normal CDF
-lib/format.ts     locale-aware number parsing and formatting
 lib/validate.ts   input rules, reported as typed codes
 lib/derive.ts     the bridge: raw strings to checked numbers to results
 lib/state.ts      the input model, and how it travels in a URL
-lib/scale.ts      axis arithmetic for the hand-built diagrams
-lib/csv.ts        CSV writing; lib/report.ts builds what both exports carry
+lib/report.ts     what both exports carry, built once so they agree
 lib/i18n/         one dictionary per language, same typed shape
 components/       inputs, results, chart, tables, export
 app/              layout and the single page

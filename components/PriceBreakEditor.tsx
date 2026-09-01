@@ -1,6 +1,6 @@
 'use client';
 
-import { currencySymbol } from '@/lib/format';
+import { currencySymbol } from '@/shared/lib/format';
 import type { PriceBreakRow } from '@/lib/state';
 import type { ScheduleIssue } from '@/lib/validate';
 

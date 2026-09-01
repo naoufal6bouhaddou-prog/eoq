@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
-import { formatForInput, parseNumber } from '@/lib/format';
+import { formatForInput, parseNumber } from '@/shared/lib/format';
 
-import { useSettings } from './Settings';
+import { useSettings } from './settings';
 
 export interface FieldProps {
   id: string;

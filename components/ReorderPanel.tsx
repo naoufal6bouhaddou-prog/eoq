@@ -1,8 +1,8 @@
 'use client';
 
 import type { EoqResult, ReorderResult } from '@/lib/eoq';
-import { currencySymbol } from '@/lib/format';
-import { Figure, Measure } from './Figure';
+import { currencySymbol } from '@/shared/lib/format';
+import { Figure, Measure } from '@/shared/ui/Figure';
 import { useSettings } from './Settings';
 
 export interface ReorderPanelProps {
