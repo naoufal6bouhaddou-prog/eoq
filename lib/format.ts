@@ -244,3 +244,16 @@ export function splitFormatted(formatted: string, locale: Locale): SplitNumber {
 export function csvSeparator(locale: Locale): string {
   return locale === 'fr' ? ';' : ',';
 }
+
+/**
+ * Format a value for display inside an input field: grouped, but with no
+ * trailing zeros forced on, so a field reads "10 000" and "38,50" rather than
+ * "10 000,00" and "38,500000".
+ */
+export function formatForInput(value: number, locale: Locale): string {
+  if (!Number.isFinite(value)) return '';
+  return formatter(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 6,
+  }).format(value === 0 ? 0 : value);
+}

@@ -50,6 +50,12 @@ export type FieldRule = 'positive' | 'nonNegative' | 'rate' | 'probability';
 export interface FieldSpec {
   rule: FieldRule;
   required: boolean;
+  /**
+   * The field is typed as a percentage. The user enters 20 and 95; the model
+   * wants 0.2 and 0.95. Dividing here keeps the entry unit in one place and
+   * lets the rule below read in model units.
+   */
+  percent?: boolean;
 }
 
 export interface FieldCheck {
@@ -62,14 +68,16 @@ export function checkField(
   field: FieldName,
   raw: string,
   locale: Locale,
-  { rule, required }: FieldSpec,
+  { rule, required, percent = false }: FieldSpec,
 ): FieldCheck {
   if (raw.trim() === '') {
     return required ? { value: null, issue: { field, code: 'required' } } : { value: null, issue: null };
   }
 
-  const value = parseNumber(raw, locale);
-  if (value === null) return { value: null, issue: { field, code: 'not-a-number' } };
+  const parsed = parseNumber(raw, locale);
+  if (parsed === null) return { value: null, issue: { field, code: 'not-a-number' } };
+
+  const value = percent ? parsed / 100 : parsed;
 
   switch (rule) {
     case 'positive':
