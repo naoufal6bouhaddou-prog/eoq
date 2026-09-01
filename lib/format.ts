@@ -257,3 +257,17 @@ export function formatForInput(value: number, locale: Locale): string {
     maximumFractionDigits: 6,
   }).format(value === 0 ? 0 : value);
 }
+
+/**
+ * Format a figure for a spreadsheet cell: the locale's decimal mark, but no
+ * grouping. Excel will not parse "1 414,21" as a number, because the grouping
+ * character Intl emits is a narrow no-break space.
+ */
+export function formatForCsv(value: number, locale: Locale, decimals: number): string {
+  if (!Number.isFinite(value)) return '';
+  return formatter(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+    useGrouping: false,
+  }).format(snap(value, decimals));
+}

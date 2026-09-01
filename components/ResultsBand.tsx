@@ -60,11 +60,11 @@ export function ResultsBand({ eoq, practical, missingLabels }: ResultsBandProps)
       aria-label={t.a11y.resultsRegion}
       className="border-b border-[color:var(--c-rule)] bg-[color:var(--c-paper)]"
     >
-      <div className="xl:grid xl:grid-cols-4">
+      <div className="results-grid xl:grid xl:grid-cols-4">
         {/* Below the wide breakpoint these two are carried by StickySummary,
             which pins them to the top of the viewport. Hidden rather than
             duplicated, so only one copy is ever in the accessibility tree. */}
-        <div className="hidden xl:contents">
+        <div className="results-pair hidden xl:contents">
           <div className="min-w-0 border-r border-[color:var(--c-rule)]">
             <Cell label={t.results.quantity}>
               <Measure
@@ -89,7 +89,7 @@ export function ResultsBand({ eoq, practical, missingLabels }: ResultsBandProps)
           </div>
         </div>
 
-        <div className="grid grid-cols-2 xl:contents">
+        <div className="cadence-pair grid grid-cols-2 xl:contents">
           <div className="min-w-0 xl:border-r xl:border-[color:var(--c-rule)]">
             <Cell label={t.results.ordersPerYear}>
               <Measure

@@ -544,7 +544,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
       {/* Readout. Width is reserved so the figures do not shift the row. */}
       <div
         aria-live="polite"
-        className="flex flex-wrap items-baseline gap-x-6 gap-y-1 border-t border-[color:var(--c-rule)] px-4 py-2"
+        className="chart-readout flex flex-wrap items-baseline gap-x-6 gap-y-1 border-t border-[color:var(--c-rule)] px-4 py-2"
       >
         <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--c-ink-muted)]">
           {t.chart.readoutQuantity}

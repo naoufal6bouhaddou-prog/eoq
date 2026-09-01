@@ -21,6 +21,11 @@ function language(page: Page, code: 'FR' | 'EN') {
   return page.getByRole('button', { name: code, exact: true });
 }
 
+/** Wait until React has hydrated and read the URL. */
+async function ready(page: Page): Promise<void> {
+  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+}
+
 /**
  * Text that is actually on screen. Q* and the total cost are labelled twice in
  * the markup, once for the pinned pair and once for the results band, and only
@@ -46,6 +51,7 @@ test('switches the whole interface, not only the labels', async ({ page }) => {
 
 test('sets the lang attribute so the page is announced correctly', async ({ page }) => {
   await page.goto(CASE);
+  await ready(page);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
   await language(page, 'FR').click();
@@ -65,6 +71,7 @@ test('rewrites what is already typed into the other convention', async ({ page }
 
 test('carries a French-entered value into English unchanged', async ({ page }) => {
   await page.goto('/?y=365&hm=u&lang=fr');
+  await ready(page);
 
   await page.getByLabel('Demande annuelle', { exact: true }).fill('1 234,56');
   await page.getByLabel('Coût de passation par commande', { exact: true }).fill('50');
@@ -93,6 +100,7 @@ test('defaults to dirhams', async ({ page }) => {
 
 test('remembers the language on the next visit', async ({ page }) => {
   await page.goto(CASE);
+  await ready(page);
   await language(page, 'FR').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
 
@@ -104,6 +112,7 @@ test('remembers the language on the next visit', async ({ page }) => {
 
 test('lets a shared link override the stored language', async ({ page }) => {
   await page.goto(CASE);
+  await ready(page);
   await language(page, 'FR').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
 
@@ -113,6 +122,7 @@ test('lets a shared link override the stored language', async ({ page }) => {
 
 test('reports errors in the active language', async ({ page }) => {
   await page.goto('/?y=365&hm=u&lang=fr');
+  await ready(page);
 
   const demand = page.getByLabel('Demande annuelle', { exact: true });
   await demand.fill('0');

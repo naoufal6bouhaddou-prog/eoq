@@ -367,6 +367,11 @@ table.banded > tbody > tr[data-feasible='false'] {
    Print — filled in at the export step
    ================================================================== */
 
+/* Screen only: the print sheet's own header and footer. */
+.print-only {
+  display: none;
+}
+
 @media print {
   :root {
     --c-paper: #ffffff;
@@ -380,7 +385,115 @@ table.banded > tbody > tr[data-feasible='false'] {
     color-scheme: light;
   }
 
+  @page {
+    margin: 11mm;
+  }
+
+  html,
+  body {
+    background: #ffffff;
+    font-size: 8.5pt;
+  }
+
+  /* Interactive chrome has no meaning on paper: the settings, the buttons,
+     the input rail whose values are restated in the footer, and the pinned
+     summary that only exists to survive scrolling. */
   .no-print {
     display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  /* Below the wide breakpoint Q* and the total are carried by the pinned
+     summary, which is chrome and does not print. On paper the band's own copy
+     has to come back, or a sheet printed from a phone would carry every
+     figure except the two that matter. */
+  .results-pair {
+    display: contents !important;
+  }
+
+  /* One column, edge to edge: there is no second pane on a sheet of paper. */
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  main > div {
+    display: block !important;
+  }
+
+  /* Tables print in full rather than scrolling, and are kept whole. */
+  .table-scroll {
+    overflow: visible !important;
+  }
+
+  section,
+  table {
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* Bands are a reading aid, and they have to survive the printer's default
+     of dropping backgrounds. */
+  table.banded > tbody > tr:nth-child(even) {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* The accent has no colour on paper, so the recommended row is marked by
+     weight and a rule instead. */
+  table.banded > tbody > tr[data-best='true'] {
+    box-shadow: none;
+    border-left: 2.5pt solid #000000;
+    font-weight: 700;
+  }
+
+  table.banded > tbody > tr[data-optimum='true'] {
+    box-shadow: none;
+    border-left: 2.5pt solid #000000;
+  }
+
+  .t-figure-lg {
+    font-size: 15pt;
+  }
+
+  /* The chart is vector and stays, but it does not need half the page. */
+  svg[role='img'] {
+    max-height: 52mm;
+  }
+
+  /* A sheet of A4 lays out at about 710 CSS pixels, well under the widest
+     breakpoint, so the arrangements that depend on width are restated here.
+     Paper is not a narrow screen: it is a wide one that happens to be short. */
+  .results-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .results-pair,
+  .cadence-pair {
+    display: contents !important;
+  }
+
+  .sensitivity-pair {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 6mm;
+  }
+
+  /* The readout exists to follow a pointer. On paper it only ever repeats the
+     optimum, which the results band already carries. */
+  .chart-readout {
+    display: none !important;
+  }
+
+  a[href]::after {
+    content: none;
   }
 }

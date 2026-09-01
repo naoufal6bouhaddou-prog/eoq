@@ -36,7 +36,7 @@ export function SensitivityTables({ penaltyRows, sensitivityRows }: SensitivityT
     t.sensitivity.parameters[parameter];
 
   return (
-    <div className="grid gap-x-8 xl:grid-cols-2">
+    <div className="sensitivity-pair grid gap-x-8 xl:grid-cols-2">
       <section className="border-b border-[color:var(--c-rule)]">
         <div className="px-4 pt-3">
           <h2 className="t-label">{t.sections.penalty}</h2>

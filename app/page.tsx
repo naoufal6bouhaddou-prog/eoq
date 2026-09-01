@@ -1,12 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { CostCurve } from '@/components/CostCurve';
 import { DiscountTable } from '@/components/DiscountTable';
+import { ExportActions } from '@/components/ExportActions';
 import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
+import { PrintFooter, PrintHeader } from '@/components/PrintSheet';
 import { ResultsBand } from '@/components/ResultsBand';
 import { SensitivityTables } from '@/components/SensitivityTables';
 import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
@@ -26,6 +28,15 @@ import {
 import type { FieldName } from '@/lib/validate';
 
 const STORAGE_KEY = 'eoq-calculator-settings';
+
+/**
+ * Layout effects run after the DOM is committed but before the browser paints,
+ * so state read from the URL is in place before anything is on screen to click.
+ * A plain effect leaves a window in which the page is interactive but still
+ * holds its defaults, and an export taken in that window would be blank.
+ * useLayoutEffect has no meaning while prerendering, hence the guard.
+ */
+const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 interface StoredSettings {
   locale?: Locale;
@@ -51,8 +62,8 @@ export default function Page() {
   const [revealErrors, setRevealErrors] = useState(false);
   const ready = useRef(false);
 
-  /* ---- First load: stored settings, then the URL, then the example ---- */
-  useEffect(() => {
+  /* ---- First load: stored settings, then the URL, then a clear field ---- */
+  useBeforePaint(() => {
     const stored = readStoredSettings();
     const params = new URLSearchParams(window.location.search);
     const requested = params.get('lang');
@@ -72,6 +83,11 @@ export default function Page() {
     const shared = decodeState(window.location.search, resolved);
     setState(shared ?? reformatState(BLANK_STATE, 'en', resolved));
     ready.current = true;
+
+    // A hook for the end-to-end suite: React attaches its handlers during
+    // hydration, and until then a click on a button does nothing at all.
+    // Tests wait for this rather than for a proxy that might already be true.
+    document.documentElement.dataset.ready = 'true';
   }, []);
 
   /* ---- Persist the three settings, and reflect them on <html> ---- */
@@ -186,6 +202,7 @@ export default function Page() {
             >
               {t.actions.clear}
             </button>
+            <ExportActions state={state} derived={derived} />
           </>
         }
       />
@@ -193,10 +210,12 @@ export default function Page() {
       <StickySummary eoq={derived.eoq} />
 
       <main className="mx-auto max-w-[1440px] px-4 pb-16">
+        <PrintHeader />
+
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
           <form
             aria-label={t.a11y.inputRail}
-            className="order-2 pt-4 lg:order-1 lg:border-r lg:border-[color:var(--c-rule)] lg:pr-6"
+            className="no-print order-2 pt-4 lg:order-1 lg:border-r lg:border-[color:var(--c-rule)] lg:pr-6"
             onSubmit={(event) => {
               event.preventDefault();
               setRevealErrors(true);
@@ -293,6 +312,8 @@ export default function Page() {
             )}
           </div>
         </div>
+
+        <PrintFooter state={state} derived={derived} />
       </main>
     </SettingsProvider>
   );

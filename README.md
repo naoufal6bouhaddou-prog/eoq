@@ -89,7 +89,26 @@ internationalisation library, no statistics package, and no PDF library:
 - The dictionaries are two typed objects; `Dictionary` is `typeof en`, so a key
   missing from French is a build error.
 - The PDF route is a print stylesheet and `window.print()`, which is lighter
-  than a PDF library and produces a better sheet.
+  than a PDF library, keeps the chart as vector rather than as a raster, and
+  uses the dialogue the reader already knows.
+
+## Exports
+
+**CSV** writes one file: the inputs, the results, the discount comparison and
+both sensitivity tables. Three details matter more than they sound. The field
+separator follows the locale, because a French Excel reads "," as a decimal
+mark and would drop a comma-separated file into a single column. The file opens
+with a byte order mark, or Excel reads the accents as mojibake. And figures are
+written ungrouped, because the grouping character `Intl` emits is a narrow
+no-break space and Excel will not parse it as a number.
+
+**Print** is a stylesheet and `window.print()`. The interactive chrome goes, the
+input rail goes and comes back as assumptions in the footer alongside the date,
+and the chart stays as vector. Paper is not a narrow screen but a wide one that
+happens to be short, so the arrangements that depend on viewport width are
+restated for print. The sheet the brief asks for — results, chart, sensitivity —
+fits one page of A4, and a test holds it there. Adding the optional discount
+comparison and reorder point takes it to about a page and a third.
 
 ## What the models do and do not cover
 

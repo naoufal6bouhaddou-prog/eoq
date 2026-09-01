@@ -27,7 +27,7 @@ export function TitleBlock({
   const { locale, currency, theme, t } = useSettings();
 
   return (
-    <header className="border-b border-[color:var(--c-rule)]">
+    <header className="no-print border-b border-[color:var(--c-rule)]">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-stretch justify-between gap-y-2 px-4">
         <h1 className="t-body flex items-center py-3 font-medium">{t.app.name}</h1>
 
