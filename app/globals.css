@@ -248,12 +248,17 @@ table.banded th {
   fill: var(--text-2);
 }
 
-/* The recommended value: Q*, and the tier the schedule points at. */
+/* The recommended value: Q*, and the tier the schedule points at. Haloed,
+   because it is drawn over the curve rather than beside it. */
 .chart-mark {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
   fill: var(--accent);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 /* A threshold that must be acted on. Only the reorder point qualifies. */
@@ -262,6 +267,10 @@ table.banded th {
   font-size: 10px;
   font-weight: 700;
   fill: var(--signal);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .chart-label {

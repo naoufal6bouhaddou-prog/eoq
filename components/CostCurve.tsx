@@ -267,16 +267,6 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
 
   const optimumX = geometry.x(eoq.optimalQuantity);
 
-  /**
-   * The Q* mark is drawn on the same row as the axis ticks, so any tick it
-   * would land on is dropped. A tick is a convenience; Q* is the point of the
-   * chart, and two labels on one spot are worth less than either alone.
-   */
-  const MARK_CLEARANCE = 34;
-  const markedAxis = discounts === null;
-  const xTicks = geometry.xTicks.filter(
-    (tick) => !markedAxis || Math.abs(geometry.x(tick) - optimumX) > MARK_CLEARANCE,
-  );
   const cursorX = geometry.x(activeQuantity);
   const inRange =
     eoq.optimalQuantity >= geometry.xMin && eoq.optimalQuantity <= geometry.xMax;
@@ -354,7 +344,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   {formatMoney(tick, locale, 0)}
                 </text>
               ))}
-              {xTicks.map((tick) => (
+              {geometry.xTicks.map((tick) => (
                 <text
                   key={`lx-${tick}`}
                   x={geometry.x(tick)}
@@ -491,9 +481,12 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   r={3.5}
                   fill="var(--accent)"
                 />
+                {/* Above the curve at its minimum, not on the axis row: the
+                    scale keeps every tick, and the mark sits in the empty
+                    space the U-shape leaves over its own low point. */}
                 <text
                   x={optimumX}
-                  y={geometry.plotBottom + 15}
+                  y={geometry.y(eoq.relevantCostCore) - 14}
                   textAnchor="middle"
                   className="chart-mark"
                 >

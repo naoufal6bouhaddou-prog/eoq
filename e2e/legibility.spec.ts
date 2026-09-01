@@ -74,19 +74,29 @@ for (const [name, url] of Object.entries(CASES)) {
   });
 }
 
-test('drops an axis tick rather than printing it under the Q* mark', async ({ page }) => {
-  // Q* is exactly 10 000 here, which is where a tick would otherwise fall.
+test('keeps the scale complete and marks Q* above the curve', async ({ page }) => {
+  // Q* is exactly 10 000 here, which is where a tick falls.
   await page.goto('/?d=1000000&s=50&h=1&y=365&hm=u&lang=en');
   await ready(page);
 
-  const marks = page.locator('svg[role="img"] .chart-mark');
-  await expect(marks).toHaveCount(1);
-  await expect(marks).toHaveText('Q*');
+  // Scoped to the cost curve: the sawtooth has ticks of its own.
+  const chart = page.locator('section', { has: page.locator('.chart-mark') });
+  const mark = chart.locator('.chart-mark');
+  await expect(mark).toHaveCount(1);
+  await expect(mark).toHaveText('Q*');
 
-  const ticks = await page
-    .locator('svg[role="img"] .chart-tick')
-    .allTextContents();
-  expect(ticks.map((tick) => tick.replace(/\s/g, ''))).not.toContain('10000');
+  // The tick stays: the mark moved off the axis rather than the axis giving
+  // way to the mark. Grouping separators differ by locale, so compare digits.
+  const ticks = await chart.locator('.chart-tick').allTextContents();
+  expect(ticks.map((tick) => tick.replace(/\D/g, ''))).toContain('10000');
+
+  // And the mark sits well above the axis row those ticks occupy.
+  const markBox = await mark.boundingBox();
+  const axisRow = await chart.locator('.chart-tick').last().boundingBox();
+  expect(markBox).not.toBeNull();
+  expect(axisRow).not.toBeNull();
+  if (markBox === null || axisRow === null) return;
+  expect(markBox.y + markBox.height).toBeLessThan(axisRow.y - 20);
 });
 
 test('sends the two stock rules to opposite ends so they cannot collide', async ({ page }) => {
