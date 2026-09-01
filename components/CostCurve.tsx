@@ -266,6 +266,17 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
   }
 
   const optimumX = geometry.x(eoq.optimalQuantity);
+
+  /**
+   * The Q* mark is drawn on the same row as the axis ticks, so any tick it
+   * would land on is dropped. A tick is a convenience; Q* is the point of the
+   * chart, and two labels on one spot are worth less than either alone.
+   */
+  const MARK_CLEARANCE = 34;
+  const markedAxis = discounts === null;
+  const xTicks = geometry.xTicks.filter(
+    (tick) => !markedAxis || Math.abs(geometry.x(tick) - optimumX) > MARK_CLEARANCE,
+  );
   const cursorX = geometry.x(activeQuantity);
   const inRange =
     eoq.optimalQuantity >= geometry.xMin && eoq.optimalQuantity <= geometry.xMax;
@@ -343,7 +354,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   {formatMoney(tick, locale, 0)}
                 </text>
               ))}
-              {geometry.xTicks.map((tick) => (
+              {xTicks.map((tick) => (
                 <text
                   key={`lx-${tick}`}
                   x={geometry.x(tick)}
@@ -456,7 +467,8 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               );
             })}
 
-            {/* Q*: the one place red appears, besides the reorder point. */}
+            {/* Q* is the recommended quantity, not a threshold, so it takes
+                the accent. Red is reserved for the reorder point. */}
             {inRange && discounts === null ? (
               <g>
                 <line
@@ -464,20 +476,20 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   x2={optimumX}
                   y1={geometry.y(eoq.relevantCostCore)}
                   y2={geometry.plotBottom}
-                  stroke="var(--signal)"
+                  stroke="var(--accent)"
                   strokeWidth={1}
                 />
                 <circle
                   cx={optimumX}
                   cy={geometry.y(eoq.relevantCostCore / 2)}
                   r={3.5}
-                  fill="var(--signal)"
+                  fill="var(--accent)"
                 />
                 <circle
                   cx={optimumX}
                   cy={geometry.y(eoq.relevantCostCore)}
                   r={3.5}
-                  fill="var(--signal)"
+                  fill="var(--accent)"
                 />
                 <text
                   x={optimumX}

@@ -104,6 +104,34 @@ export function InventoryProfile({
   const firstCycle = profile.cycles[0];
   const showReorderMarks = hasReorderPoint && leadTime > 0 && firstCycle !== undefined;
 
+  /**
+   * The reorder point and the safety stock are two horizontal rules that can
+   * sit at almost the same height, and when Q dwarfs both they very nearly
+   * coincide. Their labels are anchored to opposite ends of the plot so they
+   * can never overlap whatever the numbers do.
+   *
+   * The last time ticks are dropped where the period name goes, for the same
+   * reason: one legible label beats two on top of each other.
+   */
+  const PERIOD_LABEL_ROOM = 54;
+  const timeTicks = view.timeTicks.filter(
+    (tick) => view.x(tick) < view.plotRight - PERIOD_LABEL_ROOM,
+  );
+
+  /**
+   * The order marker falls early in the first cycle when the lead time is short
+   * against the cycle, which on a narrow plot puts its label straight through
+   * the safety stock label. The dot and its drop line already say where the
+   * order goes, and the event table says it in words, so the label is the part
+   * that gives way when there is no room for it.
+   */
+  const SAFETY_LABEL_ROOM = safetyStock > 0 ? 118 : 12;
+  const showOrderLabel =
+    showReorderMarks &&
+    firstCycle !== undefined &&
+    width >= 520 &&
+    view.x(firstCycle.orderPlacedAt) > view.plotLeft + SAFETY_LABEL_ROOM;
+
   const events = useMemo(
     () =>
       profile.cycles.flatMap((cycle, index) => {
@@ -169,7 +197,7 @@ export function InventoryProfile({
             </g>
           ))}
 
-          {view.timeTicks.map((tick) => (
+          {timeTicks.map((tick) => (
             <text
               key={`time-${tick}`}
               x={view.x(tick)}
@@ -243,9 +271,10 @@ export function InventoryProfile({
                 data-testid="profile-reorder-line"
               />
               <text
-                x={view.plotLeft + 4}
+                x={view.plotRight - 4}
                 y={view.y(profile.reorderPoint) - 4}
-                className="chart-mark"
+                textAnchor="end"
+                className="chart-threshold"
               >
                 {t.results.reorderPoint}
               </text>
@@ -310,14 +339,16 @@ export function InventoryProfile({
               </text>
               {/* Inside the plot, not under the axis: the axis line is where
                   the time ticks live and the two would collide. */}
-              <text
-                x={view.x(firstCycle.orderPlacedAt) + 4}
-                y={view.plotBottom - 6}
-                textAnchor="start"
-                className="chart-label"
-              >
-                {t.profile.orderPlaced}
-              </text>
+              {showOrderLabel ? (
+                <text
+                  x={view.x(firstCycle.orderPlacedAt) + 4}
+                  y={view.plotBottom - 6}
+                  textAnchor="start"
+                  className="chart-label"
+                >
+                  {t.profile.orderPlaced}
+                </text>
+              ) : null}
             </g>
           ) : null}
         </svg>

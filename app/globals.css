@@ -248,7 +248,16 @@ table.banded th {
   fill: var(--text-2);
 }
 
+/* The recommended value: Q*, and the tier the schedule points at. */
 .chart-mark {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+/* A threshold that must be acted on. Only the reorder point qualifies. */
+.chart-threshold {
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
@@ -306,10 +315,10 @@ table.banded > tbody > tr:nth-child(even) {
   background: var(--surface-2);
 }
 
-/* The recommended row is a threshold reached, so it carries the marked
-   colour. Nothing else in a table does. */
+/* The recommended row carries the accent, because a recommendation is a
+   value being pointed at, not a threshold being crossed. */
 table.banded > tbody > tr[data-best='true'] {
-  box-shadow: inset 3px 0 0 0 var(--signal);
+  box-shadow: inset 3px 0 0 0 var(--accent);
 }
 
 /* The reference row of a sensitivity table is a landmark, not an action. */

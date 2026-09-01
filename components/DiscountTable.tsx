@@ -73,7 +73,7 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
             <span className="t-micro text-[color:var(--text-2)]">
               {t.discounts.withSchedule}
             </span>
-            <span className="num text-[color:var(--signal)]">
+            <span className="num text-[color:var(--accent)]">
               <Figure
                 value={analysis.best.candidateQuantity}
                 decimals={0}
@@ -156,7 +156,7 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
                       <td className="n">
                         <Figure value={tier.holdingCost} decimals={2} />
                       </td>
-                      <td className={`n ${best ? 'text-[color:var(--signal)]' : ''}`}>
+                      <td className={`n ${best ? 'text-[color:var(--accent)]' : ''}`}>
                         <Figure value={tier.totalCost} decimals={2} />
                       </td>
                       <td className="t-micro text-[color:var(--text-2)]">
