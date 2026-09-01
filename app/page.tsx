@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CostCurve } from '@/components/CostCurve';
+import { DiscountTable } from '@/components/DiscountTable';
 import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
@@ -204,6 +205,7 @@ export default function Page() {
               state={state}
               patch={patch}
               issues={derived.issues}
+              scheduleIssues={derived.scheduleIssues}
               revealErrors={revealErrors}
             />
           </form>
@@ -215,11 +217,18 @@ export default function Page() {
               missingLabels={missingLabels}
             />
 
+            {state.discountsEnabled ? (
+              <DiscountTable
+                analysis={derived.discounts}
+                basis={derived.basis}
+                hasRoundingMultiple={derived.values.roundingMultiple !== undefined}
+              />
+            ) : null}
+
             {state.reorderEnabled ? (
               <ReorderPanel
                 reorder={derived.reorder}
                 eoq={derived.eoq}
-                periodUnit={state.periodUnit}
                 missingLabels={missingReorderLabels}
               />
             ) : null}

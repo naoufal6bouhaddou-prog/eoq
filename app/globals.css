@@ -216,8 +216,56 @@ table.banded th {
    way the printer paper did.
    ------------------------------------------------------------------ */
 
-.banded > tbody > tr:nth-child(even) {
+table.banded {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.banded th,
+table.banded td {
+  padding: 3px 10px;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+table.banded thead th {
+  border-bottom: 1px solid var(--c-rule);
+  color: var(--c-ink-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  text-align: left;
+  padding-bottom: 5px;
+}
+
+table.banded th[scope='row'] {
+  font-weight: 400;
+  text-align: left;
+}
+
+/* Figures right-align, which with one precision per column is decimal
+   alignment. Mixed-precision columns use the split figure cell instead. */
+table.banded .n {
+  text-align: right;
+}
+
+table.banded > tbody > tr:nth-child(even) {
   background: var(--c-band);
+}
+
+/* The recommended row, and only it, carries the accent. */
+table.banded > tbody > tr[data-best='true'] {
+  box-shadow: inset 3px 0 0 0 var(--c-signal);
+}
+
+table.banded > tbody > tr[data-feasible='false'] {
+  color: var(--c-ink-muted);
+}
+
+/* A wide table scrolls inside itself; the page body never scrolls sideways. */
+.table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 
 /* ---- Fields ------------------------------------------------------ */

@@ -588,6 +588,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               decimals={2}
               width={7}
               className="text-[color:var(--c-ink)]"
+              testId="readout-unit-cost"
             />
             <span className="unit">{symbol}</span>
           </span>

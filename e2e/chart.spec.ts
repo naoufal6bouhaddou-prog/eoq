@@ -117,7 +117,8 @@ test('names the unit cost in force at the quantity being read', async ({ page })
   await plot.press('End');
 
   // The far right of the chart is past the last break, so the cheapest tier.
-  await expect(page.getByText('36.10')).toBeVisible();
+  // Scoped to the chart's own readout: the comparison table names 36.10 too.
+  await expect.poll(() => figure(page, 'readout-unit-cost')).toBe('36.10');
 });
 
 test('says that the discount total carries purchase cost', async ({ page }) => {

@@ -110,6 +110,7 @@ export const en = {
     notBalanced: 'Ordering and holding cost differ, so this is not Q*',
     closedForm: 'TRC = √(2·D·S·H)',
     orderWhole: 'Order in whole units: round up to',
+    beforeRounding: 'before rounding',
     serviceLevelNote:
       'The probability of not stocking out during a replenishment cycle. This is not fill rate.',
   },
@@ -154,6 +155,9 @@ export const en = {
       infeasible: 'EOQ above this range',
     },
     recommended: 'Lowest total cost',
+    withSchedule: 'With this schedule, order',
+    minQty: 'Quantity from',
+    at: 'at',
     noneFeasible: 'No tier has a feasible order quantity.',
   },
 

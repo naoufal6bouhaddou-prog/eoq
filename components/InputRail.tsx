@@ -4,15 +4,18 @@ import type { VariabilityMode } from '@/lib/eoq';
 import type { FieldIssues } from '@/lib/derive';
 import { currencySymbol } from '@/lib/format';
 import type { HoldingMode, PeriodUnit, ToolState } from '@/lib/state';
+import type { ScheduleIssue } from '@/lib/validate';
 
 import { ChoiceGroup, RailSection, SectionToggle } from './Controls';
 import { Field } from './Field';
+import { PriceBreakEditor } from './PriceBreakEditor';
 import { useSettings } from './Settings';
 
 export interface InputRailProps {
   state: ToolState;
   patch: (patch: Partial<ToolState>) => void;
   issues: FieldIssues;
+  scheduleIssues: ScheduleIssue[];
   revealErrors: boolean;
 }
 
@@ -21,7 +24,13 @@ export interface InputRailProps {
  * it reads the way the variables list in a paper does, and every field box
  * shares one left and one right edge.
  */
-export function InputRail({ state, patch, issues, revealErrors }: InputRailProps) {
+export function InputRail({
+  state,
+  patch,
+  issues,
+  scheduleIssues,
+  revealErrors,
+}: InputRailProps) {
   const { locale, currency, t } = useSettings();
   const symbol = currencySymbol(currency, locale);
   const byRate = state.holdingMode === 'rate';
@@ -240,6 +249,26 @@ export function InputRail({ state, patch, issues, revealErrors }: InputRailProps
               revealErrors={revealErrors}
             />
           </>
+        ) : null}
+      </RailSection>
+
+      <RailSection
+        title={t.sections.breaks}
+        action={
+          <SectionToggle
+            id="discounts-enabled"
+            label={t.toggles.discountsOn}
+            checked={state.discountsEnabled}
+            onChange={(checked) => patch({ discountsEnabled: checked })}
+          />
+        }
+      >
+        {state.discountsEnabled ? (
+          <PriceBreakEditor
+            rows={state.priceBreaks}
+            onChange={(priceBreaks) => patch({ priceBreaks })}
+            issues={scheduleIssues}
+          />
         ) : null}
       </RailSection>
     </div>

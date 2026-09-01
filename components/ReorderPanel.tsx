@@ -2,15 +2,12 @@
 
 import type { EoqResult, ReorderResult } from '@/lib/eoq';
 import { currencySymbol } from '@/lib/format';
-import type { PeriodUnit } from '@/lib/state';
-
 import { Figure, Measure } from './Figure';
 import { useSettings } from './Settings';
 
 export interface ReorderPanelProps {
   reorder: ReorderResult | null;
   eoq: EoqResult | null;
-  periodUnit: PeriodUnit;
   /** Which fields the reorder point is still waiting on. */
   missingLabels: string[];
 }
@@ -32,10 +29,9 @@ function Line({ label, children }: { label: string; children: React.ReactNode })
  * given rounded up to whole units, because stock is counted in whole units and
  * rounding down would quietly undershoot the service level that was asked for.
  */
-export function ReorderPanel({ reorder, eoq, periodUnit, missingLabels }: ReorderPanelProps) {
+export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps) {
   const { locale, currency, t } = useSettings();
   const symbol = currencySymbol(currency, locale);
-  const periodLabel = periodUnit === 'week' ? t.units.weeks : t.units.days;
 
   if (reorder === null) {
     return (
@@ -113,7 +109,7 @@ export function ReorderPanel({ reorder, eoq, periodUnit, missingLabels }: Reorde
       </div>
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-[color:var(--c-rule)] px-4 py-1.5">
-        <Line label={`${t.results.reorderPoint}, ${t.results.orderWhole.toLowerCase()}`}>
+        <Line label={`${t.results.reorderPoint} (${t.results.beforeRounding})`}>
           <Figure
             value={reorder.reorderPoint}
             decimals={2}
@@ -121,7 +117,7 @@ export function ReorderPanel({ reorder, eoq, periodUnit, missingLabels }: Reorde
             testId="reorder-point-exact"
           />
         </Line>
-        <Line label={t.results.safetyStock}>
+        <Line label={`${t.results.safetyStock} (${t.results.beforeRounding})`}>
           <Figure
             value={reorder.safetyStock}
             decimals={2}
@@ -140,9 +136,6 @@ export function ReorderPanel({ reorder, eoq, periodUnit, missingLabels }: Reorde
             <span className="unit">{symbol}</span>
           </Line>
         )}
-        <Line label={t.period.legend}>
-          <span className="text-[color:var(--c-ink)]">{periodLabel}</span>
-        </Line>
       </div>
     </section>
   );

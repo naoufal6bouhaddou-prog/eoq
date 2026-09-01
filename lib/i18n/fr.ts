@@ -113,6 +113,7 @@ export const fr: Dictionary = {
     notBalanced: 'Les deux coûts diffèrent, cette quantité n’est donc pas Q*',
     closedForm: 'CTP = √(2·D·S·H)',
     orderWhole: 'Commander en unités entières : arrondir à',
+    beforeRounding: 'avant arrondi',
     serviceLevelNote:
       'Probabilité de ne pas être en rupture pendant un cycle de réapprovisionnement. Ce n’est pas le taux de satisfaction.',
   },
@@ -158,6 +159,9 @@ export const fr: Dictionary = {
       infeasible: 'QEC au-dessus de la plage',
     },
     recommended: 'Coût total le plus bas',
+    withSchedule: 'Avec ce barème, commander',
+    minQty: 'Quantité à partir de',
+    at: 'à',
     noneFeasible: 'Aucun palier ne donne de quantité réalisable.',
   },
 
