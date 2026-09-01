@@ -15,6 +15,7 @@ export const en = {
     language: 'Language',
     currency: 'Currency',
     theme: 'Theme',
+    themeSystem: 'System',
     themeLight: 'Light',
     themeDark: 'Dark',
   },

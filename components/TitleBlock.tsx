@@ -75,7 +75,7 @@ export function TitleBlock({
               value={theme}
               onChange={(event) => onThemeChange(event.target.value as ThemeChoice)}
             >
-              <option value="system">{locale === 'fr' ? 'Système' : 'System'}</option>
+              <option value="system">{t.app.themeSystem}</option>
               <option value="light">{t.app.themeLight}</option>
               <option value="dark">{t.app.themeDark}</option>
             </select>

@@ -18,6 +18,7 @@ export const fr: Dictionary = {
     language: 'Langue',
     currency: 'Devise',
     theme: 'Thème',
+    themeSystem: 'Système',
     themeLight: 'Clair',
     themeDark: 'Sombre',
   },
