@@ -110,7 +110,9 @@ test('hides the interactive chrome on paper and keeps the chart', async ({ page 
 
   await expect(page.getByRole('button', { name: 'Load example' })).toBeHidden();
   await expect(page.getByLabel('Annual demand', { exact: true })).toBeHidden();
-  await expect(page.locator('svg[role="img"]')).toBeVisible();
+  // Both diagrams survive: the sawtooth and the cost curve, still as vector.
+  await expect(page.locator('svg[role="img"]')).toHaveCount(2);
+  await expect(page.locator('svg[role="img"]').first()).toBeVisible();
   await expect(page.locator('[data-testid="result-quantity"]:visible')).toBeVisible();
 });
 

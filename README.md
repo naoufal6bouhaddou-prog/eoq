@@ -53,6 +53,8 @@ lib/format.ts     locale-aware number parsing and formatting
 lib/validate.ts   input rules, reported as typed codes
 lib/derive.ts     the bridge: raw strings to checked numbers to results
 lib/state.ts      the input model, and how it travels in a URL
+lib/scale.ts      axis arithmetic for the hand-built diagrams
+lib/csv.ts        CSV writing; lib/report.ts builds what both exports carry
 lib/i18n/         one dictionary per language, same typed shape
 components/       inputs, results, chart, tables, export
 app/              layout and the single page
@@ -107,8 +109,9 @@ input rail goes and comes back as assumptions in the footer alongside the date,
 and the chart stays as vector. Paper is not a narrow screen but a wide one that
 happens to be short, so the arrangements that depend on viewport width are
 restated for print. The sheet the brief asks for — results, chart, sensitivity —
-fits one page of A4, and a test holds it there. Adding the optional discount
-comparison and reorder point takes it to about a page and a third.
+plus the inventory sawtooth, fits one page of A4, and a test holds it there.
+Adding the optional discount comparison and reorder point takes it to about a
+page and a half.
 
 ## What the models do and do not cover
 

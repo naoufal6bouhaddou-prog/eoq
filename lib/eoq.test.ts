@@ -11,6 +11,7 @@ import {
   practicalQuantity,
   roundUpToMultiple,
   sampleDiscountCurve,
+  sampleInventoryProfile,
   sigmaDemandDuringLeadTime,
   solveEoq,
   solveReorderPoint,
@@ -579,5 +580,56 @@ describe('sensitivity to input error', () => {
             : totalRelevantCostAtOptimum(10_000, 50, row.parameterValue);
       expect(row.relevantCost).toBeCloseTo(expected, 8);
     }
+  });
+});
+
+/* ================================================================== */
+/* Inventory over time                                                */
+/* ================================================================== */
+
+describe('the inventory sawtooth', () => {
+  // 700 units at 50 a day, 40 units of buffer, ordering 9 days ahead.
+  const profile = sampleInventoryProfile(700, 50, 40, 490, 9, 3);
+
+  it('peaks at Q above the safety stock and troughs on it', () => {
+    expect(profile.peak).toBe(740);
+    expect(profile.low).toBe(40);
+    expect(profile.peak - profile.low).toBe(700);
+  });
+
+  it('runs one cycle per Q of demand', () => {
+    expect(profile.cycleLength).toBeCloseTo(14, 10);
+    expect(profile.cycles).toHaveLength(3);
+    expect(profile.horizon).toBeCloseTo(42, 10);
+  });
+
+  it('places each order exactly one lead time before the delivery', () => {
+    for (const cycle of profile.cycles) {
+      expect(cycle.end - cycle.orderPlacedAt).toBeCloseTo(9, 10);
+    }
+    expect(profile.cycles[0].orderPlacedAt).toBeCloseTo(5, 10);
+  });
+
+  it('crosses the reorder point at the moment the order goes out', () => {
+    // Falling from the peak at the demand rate, the level at the order time
+    // must be the reorder point itself. That identity is the whole diagram.
+    for (const cycle of profile.cycles) {
+      const elapsed = cycle.orderPlacedAt - cycle.start;
+      expect(profile.peak - 50 * elapsed).toBeCloseTo(profile.reorderPoint, 8);
+    }
+  });
+
+  it('draws a delivery as a jump, not as a ramp', () => {
+    // Two vertices share the time at which stock is restored.
+    expect(profile.points[1].time).toBeCloseTo(profile.points[2].time, 10);
+    expect(profile.points[1].level).toBe(40);
+    expect(profile.points[2].level).toBe(740);
+  });
+
+  it('carries no safety stock when none is asked for', () => {
+    const bare = sampleInventoryProfile(707.11, 27.4, 0, 0, 0, 2);
+    expect(bare.low).toBe(0);
+    expect(bare.peak).toBeCloseTo(707.11, 8);
+    expect(bare.cycles[0].orderPlacedAt).toBeCloseTo(bare.cycles[0].end, 10);
   });
 });

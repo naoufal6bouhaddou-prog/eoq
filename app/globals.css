@@ -530,7 +530,7 @@ table.banded > tbody > tr[data-feasible='false'] {
   .panel-head,
   .panel-body {
     padding-inline: 0;
-    padding-block: 4px;
+    padding-block: 3px;
   }
 
   main {
@@ -583,8 +583,20 @@ table.banded > tbody > tr[data-feasible='false'] {
     font-size: 12pt;
   }
 
+  /* Two diagrams now share the sheet, so each gets less of it. */
   svg[role='img'] {
-    max-height: 52mm;
+    max-height: 31mm;
+  }
+
+  /* Rows are read, not clicked, so they need no touch target on paper. */
+  table.banded th,
+  table.banded td {
+    padding: 1px 8px;
+  }
+
+  /* Panels are rules on paper, so the gaps between them can close up. */
+  main .grid {
+    gap: 6px !important;
   }
 
   /* A sheet of A4 lays out at about 710 CSS pixels, well under the widest

@@ -6,6 +6,7 @@ import { AnswerPanel } from '@/components/AnswerPanel';
 import { AppShell } from '@/components/AppShell';
 import { CostCurve } from '@/components/CostCurve';
 import { DiscountTable } from '@/components/DiscountTable';
+import { InventoryProfile } from '@/components/InventoryProfile';
 import { ExportActions } from '@/components/ExportActions';
 import { Figure } from '@/components/Figure';
 import { InputRail } from '@/components/InputRail';
@@ -156,6 +157,40 @@ export default function Page() {
 
   const settings = useMemo(() => ({ locale, currency, theme, t }), [locale, currency, theme, t]);
 
+  /**
+   * What the sawtooth needs. With a reorder point in play the rate and the lead
+   * time come straight from it. Without one, the demand rate is still knowable
+   * as D over the working year, and the diagram degenerates to the textbook
+   * case: no buffer, no lead time, replenish on reaching zero.
+   */
+  const profileInput = useMemo(() => {
+    if (derived.eoq === null || derived.eoqInput === null) return null;
+    const { annualDemand, daysPerYear } = derived.eoqInput;
+
+    if (derived.reorder !== null && state.reorderEnabled) {
+      const averageDemand = derived.values.averageDemand;
+      const leadTime = derived.values.leadTime;
+      if (averageDemand === undefined || leadTime === undefined) return null;
+      return {
+        demandRate: averageDemand,
+        leadTime,
+        safetyStock: derived.reorder.safetyStock,
+        reorderPoint: derived.reorder.reorderPoint,
+        periodLabel: state.periodUnit === 'week' ? t.units.weeks : t.units.days,
+        hasReorderPoint: true,
+      };
+    }
+
+    return {
+      demandRate: annualDemand / daysPerYear,
+      leadTime: 0,
+      safetyStock: 0,
+      reorderPoint: 0,
+      periodLabel: t.units.days,
+      hasReorderPoint: false,
+    };
+  }, [derived, state.reorderEnabled, state.periodUnit, t]);
+
   // The chart draws the discount curve only when there is a valid schedule to
   // draw; otherwise it shows the three classic traces.
   const discountChart = useMemo(
@@ -252,6 +287,18 @@ export default function Page() {
                 missingLabels={missingReorderLabels}
               />
             ) : null}
+
+            {derived.eoq === null || profileInput === null ? null : (
+              <InventoryProfile
+                orderQuantity={derived.eoq.quantity}
+                demandRate={profileInput.demandRate}
+                safetyStock={profileInput.safetyStock}
+                reorderPoint={profileInput.reorderPoint}
+                leadTime={profileInput.leadTime}
+                periodLabel={profileInput.periodLabel}
+                hasReorderPoint={profileInput.hasReorderPoint}
+              />
+            )}
 
             {derived.eoq === null || derived.eoqInput === null ? null : (
               <CostCurve

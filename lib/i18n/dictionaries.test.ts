@@ -45,6 +45,7 @@ const SHARED_BY_DESIGN = new Set([
   'app.family',
   // Cognates: the French word is the English word.
   'penalty.optimum',
+  'profile.cycle',
   'csv.section',
   'results.quantityShort',
   'penalty.columns.ratio',

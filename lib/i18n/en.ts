@@ -196,6 +196,27 @@ export const en = {
     baseline: 'Baseline',
   },
 
+  profile: {
+    title: 'Inventory over time',
+    caption:
+      'Stock falls at the demand rate, reaches the reorder point, and the order placed there arrives exactly as the safety stock is reached.',
+    captionPlain:
+      'Stock falls at the demand rate and is replenished by Q each time it runs out.',
+    orderPlaced: 'order placed',
+    delivery: 'delivery',
+    leadTimeSpan: 'lead time',
+    cycle: 'Cycle',
+    axisTime: 'Time',
+    axisLevel: 'Stock on hand',
+    tableCaption: 'Inventory level at each event',
+    tableEvent: 'Event',
+    tableTime: 'Time',
+    tableLevel: 'Stock on hand',
+    eventStart: 'Cycle starts, stock replenished',
+    eventOrder: 'Stock reaches the reorder point, order placed',
+    eventDelivery: 'Delivery arrives',
+  },
+
   chart: {
     title: 'Annual cost against order quantity',
     xAxis: 'Order quantity',

@@ -200,6 +200,27 @@ export const fr: Dictionary = {
     baseline: 'Référence',
   },
 
+  profile: {
+    title: 'Évolution du stock',
+    caption:
+      'Le stock diminue au rythme de la demande, atteint le point de commande, et la commande passée à ce moment arrive précisément quand le stock de sécurité est atteint.',
+    captionPlain:
+      'Le stock diminue au rythme de la demande et se reconstitue de Q à chaque rupture de cycle.',
+    orderPlaced: 'commande passée',
+    delivery: 'réception',
+    leadTimeSpan: 'délai',
+    cycle: 'Cycle',
+    axisTime: 'Temps',
+    axisLevel: 'Stock disponible',
+    tableCaption: 'Niveau de stock à chaque événement',
+    tableEvent: 'Événement',
+    tableTime: 'Temps',
+    tableLevel: 'Stock disponible',
+    eventStart: 'Début de cycle, stock reconstitué',
+    eventOrder: 'Le stock atteint le point de commande, commande passée',
+    eventDelivery: 'Réception de la commande',
+  },
+
   chart: {
     title: 'Coût annuel en fonction de la quantité commandée',
     xAxis: 'Quantité commandée',

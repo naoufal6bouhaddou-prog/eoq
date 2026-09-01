@@ -660,3 +660,80 @@ export function sampleDiscountCurve(
 
   return segments;
 }
+
+/* ------------------------------------------------------------------ */
+/* Inventory over time                                                  */
+/* ------------------------------------------------------------------ */
+
+export interface InventoryCycle {
+  /** When this cycle begins, in periods, with stock at its peak. */
+  start: number;
+  /** When stock reaches its low point and the replenishment lands. */
+  end: number;
+  /** When the order is placed: the moment stock falls through the reorder point. */
+  orderPlacedAt: number;
+}
+
+export interface InventoryProfile {
+  /** Q + SS: the level just after a delivery. */
+  peak: number;
+  /** SS: the level just before one. */
+  low: number;
+  reorderPoint: number;
+  /** Q / demand rate: how long one cycle lasts, in periods. */
+  cycleLength: number;
+  leadTime: number;
+  cycles: InventoryCycle[];
+  /** Vertices of the sawtooth, in order. A delivery is two points at one time. */
+  points: Array<{ time: number; level: number }>;
+  horizon: number;
+}
+
+/**
+ * The sawtooth: stock falling at the demand rate, reaching the reorder point,
+ * an order going out, the lead time elapsing, and the delivery restoring the
+ * level. It is the diagram every inventory course draws, and it is built here
+ * from quantities the rest of this file already computes.
+ *
+ * The geometry proves the reorder point rather than merely showing it: because
+ * ROP = d * L + SS, stock crosses the reorder line exactly one lead time before
+ * it reaches the safety stock, so the order arrives as the buffer is reached
+ * and not before or after.
+ */
+export function sampleInventoryProfile(
+  orderQuantity: number,
+  demandRate: number,
+  safetyStock: number,
+  reorderPoint: number,
+  leadTime: number,
+  cycleCount: number,
+): InventoryProfile {
+  const peak = orderQuantity + safetyStock;
+  const cycleLength = orderQuantity / demandRate;
+
+  const cycles: InventoryCycle[] = [];
+  const points: Array<{ time: number; level: number }> = [];
+
+  for (let index = 0; index < cycleCount; index += 1) {
+    const start = index * cycleLength;
+    const end = start + cycleLength;
+    cycles.push({ start, end, orderPlacedAt: end - leadTime });
+
+    // Two points at the same time where a delivery lands: the sawtooth is
+    // discontinuous there, and drawing it as a ramp would be a lie about how
+    // replenishment works.
+    points.push({ time: start, level: peak });
+    points.push({ time: end, level: safetyStock });
+  }
+
+  return {
+    peak,
+    low: safetyStock,
+    reorderPoint,
+    cycleLength,
+    leadTime,
+    cycles,
+    points,
+    horizon: cycleCount * cycleLength,
+  };
+}
