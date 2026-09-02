@@ -19,10 +19,6 @@ export const fr: Dictionary = {
     tool: 'Commande de stock',
     language: 'Langue',
     currency: 'Devise',
-    theme: 'Thème',
-    themeSystem: 'Système',
-    themeLight: 'Clair',
-    themeDark: 'Sombre',
   },
 
   actions: {

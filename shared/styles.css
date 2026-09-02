@@ -37,39 +37,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --ground: #12161a;
-    --surface: #1a1f25;
-    --surface-2: #20262d;
-    --line: #2e3640;
-    --line-strong: #3e4854;
-    --text: #e8ecf0;
-    --text-2: #9aa6b2;
-    --accent: #7fb2dc;
-    /* The accent is light in the dark palette, so what sits on it is dark. */
-    --on-accent: #12161a;
-    --signal: #f08076;
-
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme='dark'] {
-  --ground: #12161a;
-  --surface: #1a1f25;
-  --surface-2: #20262d;
-  --line: #2e3640;
-  --line-strong: #3e4854;
-  --text: #e8ecf0;
-  --text-2: #9aa6b2;
-  --accent: #7fb2dc;
-  --on-accent: #12161a;
-  --signal: #f08076;
-
-  color-scheme: dark;
-}
-
 @theme inline {
   --color-ground: var(--ground);
   --color-surface: var(--surface);

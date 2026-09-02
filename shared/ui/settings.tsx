@@ -4,8 +4,6 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 import type { CurrencyCode, Locale } from '@/shared/lib/format';
 
-export type ThemeChoice = 'system' | 'light' | 'dark';
-
 /**
  * What every tool in the family shares, plus its own dictionary.
  *
@@ -17,7 +15,6 @@ export type ThemeChoice = 'system' | 'light' | 'dark';
 export interface Settings<TDictionary = unknown> {
   locale: Locale;
   currency: CurrencyCode;
-  theme: ThemeChoice;
   /** The active dictionary. Named `t` because it appears on nearly every line. */
   t: TDictionary;
 }

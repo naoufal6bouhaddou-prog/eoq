@@ -3,7 +3,6 @@ import {
   SettingsProvider,
   useSettings as useSharedSettings,
   type Settings as SharedSettings,
-  type ThemeChoice,
 } from '@/shared/ui/settings';
 
 /**
@@ -15,7 +14,6 @@ import {
  * layer ever learning what an economic order quantity is.
  */
 export type Settings = SharedSettings<Dictionary>;
-export type { ThemeChoice };
 export { SettingsProvider };
 
 export function useSettings(): Settings {

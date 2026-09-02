@@ -2,7 +2,7 @@
 
 import { CURRENCIES, LOCALES, type CurrencyCode, type Locale } from '@/shared/lib/format';
 
-import { useSettings, type ThemeChoice } from './settings';
+import { useSettings } from './settings';
 
 /**
  * Every word the shell puts on screen, supplied by the tool that mounts it.
@@ -16,17 +16,12 @@ export interface AppShellLabels {
   tool: string;
   language: string;
   currency: string;
-  theme: string;
-  themeSystem: string;
-  themeLight: string;
-  themeDark: string;
 }
 
 export interface AppShellProps {
   labels: AppShellLabels;
   onLocaleChange: (locale: Locale) => void;
   onCurrencyChange: (currency: CurrencyCode) => void;
-  onThemeChange: (theme: ThemeChoice) => void;
   actions?: React.ReactNode;
 }
 
@@ -42,10 +37,9 @@ export function AppShell({
   labels,
   onLocaleChange,
   onCurrencyChange,
-  onThemeChange,
   actions,
 }: AppShellProps) {
-  const { locale, currency, theme } = useSettings();
+  const { locale, currency } = useSettings();
 
   return (
     <header className="no-print border-b border-[color:var(--line)] bg-[color:var(--surface)]">
@@ -95,19 +89,6 @@ export function AppShell({
             ))}
           </select>
 
-          <label htmlFor="theme" className="sr-only">
-            {labels.theme}
-          </label>
-          <select
-            id="theme"
-            className="btn t-micro"
-            value={theme}
-            onChange={(event) => onThemeChange(event.target.value as ThemeChoice)}
-          >
-            <option value="system">{labels.themeSystem}</option>
-            <option value="light">{labels.themeLight}</option>
-            <option value="dark">{labels.themeDark}</option>
-          </select>
 
           {actions === undefined ? null : (
             <div className="flex flex-wrap items-center gap-1 border-l border-[color:var(--line)] pl-3">

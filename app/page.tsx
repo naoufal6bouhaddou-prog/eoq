@@ -14,7 +14,7 @@ import { ReorderPanel } from '@/components/ReorderPanel';
 import { PinnedAnswer } from '@/components/PinnedAnswer';
 import { PrintFooter, PrintHeader } from '@/components/PrintSheet';
 import { CostPenaltyTable } from '@/components/CostPenaltyTable';
-import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
+import { SettingsProvider } from '@/components/Settings';
 import { derive } from '@/lib/derive';
 import type { CurrencyCode, Locale } from '@/shared/lib/format';
 import { getDictionary } from '@/lib/i18n';
@@ -42,7 +42,6 @@ const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffe
 interface StoredSettings {
   locale?: Locale;
   currency?: CurrencyCode;
-  theme?: ThemeChoice;
 }
 
 function readStoredSettings(): StoredSettings {
@@ -58,7 +57,6 @@ function readStoredSettings(): StoredSettings {
 export default function Page() {
   const [locale, setLocale] = useState<Locale>('fr');
   const [currency, setCurrency] = useState<CurrencyCode>('MAD');
-  const [theme, setTheme] = useState<ThemeChoice>('system');
   const [state, setState] = useState<ToolState>(() => reformatState(BLANK_STATE, 'en', 'fr'));
   const [revealErrors, setRevealErrors] = useState(false);
   const ready = useRef(false);
@@ -77,7 +75,6 @@ export default function Page() {
 
     setLocale(resolved);
     if (stored.currency !== undefined) setCurrency(stored.currency);
-    if (stored.theme !== undefined) setTheme(stored.theme);
 
     // A clear field unless the URL carries one: the tool opens ready for the
     // user's own numbers, and the worked example is one button away.
@@ -95,21 +92,15 @@ export default function Page() {
   useEffect(() => {
     if (!ready.current) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ locale, currency, theme }));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ locale, currency }));
     } catch {
       // Nothing to do: the tool works fine without a remembered preference.
     }
-  }, [locale, currency, theme]);
+  }, [locale, currency]);
 
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'system') root.removeAttribute('data-theme');
-    else root.dataset.theme = theme;
-  }, [theme]);
 
   /* ---- Keep the URL in step, so a result can be shared or bookmarked ---- */
   useEffect(() => {
@@ -155,7 +146,7 @@ export default function Page() {
     .filter((field) => REORDER_FIELDS.includes(field))
     .map(labelFor);
 
-  const settings = useMemo(() => ({ locale, currency, theme, t }), [locale, currency, theme, t]);
+  const settings = useMemo(() => ({ locale, currency, t }), [locale, currency, t]);
 
   /**
    * What the sawtooth needs. With a reorder point in play the rate and the lead
@@ -217,14 +208,9 @@ export default function Page() {
           tool: t.app.tool,
           language: t.app.language,
           currency: t.app.currency,
-          theme: t.app.theme,
-          themeSystem: t.app.themeSystem,
-          themeLight: t.app.themeLight,
-          themeDark: t.app.themeDark,
         }}
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
-        onThemeChange={setTheme}
         actions={
           <>
             <button

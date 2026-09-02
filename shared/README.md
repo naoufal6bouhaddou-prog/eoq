@@ -25,7 +25,7 @@ shared/
     scale.ts        axis arithmetic for hand-built diagrams
     csv.ts          CSV writing, with the Excel details that matter
   ui/
-    settings.tsx    locale, currency and theme, generic over the dictionary
+    settings.tsx    locale and currency, generic over the dictionary
     AppShell.tsx    the family header
     Figure.tsx      a number split at its decimal mark
     Field.tsx       a text input that parses either decimal convention

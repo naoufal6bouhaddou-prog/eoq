@@ -16,10 +16,6 @@ export const en = {
     tool: 'Inventory ordering',
     language: 'Language',
     currency: 'Currency',
-    theme: 'Theme',
-    themeSystem: 'System',
-    themeLight: 'Light',
-    themeDark: 'Dark',
   },
 
   actions: {
