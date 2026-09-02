@@ -10,3 +10,7 @@ test-results/
 
 # local preview screenshots, not part of the app
 .preview/
+
+# agent tooling installed locally, not part of the app
+.claude/
+skills-lock.json
