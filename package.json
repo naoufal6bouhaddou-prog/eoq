@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "e2e:install": "playwright install chromium"
+    "e2e:install": "playwright install chromium",
+    "og": "node scripts/make-og.mjs"
   },
   "dependencies": {
     "next": "^15.5.4",

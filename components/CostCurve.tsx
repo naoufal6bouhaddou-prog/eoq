@@ -286,7 +286,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
     <section aria-label={t.a11y.chartRegion} className="panel">
       <div className="panel-head">
         <h2 className="t-label">{t.sections.chart}</h2>
-        <p className="t-micro text-[color:var(--text-2)]">
+        <p className="note t-micro text-[color:var(--text-2)]">
           {discounts === null ? t.chart.readoutHint : t.chart.includesPurchase}
         </p>
       </div>

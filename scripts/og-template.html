@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Overpass+Mono:wght@400;600;700&display=block">
+<style>
+  :root {
+    --ground: #eef1f4; --surface: #fff; --line: #dce1e6; --line-strong: #b7c0c9;
+    --text: #0f151b; --text-2: #586470; --accent: #14456b; --signal: #b3261e;
+    --mono: 'Overpass Mono', monospace; --sans: 'Archivo', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1200px; height: 630px; background: var(--ground); font-family: var(--sans); color: var(--text); }
+  .sheet { position: absolute; inset: 40px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; }
+  .head { padding: 34px 44px 0; }
+  .eyebrow { font-family: var(--mono); font-size: 19px; letter-spacing: 0.14em; color: var(--text-2); }
+  h1 { font-size: 54px; font-weight: 700; letter-spacing: -0.022em; line-height: 1.02; margin-top: 14px; }
+  .sub { font-size: 23px; color: var(--text-2); margin-top: 12px; }
+  .plot { flex: 1; padding: 4px 44px 18px; }
+  svg { width: 100%; height: 100%; display: block; }
+  .tick { font-family: var(--mono); font-size: 15px; fill: var(--text-2); }
+  .mark { font-family: var(--mono); font-size: 21px; font-weight: 700; fill: var(--signal);
+          paint-order: stroke; stroke: var(--surface); stroke-width: 6px; stroke-linejoin: round; }
+  .trace-label { font-family: var(--mono); font-size: 16px; fill: var(--text-2); }
+  .foot { display: flex; gap: 44px; padding: 0 44px 30px; align-items: baseline; }
+  .foot .k { font-family: var(--mono); font-size: 15px; letter-spacing: 0.08em; color: var(--text-2); }
+  .foot .v { font-family: var(--mono); font-size: 30px; font-weight: 700; margin-top: 4px; }
+  .foot .v.q { color: var(--signal); }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="head">
+      <div class="eyebrow">SUPPLY CHAIN TOOLS</div>
+      <h1>Quantité économique de commande</h1>
+      <p class="sub">Le coût de passation et le coût de possession s’égalisent en Q*.</p>
+    </div>
+    <div class="plot"><svg id="chart" viewBox="0 0 1080 250" preserveAspectRatio="none"></svg></div>
+    <div class="foot">
+      <div><div class="k">Q*</div><div class="v q" id="q"></div></div>
+      <div><div class="k">COMMANDES / AN</div><div class="v" id="n"></div></div>
+      <div><div class="k">COÛT TOTAL PERTINENT</div><div class="v" id="c"></div></div>
+    </div>
+  </div>
+
+<script>
+  const D = 24000, S = 450, H = 8.47;
+  const qStar = Math.sqrt((2 * D * S) / H);
+  const ordering = (q) => (D / q) * S;
+  const holding = (q) => (q / 2) * H;
+  const total = (q) => ordering(q) + holding(q);
+
+  /* Domain chosen around Q*, not from zero: the interesting part of the curve
+     is its flat bottom, and starting at zero spends most of the width on an
+     asymptote nobody orders at. */
+  const qMin = qStar / 3, qMax = qStar * 2.2;
+  const yMax = Math.max(total(qMin), total(qMax)) * 1.06;
+
+  const W = 1080, HT = 250, L = 8, R = W - 108, T = 26, B = HT - 30;
+  const sx = (q) => L + ((q - qMin) / (qMax - qMin)) * (R - L);
+  const sy = (v) => B - (v / yMax) * (B - T);
+  const path = (f) => {
+    let d = '';
+    for (let i = 0; i <= 240; i += 1) {
+      const q = qMin + (i / 240) * (qMax - qMin);
+      d += (d ? ' L' : 'M') + sx(q).toFixed(1) + ' ' + sy(f(q)).toFixed(1);
+    }
+    return d;
+  };
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('chart');
+  const add = (tag, attrs, text) => {
+    const el = document.createElementNS(ns, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    if (text !== undefined) el.textContent = text;
+    svg.appendChild(el);
+    return el;
+  };
+
+  add('line', { x1: L, x2: R, y1: B, y2: B, stroke: 'var(--line-strong)', 'stroke-width': 1.5 });
+  add('path', { d: path(ordering), fill: 'none', stroke: 'var(--text-2)', 'stroke-width': 2.5, 'stroke-dasharray': '7 6' });
+  add('path', { d: path(holding), fill: 'none', stroke: 'var(--text-2)', 'stroke-width': 2.5 });
+  add('path', { d: path(total), fill: 'none', stroke: 'var(--text)', 'stroke-width': 4 });
+
+  add('text', { x: R + 8, y: sy(ordering(qMax)) + 6, class: 'trace-label' }, 'passation');
+  add('text', { x: R + 8, y: sy(holding(qMax)) + 6, class: 'trace-label' }, 'possession');
+
+  const yStar = sy(total(qStar));
+  add('line', { x1: sx(qStar), x2: sx(qStar), y1: yStar, y2: B, stroke: 'var(--signal)', 'stroke-width': 2 });
+  add('circle', { cx: sx(qStar), cy: yStar, r: 8, fill: 'var(--signal)' });
+  add('circle', { cx: sx(qStar), cy: sy(holding(qStar)), r: 6, fill: 'var(--signal)' });
+  add('text', { x: sx(qStar), y: yStar - 18, 'text-anchor': 'middle', class: 'mark' }, 'Q*');
+
+  const fr = (v, d) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  document.getElementById('q').textContent = fr(qStar, 1);
+  document.getElementById('n').textContent = fr(D / qStar, 1);
+  document.getElementById('c').textContent = fr(total(qStar), 2) + ' MAD';
+  document.documentElement.dataset.drawn = 'true';
+</script>
+</body>
+</html>

@@ -29,7 +29,7 @@ export function CostPenaltyTable({ penaltyRows }: CostPenaltyTableProps) {
     <section className="panel">
       <div className="px-4 pt-3">
         <h2 className="t-label">{t.sections.penalty}</h2>
-        <p className="t-micro mt-1 max-w-[62ch] text-[color:var(--text-2)]">{t.penalty.caption}</p>
+        <p className="note t-micro mt-1 text-[color:var(--text-2)]">{t.penalty.caption}</p>
       </div>
 
       <div className="table-scroll px-4 py-2">

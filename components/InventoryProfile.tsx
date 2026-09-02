@@ -161,7 +161,7 @@ export function InventoryProfile({
     <section className="panel" aria-label={t.profile.title}>
       <div className="panel-head">
         <h2 className="t-label">{t.profile.title}</h2>
-        <p className="t-micro max-w-[62ch] text-[color:var(--text-2)]">
+        <p className="note t-micro text-[color:var(--text-2)]">
           {showReorderMarks ? t.profile.caption : t.profile.captionPlain}
         </p>
       </div>

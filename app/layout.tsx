@@ -20,7 +20,7 @@ import './globals.css';
  */
 const mono = Overpass_Mono({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '600', '700'],
   variable: '--font-figure',
   display: 'swap',
   fallback: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
@@ -33,9 +33,39 @@ const text = Archivo({
   fallback: ['system-ui', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
 });
 
+/**
+ * The canonical address, overridable so a fork or a preview deployment
+ * advertises itself rather than this one. Social crawlers resolve the image
+ * against it: a relative path alone gives them nothing to fetch.
+ */
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://eoq.vercel.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: fr.meta.title,
   description: fr.meta.description,
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    siteName: 'Supply Chain Tools',
+    title: fr.meta.title,
+    description: fr.meta.description,
+    url: '/',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'La courbe de coût de la quantité économique de commande, avec Q* marqué à son minimum.',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: fr.meta.title,
+    description: fr.meta.description,
+    images: ['/og.png'],
+  },
 };
 
 export const viewport = {

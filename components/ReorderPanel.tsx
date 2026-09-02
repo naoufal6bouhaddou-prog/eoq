@@ -37,7 +37,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
     return (
       <section className="panel panel-body">
         <h2 className="t-label mb-1">{t.sections.reorder}</h2>
-        <p className="t-micro text-[color:var(--text-2)]">
+        <p className="note t-micro text-[color:var(--text-2)]">
           {missingLabels.length > 0
             ? `${t.empty.needs} ${missingLabels.join(', ')}`
             : t.empty.reorderNeeds}
@@ -50,7 +50,7 @@ export function ReorderPanel({ reorder, eoq, missingLabels }: ReorderPanelProps)
     <section className="panel">
       <div className="panel-head">
         <h2 className="t-label">{t.sections.reorder}</h2>
-        <p className="t-micro text-[color:var(--text-2)]">{t.results.serviceLevelNote}</p>
+        <p className="note t-micro text-[color:var(--text-2)]">{t.results.serviceLevelNote}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-x-4 px-4 py-2 sm:grid-cols-4">

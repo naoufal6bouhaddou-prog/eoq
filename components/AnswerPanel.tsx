@@ -55,7 +55,7 @@ export function AnswerPanel({ eoq, practical, missingLabels }: AnswerPanelProps)
             {t.empty.headline}
           </p>
           {missingLabels.length > 0 ? (
-            <p className="t-micro mt-1.5 text-[color:var(--text-2)]">
+            <p className="note t-micro mt-1.5 text-[color:var(--text-2)]">
               {t.empty.needs} {missingLabels.join(', ')}
             </p>
           ) : null}
@@ -97,7 +97,7 @@ export function AnswerPanel({ eoq, practical, missingLabels }: AnswerPanelProps)
             testId="result-quantity"
           />
         </p>
-        <p className="t-micro mt-1 text-[color:var(--text-2)]">
+        <p className="note t-micro mt-1 text-[color:var(--text-2)]">
           {eoq.costsBalanced ? t.results.balanced : t.results.notBalanced}
         </p>
 
@@ -155,7 +155,7 @@ export function AnswerPanel({ eoq, practical, missingLabels }: AnswerPanelProps)
           {eoq.totalCost === null ? null : (
             <div className="flex items-baseline gap-1.5">
               <dt className="t-micro text-[color:var(--text-2)]">{t.results.totalCost}</dt>
-              <dd className="t-body num">
+              <dd className="t-body num num-total">
                 <Figure value={eoq.totalCost} decimals={2} />
               </dd>
             </div>

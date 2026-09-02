@@ -44,16 +44,16 @@ export function DiscountTable({ analysis, basis, hasRoundingMultiple }: Discount
     <section className="panel">
       <div className="px-4 pt-3">
         <h2 className="t-label">{t.sections.discounts}</h2>
-        <p className="t-micro mt-1 max-w-[75ch] text-[color:var(--text-2)]">
+        <p className="note t-micro mt-1 text-[color:var(--text-2)]">
           {t.discounts.model}
         </p>
         {basis?.kind === 'rate' ? (
-          <p className="t-micro mt-0.5 max-w-[75ch] text-[color:var(--text-2)]">
+          <p className="note t-micro mt-0.5 text-[color:var(--text-2)]">
             {t.discounts.holdingNote}
           </p>
         ) : null}
         {hasRoundingMultiple ? (
-          <p className="t-micro mt-0.5 max-w-[75ch] text-[color:var(--text-2)]">
+          <p className="note t-micro mt-0.5 text-[color:var(--text-2)]">
             {t.discounts.roundingNote}
           </p>
         ) : null}
