@@ -457,8 +457,9 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               );
             })}
 
-            {/* Q* is the recommended quantity, not a threshold, so it takes
-                the accent. Red is reserved for the reorder point. */}
+            {/* Red is the ink of the diagrams: it marks the point that matters
+                on a chart, here Q* and its projection down to the axis. What it
+                never does is set a figure, which would read as an error. */}
             {inRange && discounts === null ? (
               <g>
                 <line
@@ -466,20 +467,20 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   x2={optimumX}
                   y1={geometry.y(eoq.relevantCostCore)}
                   y2={geometry.plotBottom}
-                  stroke="var(--accent)"
+                  stroke="var(--signal)"
                   strokeWidth={1}
                 />
                 <circle
                   cx={optimumX}
                   cy={geometry.y(eoq.relevantCostCore / 2)}
                   r={3.5}
-                  fill="var(--accent)"
+                  fill="var(--signal)"
                 />
                 <circle
                   cx={optimumX}
                   cy={geometry.y(eoq.relevantCostCore)}
                   r={3.5}
-                  fill="var(--accent)"
+                  fill="var(--signal)"
                 />
                 {/* Above the curve at its minimum, not on the axis row: the
                     scale keeps every tick, and the mark sits in the empty

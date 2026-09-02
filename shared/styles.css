@@ -7,8 +7,9 @@
    is peculiar to itself.
 
    A neutral system with two marked colours and nothing else:
-   --accent is structure and the one primary action, --signal is a
-   threshold crossed. Everything else is unmarked ground.
+   --accent is structure and the one primary action. --signal marks a
+   point on a diagram and flags a faulty entry, and never sets a figure:
+   a value in red reads as a mistake. Everything else is unmarked ground.
    See docs/design-plan.md.
 
    Nothing below knows anything about any particular tool.
@@ -217,20 +218,13 @@ table.banded th {
   fill: var(--text-2);
 }
 
-/* The recommended value: Q*, and the tier the schedule points at. Haloed,
-   because it is drawn over the curve rather than beside it. */
-.chart-mark {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  fill: var(--accent);
-  paint-order: stroke;
-  stroke: var(--surface);
-  stroke-width: 3px;
-  stroke-linejoin: round;
-}
+/* A point marked on a diagram: Q* and the tier the schedule points at on one
+   chart, the reorder point on the other. Haloed, because these are drawn over
+   a curve rather than beside it.
 
-/* A threshold that must be acted on, and nothing else. */
+   Two names for one appearance, on purpose: each diagram keeps its own handle
+   even though the ink is the same. */
+.chart-mark,
 .chart-threshold {
   font-family: var(--font-mono);
   font-size: 10px;
