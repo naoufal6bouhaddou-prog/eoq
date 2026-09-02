@@ -5,9 +5,15 @@ import { defineConfig, devices } from '@playwright/test';
  * itself on a loopback port, and every path is relative to the repository. A
  * fresh clone needs `npm install` and `npm run e2e:install` once, then
  * `npm run e2e`.
+ *
+ * Set E2E_BASE_URL to run the same suite against a deployment instead. The
+ * local server is then not started at all, because there is nothing to start:
+ *
+ *   E2E_BASE_URL=https://example.vercel.app npm run e2e
  */
 const PORT = Number(process.env.PORT ?? 3000);
-const BASE_URL = `http://127.0.0.1:${PORT}`;
+const DEPLOYED_URL = process.env.E2E_BASE_URL;
+const BASE_URL = DEPLOYED_URL ?? `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -31,11 +37,13 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: `npm run dev -- --port ${PORT}`,
-    url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
-    stdout: 'ignore',
-  },
+  webServer: DEPLOYED_URL
+    ? undefined
+    : {
+        command: `npm run dev -- --port ${PORT}`,
+        url: BASE_URL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+        stdout: 'ignore',
+      },
 });
