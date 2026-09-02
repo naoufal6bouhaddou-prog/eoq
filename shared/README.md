@@ -72,6 +72,27 @@ drawing it:
 - **`Settings` imported the tool's `Dictionary` type.** A type-level dependency
   pointing the wrong way, invisible at runtime. It is a type parameter now.
 
+## The palette is a starting point
+
+Ten tokens, chosen for one instrument. They are **not** a frozen system: the
+palette is expected to change as sibling tools arrive and show what they
+actually need — a chart with five series, a hub that has to tell six tools
+apart, a state that is neither an error nor a result.
+
+What should survive that growth is the property that makes the current set
+work, not the set itself:
+
+**Every colour has exactly one job, and you can say which one out loud.** A
+palette of twenty stays coherent if all twenty are named for a function. One
+of twelve falls apart the moment it contains a nice green that was needed
+somewhere.
+
+So when a second tool needs a colour the shared layer does not have, add a
+**named role** here rather than a literal in that tool's own stylesheet. The
+failure mode is not running out of colours; it is two tools inventing
+different vocabularies for the same idea, which has to be reconciled later
+instead of decided once.
+
 ## What deliberately stayed behind
 
 `lib/validate.ts` holds a generic rule engine but also this tool's `FieldName`
