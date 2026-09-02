@@ -13,7 +13,7 @@ import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
 import { PinnedAnswer } from '@/components/PinnedAnswer';
 import { PrintFooter, PrintHeader } from '@/components/PrintSheet';
-import { SensitivityTables } from '@/components/SensitivityTables';
+import { CostPenaltyTable } from '@/components/CostPenaltyTable';
 import { SettingsProvider, type ThemeChoice } from '@/components/Settings';
 import { derive } from '@/lib/derive';
 import type { CurrencyCode, Locale } from '@/shared/lib/format';
@@ -319,10 +319,7 @@ export default function Page() {
             )}
 
             {derived.penaltyRows.length === 0 ? null : (
-              <SensitivityTables
-                penaltyRows={derived.penaltyRows}
-                sensitivityRows={derived.sensitivityRows}
-              />
+              <CostPenaltyTable penaltyRows={derived.penaltyRows} />
             )}
 
           </div>

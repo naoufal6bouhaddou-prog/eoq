@@ -46,7 +46,6 @@ export const fr: Dictionary = {
     chart: 'Courbe de coût',
     discounts: 'Comparaison des remises à tarif uniforme',
     penalty: 'Coût d’une quantité de commande erronée',
-    sensitivity: 'Sensibilité aux erreurs d’estimation',
   },
 
   fields: {
@@ -180,25 +179,6 @@ export const fr: Dictionary = {
     optimum: 'Optimum',
   },
 
-  sensitivity: {
-    caption:
-      'Q* varie comme la racine carrée de D et de S, et à l’inverse de la racine carrée de H : une erreur d’estimation est donc amortie.',
-    columns: {
-      parameter: 'Donnée',
-      deviation: 'Erreur',
-      value: 'Valeur',
-      quantity: 'Q*',
-      quantityChange: 'Variation de Q*',
-      relevantCost: 'CTP',
-      relevantCostChange: 'Variation du CTP',
-    },
-    parameters: {
-      annualDemand: 'Demande annuelle',
-      orderCost: 'Coût de passation',
-      holdingCostPerUnit: 'Coût de possession',
-    },
-    baseline: 'Référence',
-  },
 
   profile: {
     title: 'Évolution du stock',

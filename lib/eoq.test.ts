@@ -7,7 +7,6 @@ import {
   economicOrderQuantity,
   evaluateAtQuantity,
   holdingCostFromRate,
-  inputSensitivityTable,
   practicalQuantity,
   roundUpToMultiple,
   sampleDiscountCurve,
@@ -500,7 +499,7 @@ describe('reorder point', () => {
 });
 
 /* ================================================================== */
-/* Sensitivity                                                        */
+/* Cost penalty                                                       */
 /* ================================================================== */
 
 describe('cost penalty of ordering the wrong quantity', () => {
@@ -530,55 +529,6 @@ describe('cost penalty of ordering the wrong quantity', () => {
   it('agrees with a direct TRC evaluation at every ratio', () => {
     for (const row of costPenaltyTable(10_000, 50, 2)) {
       expect(row.relevantCost).toBeCloseTo(totalRelevantCost(10_000, 50, 2, row.quantity), 6);
-    }
-  });
-});
-
-describe('sensitivity to input error', () => {
-  const rows = inputSensitivityTable(10_000, 50, 2);
-
-  it('covers three parameters at five deviations each', () => {
-    expect(rows).toHaveLength(15);
-  });
-
-  it('moves Q* by the square root of the error in D', () => {
-    const row = rows.find((r) => r.parameter === 'annualDemand' && r.deviation === 0.2);
-    expect(row?.parameterValue).toBeCloseTo(12_000, 8);
-    expect(row?.quantityChangePercent).toBeCloseTo((Math.sqrt(1.2) - 1) * 100, 8);
-    expect(row?.quantityChangePercent).toBeCloseTo(9.5445, 3);
-  });
-
-  it('moves Q* inversely with the square root of the error in H', () => {
-    const row = rows.find((r) => r.parameter === 'holdingCostPerUnit' && r.deviation === 0.2);
-    expect(row?.quantityChangePercent).toBeCloseTo((1 / Math.sqrt(1.2) - 1) * 100, 8);
-    expect(row?.quantityChangePercent).toBeCloseTo(-8.7129, 3);
-    expect(row?.relevantCostChangePercent).toBeCloseTo(9.5445, 3);
-  });
-
-  it('leaves the baseline row unchanged', () => {
-    for (const row of rows.filter((r) => r.isBaseline)) {
-      expect(row.quantityChangePercent).toBeCloseTo(0, 10);
-      expect(row.relevantCostChangePercent).toBeCloseTo(0, 10);
-      expect(row.quantity).toBeCloseTo(707.1067812, 6);
-    }
-  });
-
-  it('dampens error: a 20% input error moves Q* by under 10%', () => {
-    for (const row of rows) {
-      if (row.deviation === 0) continue;
-      expect(Math.abs(row.quantityChangePercent)).toBeLessThan(Math.abs(row.deviation * 100));
-    }
-  });
-
-  it('reports TRC from the closed form at every varied point', () => {
-    for (const row of rows) {
-      const expected =
-        row.parameter === 'annualDemand'
-          ? totalRelevantCostAtOptimum(row.parameterValue, 50, 2)
-          : row.parameter === 'orderCost'
-            ? totalRelevantCostAtOptimum(10_000, row.parameterValue, 2)
-            : totalRelevantCostAtOptimum(10_000, 50, row.parameterValue);
-      expect(row.relevantCost).toBeCloseTo(expected, 8);
     }
   });
 });

@@ -11,7 +11,7 @@ import { expect, test, type Page } from '@playwright/test';
 const SCHEDULE =
   '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&br=1:38.5,1500:37.2,4000:36.1&lang=en';
 
-/** Rows of the comparison table specifically: the sensitivity tables on the
+/** Rows of the comparison table specifically: the penalty table on the
  *  same page share its banded styling. */
 function rows(page: Page) {
   return page.getByTestId('discount-table').locator('tbody tr');

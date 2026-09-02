@@ -38,7 +38,6 @@ test('downloads one file holding every section', async ({ page }) => {
     'Results',
     'All-units discount comparison',
     'Cost of ordering the wrong quantity',
-    'Sensitivity to input error',
   ]) {
     expect(csv).toContain(heading);
   }
@@ -154,23 +153,4 @@ test('fits the brief on one sheet of A4', async ({ page }, testInfo) => {
 
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   expect(height).toBeLessThanOrEqual(1040);
-});
-
-test('lays the sensitivity tables side by side on paper', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'desktop', 'measured at paper size, not at a screen size');
-
-  // Paper is not a narrow screen: it is a wide one that happens to be short,
-  // so the arrangements that depend on viewport width are restated for print.
-  await page.setViewportSize({ width: 711, height: 1040 });
-  await page.goto('/?d=10000&s=50&h=2&y=365&hm=u&lang=en');
-  await ready(page);
-  await page.emulateMedia({ media: 'print' });
-
-  const penalty = await page.getByTestId('penalty-table').boundingBox();
-  const sensitivity = await page.getByTestId('sensitivity-table').boundingBox();
-  expect(penalty).not.toBeNull();
-  expect(sensitivity).not.toBeNull();
-  if (penalty === null || sensitivity === null) return;
-
-  expect(sensitivity.x).toBeGreaterThan(penalty.x + penalty.width - 1);
 });

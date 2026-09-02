@@ -190,29 +190,5 @@ export function reportSections(input: ReportInput): CsvSection[] {
     });
   }
 
-  if (derived.sensitivityRows.length > 0) {
-    sections.push({
-      title: t.sections.sensitivity,
-      header: [
-        t.sensitivity.columns.parameter,
-        t.sensitivity.columns.deviation,
-        t.sensitivity.columns.value,
-        t.sensitivity.columns.quantity,
-        t.sensitivity.columns.quantityChange,
-        t.sensitivity.columns.relevantCost,
-        t.sensitivity.columns.relevantCostChange,
-      ],
-      rows: derived.sensitivityRows.map((row) => [
-        t.sensitivity.parameters[row.parameter],
-        row.isBaseline ? t.sensitivity.baseline : formatForCsv(row.deviation * 100, locale, 0),
-        formatForCsv(row.parameterValue, locale, 2),
-        qty(row.quantity),
-        formatForCsv(row.quantityChangePercent, locale, 1),
-        money(row.relevantCost),
-        formatForCsv(row.relevantCostChangePercent, locale, 1),
-      ]),
-    });
-  }
-
   return sections;
 }

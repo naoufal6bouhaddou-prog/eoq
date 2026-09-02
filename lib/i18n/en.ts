@@ -43,7 +43,6 @@ export const en = {
     chart: 'Cost curve',
     discounts: 'All-units discount comparison',
     penalty: 'Cost of ordering the wrong quantity',
-    sensitivity: 'Sensitivity to input error',
   },
 
   fields: {
@@ -176,25 +175,6 @@ export const en = {
     optimum: 'Optimum',
   },
 
-  sensitivity: {
-    caption:
-      'Q* moves with the square root of D and S, and inversely with the square root of H, so an estimation error is dampened.',
-    columns: {
-      parameter: 'Input',
-      deviation: 'Error',
-      value: 'Value',
-      quantity: 'Q*',
-      quantityChange: 'Change in Q*',
-      relevantCost: 'TRC',
-      relevantCostChange: 'Change in TRC',
-    },
-    parameters: {
-      annualDemand: 'Annual demand',
-      orderCost: 'Cost per order',
-      holdingCostPerUnit: 'Holding cost',
-    },
-    baseline: 'Baseline',
-  },
 
   profile: {
     title: 'Inventory over time',

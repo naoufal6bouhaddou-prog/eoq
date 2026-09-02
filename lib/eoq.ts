@@ -1,6 +1,6 @@
 /**
  * Inventory ordering models: economic order quantity, all-units quantity
- * discounts, reorder point / safety stock, and sensitivity analysis.
+ * discounts, reorder point / safety stock, and the cost-penalty table.
  *
  * Everything here takes plain numbers and returns plain numbers or typed
  * objects. No React, no Intl, no formatting, no user-facing text. The only
@@ -430,7 +430,7 @@ export function solveReorderPoint(input: ReorderInput): ReorderResult {
 }
 
 /* ------------------------------------------------------------------ */
-/* Sensitivity analysis                                                 */
+/* Cost penalty                                                         */
 /* ------------------------------------------------------------------ */
 
 /** Q / Q* ratios for the cost-penalty table. */
@@ -477,77 +477,6 @@ export function costPenaltyTable(
       isOptimum: ratio === 1,
     };
   });
-}
-
-/** Relative errors applied to each input in the second sensitivity table. */
-export const INPUT_DEVIATIONS = [-0.2, -0.1, 0, 0.1, 0.2] as const;
-
-export type SensitivityParameter = 'annualDemand' | 'orderCost' | 'holdingCostPerUnit';
-
-export const SENSITIVITY_PARAMETERS: readonly SensitivityParameter[] = [
-  'annualDemand',
-  'orderCost',
-  'holdingCostPerUnit',
-];
-
-export interface InputSensitivityRow {
-  parameter: SensitivityParameter;
-  /** Relative change applied, as a fraction: -0.2 is a 20% underestimate. */
-  deviation: number;
-  parameterValue: number;
-  quantity: number;
-  relevantCost: number;
-  quantityChangePercent: number;
-  relevantCostChangePercent: number;
-  isBaseline: boolean;
-}
-
-/**
- * Vary D, S and H one at a time. Because Q* is proportional to sqrt(D),
- * sqrt(S) and 1 / sqrt(H), a 20% error in an input moves Q* by about 10%.
- */
-export function inputSensitivityTable(
-  annualDemand: number,
-  orderCost: number,
-  holdingCostPerUnit: number,
-  deviations: readonly number[] = INPUT_DEVIATIONS,
-): InputSensitivityRow[] {
-  const baseQuantity = economicOrderQuantity(annualDemand, orderCost, holdingCostPerUnit);
-  const baseCost = totalRelevantCostAtOptimum(annualDemand, orderCost, holdingCostPerUnit);
-  const base: Record<SensitivityParameter, number> = {
-    annualDemand,
-    orderCost,
-    holdingCostPerUnit,
-  };
-
-  const rows: InputSensitivityRow[] = [];
-  for (const parameter of SENSITIVITY_PARAMETERS) {
-    for (const deviation of deviations) {
-      const parameterValue = base[parameter] * (1 + deviation);
-      const values = { ...base, [parameter]: parameterValue };
-      const quantity = economicOrderQuantity(
-        values.annualDemand,
-        values.orderCost,
-        values.holdingCostPerUnit,
-      );
-      const relevantCost = totalRelevantCostAtOptimum(
-        values.annualDemand,
-        values.orderCost,
-        values.holdingCostPerUnit,
-      );
-      rows.push({
-        parameter,
-        deviation,
-        parameterValue,
-        quantity,
-        relevantCost,
-        quantityChangePercent: (quantity / baseQuantity - 1) * 100,
-        relevantCostChangePercent: (relevantCost / baseCost - 1) * 100,
-        isBaseline: deviation === 0,
-      });
-    }
-  }
-  return rows;
 }
 
 /* ------------------------------------------------------------------ */

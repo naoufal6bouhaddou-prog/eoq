@@ -10,7 +10,6 @@ import {
   analyseAllUnitsDiscounts,
   costPenaltyTable,
   holdingCostFromRate,
-  inputSensitivityTable,
   practicalQuantity,
   solveEoq,
   solveReorderPoint,
@@ -19,7 +18,6 @@ import {
   type EoqInput,
   type EoqResult,
   type HoldingBasis,
-  type InputSensitivityRow,
   type PracticalQuantity,
   type PriceBreak,
   type ReorderResult,
@@ -57,7 +55,6 @@ export interface Derived {
   /** The parsed schedule, so the chart draws exactly what the table compares. */
   priceBreaks: PriceBreak[];
   penaltyRows: CostPenaltyRow[];
-  sensitivityRows: InputSensitivityRow[];
 }
 
 /**
@@ -177,7 +174,6 @@ export function derive(state: ToolState, locale: Locale): Derived {
   let eoq: EoqResult | null = null;
   let practical: PracticalQuantity | null = null;
   let penaltyRows: CostPenaltyRow[] = [];
-  let sensitivityRows: InputSensitivityRow[] = [];
 
   if (
     annualDemand !== undefined &&
@@ -198,7 +194,6 @@ export function derive(state: ToolState, locale: Locale): Derived {
       practical = practicalQuantity(eoqInput, values.roundingMultiple);
     }
     penaltyRows = costPenaltyTable(annualDemand, orderCost, holdingCostPerUnit);
-    sensitivityRows = inputSensitivityTable(annualDemand, orderCost, holdingCostPerUnit);
   }
 
   /* Discounts. */
@@ -234,6 +229,5 @@ export function derive(state: ToolState, locale: Locale): Derived {
     discounts,
     priceBreaks,
     penaltyRows,
-    sensitivityRows,
   };
 }

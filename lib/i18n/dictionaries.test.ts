@@ -50,7 +50,6 @@ const SHARED_BY_DESIGN = new Set([
   'results.quantityShort',
   'penalty.columns.ratio',
   'penalty.columns.quantity',
-  'sensitivity.columns.quantity',
   'units.percent',
   'chart.optimum',
   'chart.total',
@@ -125,7 +124,6 @@ describe('the two dictionaries', () => {
     expect(fr.results.safetyStock).toBe('Stock de sécurité');
     expect(fr.sections.breaks).toBe('Remises sur quantité');
     expect(fr.fields.cycleServiceLevel.label).toContain('Taux de service');
-    expect(fr.sections.sensitivity).toContain('Sensibilité');
   });
 
   it('keeps the copy free of the words the brief rules out', () => {
