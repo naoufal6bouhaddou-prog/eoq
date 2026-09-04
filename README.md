@@ -1,16 +1,37 @@
 # Supply Chain Tools
 
-Two tools sharing one design system, one static build and one settings
-preference. Everything runs in the browser; there is no backend, no database and
-no analytics. `next build` writes a complete static site to `out/`.
+Two tools, two sites, one design system. Everything runs in the browser; there
+is no backend, no database and no analytics. Each app builds to a complete
+static site.
 
-| Route  | Tool                                                                     |
-| ------ | ------------------------------------------------------------------------ |
-| `/`    | **Inventory ordering.** Economic order quantity, reorder point and safety stock, all-units quantity discounts, sensitivity analysis |
-| `/abc` | **ABC analysis.** Ranks stocked items by annual consumption value and splits the ranked list into A, B and C |
+| App        | What it does                                                                                          |
+| ---------- | ----------------------------------------------------------------------------------------------------- |
+| `apps/eoq` | **Inventory ordering.** Economic order quantity, reorder point and safety stock, all-units quantity discounts, sensitivity analysis |
+| `apps/abc` | **ABC analysis.** Ranks stocked items by annual consumption value and cuts the ranked list into A, B and C |
 
 Both are bilingual French and English, with locale-aware number entry and
-formatting, and a currency selector for MAD, EUR and USD.
+formatting, and a currency selector for MAD, EUR and USD. Each opens in the
+reader's own language and remembers a choice made in either, because they share
+one stored preference.
+
+## Why a workspace
+
+The two tools are deployed separately and read as separate sites, but they are
+one design system. `packages/shared` holds it, and there is exactly one copy:
+tokens, the stylesheet, number formatting, axis arithmetic, CSV writing, and the
+interface primitives. A second copy would diverge at the first correction, which
+is the whole reason this is a workspace and not two repositories.
+
+```
+packages/shared     the layer both tools inherit unchanged. See its own README
+apps/eoq            the ordering calculator, at eoq.vercel.app
+apps/abc            the ABC analyser, at its own address
+docs/               the design plan, written before any CSS
+```
+
+The shared layer ships as TypeScript source rather than as a built artefact, so
+each app compiles it (`transpilePackages`) and Tailwind is pointed at it
+(`@source`). No build step sits between the two.
 
 ## Running it
 
@@ -18,65 +39,96 @@ formatting, and a currency selector for MAD, EUR and USD.
 npm install
 ```
 
+One command per tool, on different ports so both can run at once:
+
 ```bash
-npm run dev
+npm run dev:eoq
 ```
 
-Then open <http://localhost:3000>.
+```bash
+npm run dev:abc
+```
 
-| Command              | What it does                                              |
-| -------------------- | --------------------------------------------------------- |
-| `npm run dev`        | Development server on port 3000                            |
-| `npm run build`      | Static build into `out/`, ready for any static host        |
-| `npm test`           | Vitest unit tests over the calculation layer               |
-| `npm run test:watch` | The same, in watch mode                                    |
-| `npm run e2e`        | Playwright browser tests, desktop and 360px                |
-| `npm run e2e:install`| Downloads the Chromium build Playwright drives             |
-| `npm run typecheck`  | `tsc --noEmit`                                             |
+`dev:eoq` serves <http://localhost:3000>, `dev:abc` serves
+<http://localhost:3001>.
 
-Nothing is tied to one machine. Playwright starts and stops the dev server
-itself on a loopback port, and every path in the repository is relative. A fresh
-clone needs `npm install`, then `npm run e2e:install` once before the first
-browser run.
+| Command             | What it does                                                     |
+| ------------------- | ---------------------------------------------------------------- |
+| `npm run dev:eoq`   | Ordering calculator, port 3000                                    |
+| `npm run dev:abc`   | ABC analyser, port 3001                                           |
+| `npm run build`     | Static build of both apps, into each app's `out/`                 |
+| `npm test`          | Vitest across the shared layer and both calculation layers        |
+| `npm run typecheck` | `tsc --noEmit` across all three packages                          |
+| `npm run e2e`       | Playwright, both suites, desktop and 360px                        |
+| `npm run e2e:install` | Downloads the Chromium build Playwright drives                  |
+
+Anything can also be run against one package: `npm test --workspace @sct/abc`.
+
+Nothing is tied to one machine. Playwright starts and stops its own dev server
+on a loopback port, and every path in the repository is relative. A fresh clone
+needs `npm install`, then `npm run e2e:install` once before the first browser
+run.
 
 Node 20.9 or later.
 
 ## Deploying
 
-Vercel needs no configuration: it reads `next.config.ts`, sees
-`output: 'export'`, and serves `out/`. Any other static host works the same way
-by publishing the contents of `out/`.
+One Vercel project per app, both pointed at this repository, each with its
+**Root Directory** set to the app:
 
-## How it is put together
+| Vercel project | Root Directory |
+| -------------- | -------------- |
+| the ordering calculator | `apps/eoq` |
+| the ABC analyser        | `apps/abc` |
+
+Vercel reads `next.config.ts`, sees `output: 'export'`, and serves `out/`. It
+installs from the workspace root on its own, so the shared package resolves
+without extra configuration. Any other static host works the same way by
+publishing an app's `out/`.
+
+Each app links to the other in its header. Those links cross sites now, so each
+build takes the sibling's address from an environment variable and falls back to
+the production one:
+
+| App        | Variable                | Falls back to                       |
+| ---------- | ----------------------- | ----------------------------------- |
+| `apps/eoq` | `NEXT_PUBLIC_ABC_URL`   | `https://abc-analysis.vercel.app`   |
+| `apps/abc` | `NEXT_PUBLIC_EOQ_URL`   | `https://eoq.vercel.app`            |
+
+Set them once per Vercel project if the deployed addresses differ from those.
+`NEXT_PUBLIC_SITE_URL` overrides the address an app advertises to social
+crawlers, which matters on a preview deployment.
+
+## How each tool is put together
 
 ```
-shared/           the layer a sibling tool inherits unchanged: tokens,
-                  the stylesheet, number formatting, axis arithmetic, CSV
-                  writing, and the interface primitives. See shared/README.md
-lib/eoq.ts        the models: EOQ, all-units discounts, reorder point,
-                  sensitivity, curve sampling. Plain numbers in and out.
-lib/stats.ts      inverse normal CDF
-lib/validate.ts   input rules, reported as typed codes
-lib/derive.ts     the bridge: raw strings to checked numbers to results
-lib/state.ts      the input model, and how it travels in a URL
-lib/report.ts     what both exports carry, built once so they agree
-lib/i18n/         one dictionary per language, same typed shape
-lib/abc/          the second tool: classify.ts is the whole model, sample.ts
-                  the worked example, rows.ts the text-to-number bridge,
-                  i18n/ its own two dictionaries
-components/       inputs, results, chart, tables, export
-components/abc/   Pareto chart, class summary, the editable table
-app/              layout, the ordering page, and app/abc/ the analyser
-e2e/              Playwright specs
-docs/             the design plan, written before any CSS
+apps/eoq/
+  lib/eoq.ts        the models: EOQ, all-units discounts, reorder point,
+                    sensitivity, curve sampling. Plain numbers in and out.
+  lib/stats.ts      inverse normal CDF
+  lib/validate.ts   input rules, reported as typed codes
+  lib/derive.ts     the bridge: raw strings to checked numbers to results
+  lib/state.ts      the input model, and how it travels in a URL
+  lib/report.ts     what both exports carry, built once so they agree
+  lib/i18n/         one dictionary per language, same typed shape
+  components/       inputs, results, chart, tables, export
+  app/              layout and the single page
+
+apps/abc/
+  lib/classify.ts   the whole model: value, order, shares, the three bands
+  lib/sample.ts     the worked example, in both languages
+  lib/rows.ts       the bridge: what is typed in a cell to what is classified
+  lib/i18n/         its own two dictionaries
+  components/       Pareto chart, class summary, the editable table
+  app/              layout and the single page
 ```
 
-The maths is kept strictly apart from the interface. Nothing in `lib/eoq.ts`
-imports React, calls `Intl`, or contains a user-facing string; it takes plain
-numbers and returns plain numbers or typed objects, and it keeps full precision
-throughout. Rounding happens only where a figure is drawn. That is what makes
-the results checkable: `lib/eoq.test.ts` reads as worked examples, not as
-assertions about a rendering.
+The maths is kept strictly apart from the interface in both. Nothing in
+`lib/eoq.ts` or `lib/classify.ts` imports React, calls `Intl`, or contains a
+user-facing string; each takes plain numbers and returns plain numbers or typed
+objects, keeping full precision throughout. Rounding happens only where a figure
+is drawn. That is what makes the results checkable: the tests read as worked
+examples, not as assertions about a rendering.
 
 Validation returns codes rather than sentences, so the same rule reads correctly
 in both languages and the message can never drift from the rule it describes.
@@ -88,22 +140,22 @@ in both languages and the message can never drift from the rule it describes.
 | `next`, `react`, `react-dom`         | The framework the brief specifies, and its static export       |
 | `typescript`, `@types/*`             | TypeScript with `strict: true`                                 |
 | `tailwindcss`, `@tailwindcss/postcss`| The styling layer the brief specifies, and how v4 is wired in  |
-| `vitest`                             | Unit tests over the calculation layer                          |
+| `vitest`                             | Unit tests over the calculation layers                         |
 | `@playwright/test`                   | Browser tests, so behaviour is checked where it actually runs  |
 
 Six lines, and nothing else. No component kit, no chart library, no
 internationalisation library, no statistics package, and no PDF library:
 
-- The chart is hand-built SVG.
+- Every chart is hand-built SVG.
 - The inverse normal CDF is Acklam's rational approximation, written out. One
   function is not worth a dependency.
-- The dictionaries are two typed objects; `Dictionary` is `typeof en`, so a key
-  missing from French is a build error.
+- The dictionaries are typed objects; each language's shape is `typeof en`, so a
+  key missing from French is a build error.
 - The PDF route is a print stylesheet and `window.print()`, which is lighter
   than a PDF library, keeps the chart as vector rather than as a raster, and
   uses the dialogue the reader already knows.
 
-## Exports
+## Exports, in the ordering calculator
 
 **CSV** writes one file: the inputs, the results, the discount comparison and
 both sensitivity tables. Three details matter more than they sound. The field
@@ -117,12 +169,11 @@ no-break space and Excel will not parse it as a number.
 input rail goes and comes back as assumptions in the footer alongside the date,
 and the chart stays as vector. Paper is not a narrow screen but a wide one that
 happens to be short, so the arrangements that depend on viewport width are
-restated for print. The sheet the brief asks for — results, chart, sensitivity —
-plus the inventory sawtooth, fits one page of A4, and a test holds it there.
-Adding the optional discount comparison and reorder point takes it to about a
-page and a half.
+restated for print.
 
 ## What the models do and do not cover
+
+**Ordering calculator**
 
 - **All-units discounts only.** Reaching a break re-prices the whole order.
   Incremental-discount schedules follow different arithmetic and are not
@@ -135,46 +186,53 @@ page and a half.
 - The case pack multiple applies to the classic result, not to the discount
   comparison.
 
+**ABC analyser**
+
+- Classification is on annual consumption **value**, never on quantity and never
+  on unit price. That is the entire model, and the usual mistake.
+- Thresholds are fixed. An item that crosses one belongs to the class it crosses
+  into, with a single marked exception described under Verification.
+- Duplicate item names are kept as separate rows and never merged.
+
 ## Accessibility
 
-Audited against the rendered page rather than against intentions, and held
-there by `e2e/accessibility.spec.ts`: every control and every diagram carries an
-accessible name, headings run without gaps under a single `h1`, focus is
-visible on everything reachable, the chart readout is a real slider that
-responds to arrow keys and announces its value, targets meet the 24px minimum,
-motion is suppressed on request, and the page never scrolls sideways at 360,
-390, 768, 1024 or 1440.
+Audited against the rendered page rather than against intentions, and held there
+by the end-to-end suites: every control and every diagram carries an accessible
+name, headings run without gaps under a single `h1`, focus is visible on
+everything reachable, targets meet the 24px minimum, motion is suppressed on
+request, and neither page ever scrolls sideways at 360, 390, 768, 1024 or 1440.
 
-Both diagrams publish their data as a table for anyone not reading the picture.
-Those tables uncovered a subtle bug worth knowing about: `.sr-only` does not
-work applied to a `<table>`, because a table box will not shrink below its
-min-content and simply ignores `width: 1px`. They are wrapped in a hidden
-`div` instead.
+Every diagram publishes its data as a table for anyone not reading the picture.
+Those tables uncovered two bugs worth knowing about. `.sr-only` does not work
+applied to a `<table>`, because a table box will not shrink below its min-content
+and simply ignores `width: 1px`; they are wrapped in a hidden `div` instead. And
+an absolutely positioned `.sr-only` label is clipped by its nearest *positioned*
+ancestor rather than by every scroller it sits inside, so one deep in a wide
+table escaped its scroller entirely and widened the whole document: sideways page
+scroll caused by an invisible element. `.table-scroll` is a containing block now.
 
 Contrast was measured across every token pairing before any of it was written.
-Everything clears WCAG AA in both palettes; the accent needed a companion
-`--on-accent` token because it cannot carry white text in the dark palette.
 
 ## Verification
 
-`lib/abc/classify.test.ts` carries the ABC cases: an item landing exactly on a
-threshold, an item landing there only in binary arithmetic, a single item worth
-more than the whole A band, a zero-cost row, and a total of zero. The café
-sample is checked against a hand calculation summed off the sorted list —
-527 200, 99 614 and 33 872 out of 660 686, which is five items carrying 79.8% of
-the money. The two counterintuitive placements are asserted by name, because
-they are the point of the sample rather than a property of it: cups at 0.62 each
-are class A, a burr set at 1450 each is class C.
+`apps/eoq/lib/eoq.test.ts` carries the worked cases the models are checked
+against, including D = 10 000, S = 50, H = 2 giving Q\* = 707.11 and
+TRC = 1414.21, and d̄ = 50/day, σ = 8, L = 9 days at a 95% cycle service level
+giving a reorder point of 489.48. The inverse normal is checked against a
+numerically integrated normal rather than against typed-in constants, so the test
+owes nothing to the approximation it is testing.
 
-One deviation from the plain rule is deliberate and marked in the source. An
-item crossing a threshold belongs to the class it crosses into, which for a
-single dominant line means crossing both at once and coming out C, leaving the A
-class empty. The richest line is always A instead. It is one conditional, and
-deleting it restores the unguarded rule.
+`apps/abc/lib/classify.test.ts` carries the ABC cases: an item landing exactly on
+a threshold, an item landing there only in binary arithmetic, a single item worth
+more than the whole A band, a zero-cost row, and a total of zero. The café sample
+is checked against a hand calculation summed off the sorted list — 527 200,
+99 614 and 33 872 out of 660 686, which is five items carrying 79.8% of the
+money. The two counterintuitive placements are asserted by name, because they are
+the point of the sample rather than a property of it: cups at 0.62 each are
+class A, a burr set at 1450 each is class C.
 
-`lib/eoq.test.ts` carries the worked cases the models are checked against,
-including D = 10 000, S = 50, H = 2 giving Q\* = 707.11 and TRC = 1414.21, and
-d̄ = 50/day, σ = 8, L = 9 days at a 95% cycle service level giving a reorder
-point of 489.48. The inverse normal is checked against a numerically integrated
-normal rather than against typed-in constants, so the test owes nothing to the
-approximation it is testing.
+One deviation from the plain rule is deliberate and marked in the source. An item
+crossing a threshold belongs to the class it crosses into, which for a single
+dominant line means crossing both at once and coming out C, leaving the A class
+empty. The richest line is always A instead. It is one conditional, and deleting
+it restores the unguarded rule.

@@ -1,0 +1,20 @@
+{
+  "name": "@sct/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The layer every tool in Supply Chain Tools inherits unchanged.",
+  "exports": {
+    "./styles.css": "./styles.css",
+    "./lib/*": "./lib/*.ts",
+    "./ui/*": "./ui/*.tsx"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}

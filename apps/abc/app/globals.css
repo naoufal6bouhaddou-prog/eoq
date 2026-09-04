@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+/* Tailwind detects its sources from the package it is invoked in, so the
+   shared layer sits outside what it would find on its own. Without this, the
+   utility classes used inside shared/ui are scanned by nobody and simply do
+   not exist in the built stylesheet. */
+@source '../../../packages/shared';
+
+/* The design system this tool shares with the rest of the family. */
+@import '../../../packages/shared/styles.css';
