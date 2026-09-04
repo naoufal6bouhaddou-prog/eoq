@@ -1,0 +1,102 @@
+/**
+ * English dictionary for the ABC analyser. This object defines the shape the
+ * other language has to match: `AbcDictionary` is `typeof en`, so a missing or
+ * misspelled key in fr.ts is a type error rather than a blank space on screen.
+ *
+ * Nothing here states the thresholds the classification uses. The bands are
+ * drawn on the chart and named in the table; the arithmetic behind them is not
+ * the reader's problem.
+ */
+export const en = {
+  meta: {
+    title: 'ABC inventory analysis',
+    description:
+      'Rank stocked items by annual consumption value and split them into A, B and C classes, in the browser.',
+  },
+
+  app: {
+    family: 'Supply Chain Tools',
+    tool: 'ABC analysis',
+    language: 'Language',
+    currency: 'Currency',
+    siblings: 'Tools',
+    /** The sibling tool, named as its own dictionary names it. */
+    ordering: 'Inventory ordering',
+  },
+
+  intro: {
+    title: 'ABC inventory analysis',
+    lead: 'ABC analysis ranks every stocked item by its annual consumption value, then splits the ranked list into three classes.',
+  },
+
+  sections: {
+    chart: 'Pareto chart',
+    /** The summary panel carries no visible heading. This names its table for
+        anyone reading by screen reader, which still needs a handle on it. */
+    summary: 'Classes',
+    table: 'Items',
+  },
+
+  actions: {
+    loadExample: 'Load example',
+    clearAll: 'Clear all',
+    addRow: 'Add row',
+    removeRow: (name: string) => (name === '' ? 'Remove this row' : `Remove ${name}`),
+  },
+
+  table: {
+    columns: {
+      name: 'Item',
+      annualUsage: 'Annual usage',
+      unitCost: 'Unit cost',
+      annualValue: 'Annual value',
+      valueShare: 'Share',
+      cumulativeShare: 'Cumulative',
+      abcClass: 'Class',
+    },
+    total: 'Total',
+    namePlaceholder: 'Item name',
+    rowCount: (count: number) => (count === 1 ? '1 item' : `${count} items`),
+  },
+
+  summary: {
+    columns: {
+      abcClass: 'Class',
+      itemCount: 'Items',
+      itemShare: '% of items',
+      valueShare: '% of value',
+    },
+  },
+
+  chart: {
+    title: 'Annual consumption value by item, ranked, with the running cumulative share',
+    axisValue: 'Annual value',
+    axisCumulative: 'Cumulative share',
+    axisRank: 'Rank',
+    readoutItem: 'Item',
+    readoutValue: 'Annual value',
+    readoutCumulative: 'Cumulative',
+    hint: 'Point at a bar to read it.',
+    tableCaption: 'Every item by rank, with its annual value, class and cumulative share',
+  },
+
+  empty: {
+    title: 'Nothing to analyse yet',
+    message:
+      'Type an item name, the number of units used in a year, and the cost of one unit. The chart and the classes appear as you type.',
+    exampleHint: 'Load example fills the table with a year of café supplies.',
+  },
+
+  units: {
+    perYear: 'units/yr',
+    items: 'items',
+  },
+
+  a11y: {
+    skipToTable: 'Skip to the item table',
+    chartRegion: 'Pareto chart',
+    classOf: (abcClass: string) => `Class ${abcClass}`,
+  },
+};
+
+export type AbcDictionary = typeof en;

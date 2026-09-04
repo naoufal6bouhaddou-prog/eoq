@@ -1,26 +1,23 @@
 {
-  "name": "eoq-calculator",
+  "name": "supply-chain-tools",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=20.9"
   },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "npx serve out",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "e2e": "playwright test",
-    "e2e:install": "playwright install chromium",
-    "og": "node scripts/make-og.mjs"
-  },
-  "dependencies": {
-    "next": "^15.5.4",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "dev:eoq": "npm run dev --workspace @sct/eoq",
+    "dev:abc": "npm run dev --workspace @sct/abc",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "e2e": "npm run e2e --workspaces --if-present",
+    "e2e:install": "playwright install chromium"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
