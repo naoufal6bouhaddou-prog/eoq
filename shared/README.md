@@ -3,12 +3,12 @@
 Everything a second tool in **Supply Chain Tools** inherits without editing.
 
 The rule that defines this directory: **nothing in here knows what an economic
-order quantity is.** If a file needs to know, it belongs in `lib/` or
-`components/` instead. That rule is not a style preference — it is what makes
-the boundary checkable, and it is checked:
+order quantity is**, and nothing in here knows what a class A item is. If a file
+needs to know, it belongs in `lib/` or `components/` instead. That rule is not a
+style preference — it is what makes the boundary checkable, and it is checked:
 
 ```bash
-grep -rniE "eoq|reorder|discount" shared/
+grep -rniE "eoq|reorder|discount|abc|pareto" shared/
 ```
 
 Anything that turns up is either a comment or a mistake.
@@ -31,6 +31,33 @@ shared/
     Field.tsx       a text input that parses either decimal convention
     Controls.tsx    segmented control, section toggle, rail section
 ```
+
+## The second tool arrived
+
+`app/abc/` is the ABC inventory analyser, and it is what this layer was
+extracted for. What it needed that was not already here is a short list, which
+is the useful result:
+
+- **An ordinal ramp** (`--rank-1` / `--rank-2` / `--rank-3`) and `.rank-chip`.
+  Three classes ranked by attention are not three meanings wanting three
+  colours, so this is one hue thinning to neutral, with fill and border doing
+  the work colour only reinforces. Added as a named role here rather than as
+  literals in the tool, which is what the section below asks for.
+- **`.field-input.field-text`**, for a field that takes a word. The rest of the
+  system already knows that mono means a number and the text face means a word;
+  the inputs did not, because the first tool has no field that takes a word.
+- **`AppShell`'s `siblings`**, which is where the family stops being a claim in
+  the header and becomes something a reader can walk between.
+- **`SETTINGS_STORAGE_KEY`**, so a reader who picks French and MAD in one tool
+  does not pick again in the next.
+
+It also found a real bug in `.table-scroll`, which had no `position`. An
+absolutely positioned box is clipped by its nearest *positioned* ancestor, not
+by every scroller it happens to sit inside, so a `.sr-only` label deep in a wide
+table resolved against the viewport instead, kept its static position seven
+hundred pixels along the table, escaped the scroller and widened the whole
+document. Sideways page scroll, caused by an element nobody can see. The first
+tool has the same construction and was one wide table away from the same bug.
 
 ## How a second tool uses it
 

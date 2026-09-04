@@ -1,12 +1,16 @@
-# Inventory ordering calculator
+# Supply Chain Tools
 
-Economic order quantity, reorder point and safety stock, all-units quantity
-discounts, and sensitivity analysis. Everything runs in the browser; there is no
-backend, no database and no analytics. `next build` writes a complete static
-site to `out/`.
+Two tools sharing one design system, one static build and one settings
+preference. Everything runs in the browser; there is no backend, no database and
+no analytics. `next build` writes a complete static site to `out/`.
 
-Bilingual French and English, with locale-aware number entry and formatting, and
-a currency selector for MAD, EUR and USD.
+| Route  | Tool                                                                     |
+| ------ | ------------------------------------------------------------------------ |
+| `/`    | **Inventory ordering.** Economic order quantity, reorder point and safety stock, all-units quantity discounts, sensitivity analysis |
+| `/abc` | **ABC analysis.** Ranks stocked items by annual consumption value and splits the ranked list into A, B and C |
+
+Both are bilingual French and English, with locale-aware number entry and
+formatting, and a currency selector for MAD, EUR and USD.
 
 ## Running it
 
@@ -57,8 +61,12 @@ lib/derive.ts     the bridge: raw strings to checked numbers to results
 lib/state.ts      the input model, and how it travels in a URL
 lib/report.ts     what both exports carry, built once so they agree
 lib/i18n/         one dictionary per language, same typed shape
+lib/abc/          the second tool: classify.ts is the whole model, sample.ts
+                  the worked example, rows.ts the text-to-number bridge,
+                  i18n/ its own two dictionaries
 components/       inputs, results, chart, tables, export
-app/              layout and the single page
+components/abc/   Pareto chart, class summary, the editable table
+app/              layout, the ordering page, and app/abc/ the analyser
 e2e/              Playwright specs
 docs/             the design plan, written before any CSS
 ```
@@ -148,6 +156,21 @@ Everything clears WCAG AA in both palettes; the accent needed a companion
 `--on-accent` token because it cannot carry white text in the dark palette.
 
 ## Verification
+
+`lib/abc/classify.test.ts` carries the ABC cases: an item landing exactly on a
+threshold, an item landing there only in binary arithmetic, a single item worth
+more than the whole A band, a zero-cost row, and a total of zero. The café
+sample is checked against a hand calculation summed off the sorted list —
+527 200, 99 614 and 33 872 out of 660 686, which is five items carrying 79.8% of
+the money. The two counterintuitive placements are asserted by name, because
+they are the point of the sample rather than a property of it: cups at 0.62 each
+are class A, a burr set at 1450 each is class C.
+
+One deviation from the plain rule is deliberate and marked in the source. An
+item crossing a threshold belongs to the class it crosses into, which for a
+single dominant line means crossing both at once and coming out C, leaving the A
+class empty. The richest line is always A instead. It is one conditional, and
+deleting it restores the unguarded rule.
 
 `lib/eoq.test.ts` carries the worked cases the models are checked against,
 including D = 10 000, S = 50, H = 2 giving Q\* = 707.11 and TRC = 1414.21, and

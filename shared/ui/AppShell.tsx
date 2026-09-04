@@ -16,6 +16,18 @@ export interface AppShellLabels {
   tool: string;
   language: string;
   currency: string;
+  /** Names the sibling navigation. Only read when `siblings` is non-empty. */
+  siblings?: string;
+}
+
+/**
+ * Another tool in the family. Only the ones the reader is not already looking
+ * at are passed: the shell names the current tool itself, so repeating it as a
+ * link would be a tab bar with one tab always pressed.
+ */
+export interface AppShellSibling {
+  href: string;
+  label: string;
 }
 
 export interface AppShellProps {
@@ -23,6 +35,7 @@ export interface AppShellProps {
   onLocaleChange: (locale: Locale) => void;
   onCurrencyChange: (currency: CurrencyCode) => void;
   actions?: React.ReactNode;
+  siblings?: readonly AppShellSibling[];
 }
 
 const LOCALE_LABEL: Record<Locale, string> = { fr: 'FR', en: 'EN' };
@@ -38,19 +51,42 @@ export function AppShell({
   onLocaleChange,
   onCurrencyChange,
   actions,
+  siblings = [],
 }: AppShellProps) {
   const { locale, currency } = useSettings();
 
   return (
     <header className="no-print border-b border-[color:var(--line)] bg-[color:var(--surface)]">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-2.5 sm:px-6">
-        <h1 className="flex flex-wrap items-baseline gap-x-2">
-          <span className="t-label text-[color:var(--text-2)]">{labels.family}</span>
-          <span aria-hidden="true" className="t-label text-[color:var(--line-strong)]">
-            /
-          </span>
-          <span className="t-body font-semibold">{labels.tool}</span>
-        </h1>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h1 className="flex flex-wrap items-baseline gap-x-2">
+            <span className="t-label text-[color:var(--text-2)]">{labels.family}</span>
+            <span aria-hidden="true" className="t-label text-[color:var(--line-strong)]">
+              /
+            </span>
+            <span className="t-body font-semibold">{labels.tool}</span>
+          </h1>
+
+          {/* Where the family stops being a claim in the header and becomes
+              something a reader can walk between. Quiet, because leaving is
+              not what the page is for. */}
+          {siblings.length === 0 ? null : (
+            <nav aria-label={labels.siblings ?? labels.family}>
+              <ul className="flex flex-wrap items-center gap-x-1">
+                {siblings.map((sibling) => (
+                  <li key={sibling.href}>
+                    <a
+                      href={sibling.href}
+                      className="btn btn-quiet t-micro inline-flex items-center no-underline"
+                    >
+                      {sibling.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="seg t-micro" role="group" aria-label={labels.language}>

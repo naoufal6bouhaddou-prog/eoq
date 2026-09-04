@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
@@ -28,7 +28,7 @@ import {
 } from '@/lib/state';
 import type { FieldName } from '@/lib/validate';
 
-const STORAGE_KEY = 'eoq-calculator-settings';
+import { SETTINGS_STORAGE_KEY } from '@/shared/ui/settings';
 
 /**
  * Layout effects run after the DOM is committed but before the browser paints,
@@ -46,7 +46,7 @@ interface StoredSettings {
 
 function readStoredSettings(): StoredSettings {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
     return raw === null ? {} : (JSON.parse(raw) as StoredSettings);
   } catch {
     // A blocked or full localStorage is not a reason to fail to load.
@@ -92,7 +92,7 @@ export default function Page() {
   useEffect(() => {
     if (!ready.current) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ locale, currency }));
+      window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ locale, currency }));
     } catch {
       // Nothing to do: the tool works fine without a remembered preference.
     }
@@ -208,7 +208,9 @@ export default function Page() {
           tool: t.app.tool,
           language: t.app.language,
           currency: t.app.currency,
+          siblings: t.app.siblings,
         }}
+        siblings={[{ href: '/abc', label: t.app.abc }]}
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
         actions={
@@ -316,3 +318,4 @@ export default function Page() {
     </SettingsProvider>
   );
 }
+

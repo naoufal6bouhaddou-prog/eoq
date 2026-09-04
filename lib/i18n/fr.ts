@@ -18,6 +18,8 @@ export const fr: Dictionary = {
     family: 'Supply Chain Tools',
     tool: 'Commande de stock',
     language: 'Langue',
+    siblings: 'Outils',
+    abc: 'Analyse ABC',
     currency: 'Devise',
   },
 

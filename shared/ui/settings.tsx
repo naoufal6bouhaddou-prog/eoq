@@ -19,6 +19,15 @@ export interface Settings<TDictionary = unknown> {
   t: TDictionary;
 }
 
+/**
+ * Where the family's two settings live. One key for every tool, so a reader
+ * who picks French and MAD in one of them does not have to pick again in the
+ * next. The name is the first tool's, and is kept rather than tidied because
+ * renaming it would silently discard the preference of everyone who has
+ * already set one.
+ */
+export const SETTINGS_STORAGE_KEY = 'eoq-calculator-settings';
+
 const SettingsContext = createContext<Settings<unknown> | null>(null);
 
 export function SettingsProvider<TDictionary>({

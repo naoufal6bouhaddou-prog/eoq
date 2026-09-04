@@ -16,6 +16,9 @@ export const en = {
     tool: 'Inventory ordering',
     language: 'Language',
     currency: 'Currency',
+    siblings: 'Tools',
+    /** The sibling tool, named as its own dictionary names it. */
+    abc: 'ABC analysis',
   },
 
   actions: {

@@ -32,6 +32,19 @@
   --trace-2: var(--text-2);
   --grid: color-mix(in srgb, var(--line) 70%, transparent);
 
+  /* An ordinal ramp, for a classification whose bands are ranked rather than
+     merely different. One hue thinning towards the neutral end, so the order
+     is legible before any label is read, and so it survives being printed in
+     grey. This is not a fourth and fifth marked colour: nothing here carries a
+     meaning of its own, the ramp only says which band comes before which.
+
+     Fills only. --rank-2 and --rank-3 are too light to set text on --surface;
+     a ranked *label* takes .rank-chip below, which stays on the two colours
+     that can carry type. */
+  --rank-1: var(--accent);
+  --rank-2: color-mix(in srgb, var(--accent) 60%, var(--surface));
+  --rank-3: var(--line-strong);
+
   --radius-panel: 6px;
   --radius-control: 4px;
 
@@ -237,6 +250,43 @@ p {
   letter-spacing: 0.01em;
 }
 
+/* ---- Ranked labels --------------------------------------------------
+   A short label carrying a band of an ordinal classification. Filled at
+   the top of the ramp, outlined below it, neutral at the bottom: the
+   three stay apart in greyscale, and for a reader who cannot separate
+   two blues, because the fill and the border do the work that the hue
+   only reinforces.
+   ------------------------------------------------------------------ */
+
+.rank-chip {
+  display: inline-block;
+  min-width: 2.4ch;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.rank-chip[data-rank='1'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.rank-chip[data-rank='2'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rank-chip[data-rank='3'] {
+  border-color: var(--line-strong);
+  color: var(--text-2);
+}
+
 /* ---- Chart text ---------------------------------------------------- */
 
 .chart-tick {
@@ -339,8 +389,19 @@ table.banded > tbody > tr[data-feasible='false'] {
   color: var(--text-2);
 }
 
-/* A wide table scrolls inside itself; the page body never scrolls sideways. */
+/* A wide table scrolls inside itself; the page body never scrolls sideways.
+
+   The `position` is not decoration and removing it reopens a real bug. An
+   absolutely positioned box is laid out against its nearest *positioned*
+   ancestor, and is clipped by that ancestor's overflow rather than by every
+   scroller it happens to sit inside. With nothing positioned here, a screen
+   reader label deep in a wide table resolved against the viewport instead:
+   it kept its static position seven hundred pixels along the table, escaped
+   this scroller completely, and widened the whole document. Sideways page
+   scroll, produced by an element that is invisible. Making the scroller the
+   containing block brings those boxes back inside the clip. */
 .table-scroll {
+  position: relative;
   overflow-x: auto;
   overscroll-behavior-x: contain;
 }
@@ -357,6 +418,17 @@ table.banded > tbody > tr[data-feasible='false'] {
   font: inherit;
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+/* A field that takes a word rather than a figure. The same control, in the
+   other face and the other alignment, because the division that runs through
+   the whole system holds inside an input too: mono means this is a number,
+   the text face means this is a word. Two classes, so it outranks the
+   single-class rules above it whatever order the stylesheets land in. */
+.field-input.field-text {
+  font-family: var(--font-sans);
+  font-variant-numeric: normal;
+  text-align: left;
 }
 
 .field-input:hover:not(:disabled) {
@@ -540,6 +612,12 @@ table.banded > tbody > tr[data-feasible='false'] {
     --accent: #000000;
     --on-accent: #ffffff;
     --signal: #000000;
+
+    /* Restated rather than derived: with the accent flattened to black, the
+       ramp's own arithmetic would put rank 2 and rank 3 on the same grey. */
+    --rank-1: #000000;
+    --rank-2: #808080;
+    --rank-3: #cccccc;
 
     color-scheme: light;
   }
