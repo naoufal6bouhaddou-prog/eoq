@@ -92,7 +92,7 @@ the production one:
 
 | App        | Variable                | Falls back to                       |
 | ---------- | ----------------------- | ----------------------------------- |
-| `apps/eoq` | `NEXT_PUBLIC_ABC_URL`   | `https://abc-analysis.vercel.app`   |
+| `apps/eoq` | `NEXT_PUBLIC_ABC_URL`   | `https://abc-analyser.vercel.app`   |
 | `apps/abc` | `NEXT_PUBLIC_EOQ_URL`   | `https://eoq.vercel.app`            |
 
 Set them once per Vercel project if the deployed addresses differ from those.

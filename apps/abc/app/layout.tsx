@@ -30,7 +30,7 @@ const text = Archivo({
  * The canonical address, overridable so a fork or a preview deployment
  * advertises itself rather than this one.
  */
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://abc-analysis.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://abc-analyser.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

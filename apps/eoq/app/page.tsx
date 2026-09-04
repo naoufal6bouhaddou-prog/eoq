@@ -44,7 +44,7 @@ const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffe
  * rather than routes. Inlined at build time, and overridable, so a preview
  * deployment can point at another preview instead of at production.
  */
-const ABC_URL = process.env.NEXT_PUBLIC_ABC_URL ?? 'https://abc-analysis.vercel.app';
+const ABC_URL = process.env.NEXT_PUBLIC_ABC_URL ?? 'https://abc-analyser.vercel.app';
 
 interface StoredSettings {
   locale?: Locale;
