@@ -24,10 +24,22 @@ is the whole reason this is a workspace and not two repositories.
 
 ```
 packages/shared     the layer both tools inherit unchanged. See its own README
+packages/tools      who is in the family, and where each member lives
 apps/eoq            the ordering calculator, at eoq.vercel.app
-apps/abc            the ABC analyser, at its own address
+apps/abc            the ABC analyser, at abc-analyser.vercel.app
 docs/               the design plan, written before any CSS
 ```
+
+Two packages rather than one, because they answer different questions.
+`shared` is defined by a rule it can be checked against: nothing in it knows
+any tool's domain, and `grep -rniE "eoq|reorder|discount|abc|pareto"` over it
+turns up only comments. A roster naming ABC and EOQ would break that rule and
+blunt the check, so the roster lives next door.
+
+`packages/tools` is what stops the family growing as N by N-1. Before it, each
+tool carried every other tool's address and name in both languages, so adding
+the third meant reopening the first two. Adding a tool is one entry there now,
+and every header recomputes its own links from it.
 
 The shared layer ships as TypeScript source rather than as a built artefact, so
 each app compiles it (`transpilePackages`) and Tailwind is pointed at it
@@ -86,18 +98,28 @@ installs from the workspace root on its own, so the shared package resolves
 without extra configuration. Any other static host works the same way by
 publishing an app's `out/`.
 
-Each app links to the other in its header. Those links cross sites now, so each
-build takes the sibling's address from an environment variable and falls back to
-the production one:
+Each app links to the rest of the family in its header, and takes those links
+from `packages/tools` rather than from its own configuration. Moving a tool to
+a different address is one line in `registry.ts`, not a setting on every
+project that points at it.
 
-| App        | Variable                | Falls back to                       |
-| ---------- | ----------------------- | ----------------------------------- |
-| `apps/eoq` | `NEXT_PUBLIC_ABC_URL`   | `https://abc-analyser.vercel.app`   |
-| `apps/abc` | `NEXT_PUBLIC_EOQ_URL`   | `https://eoq.vercel.app`            |
+Addresses there are written out rather than read from the environment, so a
+preview deployment links to its siblings in production. That is the honest
+behaviour: a preview of one tool says nothing about the state of the others.
+`NEXT_PUBLIC_SITE_URL` still overrides the address an app advertises to social
+crawlers, which is what actually matters on a preview.
 
-Set them once per Vercel project if the deployed addresses differ from those.
-`NEXT_PUBLIC_SITE_URL` overrides the address an app advertises to social
-crawlers, which matters on a preview deployment.
+## Adding a third tool
+
+```
+apps/<id>/                    copy either app's configs; they differ only in
+                              the dev port and the package name
+packages/tools/registry.ts    one entry: id, url, name and blurb per language
+```
+
+Then a Vercel project with Root Directory `apps/<id>`. Nothing else changes:
+the existing tools pick the newcomer up from the roster, in both languages,
+without being edited.
 
 ## How each tool is put together
 

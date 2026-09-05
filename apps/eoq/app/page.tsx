@@ -29,6 +29,7 @@ import {
 import type { FieldName } from '@/lib/validate';
 
 import { SETTINGS_STORAGE_KEY } from '@sct/shared/ui/settings';
+import { FAMILY, siblingsOf } from '@sct/tools';
 
 /**
  * Layout effects run after the DOM is committed but before the browser paints,
@@ -38,13 +39,6 @@ import { SETTINGS_STORAGE_KEY } from '@sct/shared/ui/settings';
  * useLayoutEffect has no meaning while prerendering, hence the guard.
  */
 const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffect;
-
-/**
- * The sibling tool lives at its own address, so the family link crosses sites
- * rather than routes. Inlined at build time, and overridable, so a preview
- * deployment can point at another preview instead of at production.
- */
-const ABC_URL = process.env.NEXT_PUBLIC_ABC_URL ?? 'https://abc-analyser.vercel.app';
 
 interface StoredSettings {
   locale?: Locale;
@@ -211,13 +205,13 @@ export default function Page() {
 
       <AppShell
         labels={{
-          family: t.app.family,
+          family: FAMILY,
           tool: t.app.tool,
           language: t.app.language,
           currency: t.app.currency,
           siblings: t.app.siblings,
         }}
-        siblings={[{ href: ABC_URL, label: t.app.abc }]}
+        siblings={siblingsOf('eoq', locale)}
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
         actions={

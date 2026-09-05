@@ -229,6 +229,12 @@ test('offers the family link, pointing at the sibling site', async ({ page }) =>
 /* ---- The house rules the sibling tool is held to ------------------- */
 
 test('never scrolls sideways, at any of the sizes it claims to support', async ({ page }) => {
+  // Five full page loads in one test, each waiting for hydration. Against a
+  // development server compiling under the rest of the suite that runs to
+  // about half a minute, which is the default budget for a whole test rather
+  // than for five navigations inside one.
+  test.slow();
+
   for (const width of [360, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto(PAGE);

@@ -15,13 +15,10 @@ export const en = {
   },
 
   app: {
-    family: 'Supply Chain Tools',
     tool: 'ABC analysis',
     language: 'Language',
     currency: 'Currency',
     siblings: 'Tools',
-    /** The sibling tool, named as its own dictionary names it. */
-    ordering: 'Inventory ordering',
   },
 
   intro: {

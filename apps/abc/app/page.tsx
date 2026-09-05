@@ -18,6 +18,7 @@ import { SettingsProvider, useSettings } from '@/components/Settings';
 import type { CurrencyCode, Locale } from '@sct/shared/lib/format';
 import { AppShell } from '@sct/shared/ui/AppShell';
 import { SETTINGS_STORAGE_KEY } from '@sct/shared/ui/settings';
+import { FAMILY, siblingsOf } from '@sct/tools';
 
 /**
  * Layout effects run after the DOM is committed but before the browser paints,
@@ -27,13 +28,6 @@ import { SETTINGS_STORAGE_KEY } from '@sct/shared/ui/settings';
  * prerendering, hence the guard.
  */
 const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffect;
-
-/**
- * The sibling tool now lives at its own address, so the family link crosses
- * sites rather than routes. Inlined at build time, and overridable, so a
- * preview deployment can point at another preview instead of at production.
- */
-const ORDERING_URL = process.env.NEXT_PUBLIC_EOQ_URL ?? 'https://eoq.vercel.app';
 
 interface StoredSettings {
   locale?: Locale;
@@ -165,13 +159,13 @@ export default function AbcPage() {
 
       <AppShell
         labels={{
-          family: t.app.family,
+          family: FAMILY,
           tool: t.app.tool,
           language: t.app.language,
           currency: t.app.currency,
           siblings: t.app.siblings,
         }}
-        siblings={[{ href: ORDERING_URL, label: t.app.ordering }]}
+        siblings={siblingsOf('abc', locale)}
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
       />

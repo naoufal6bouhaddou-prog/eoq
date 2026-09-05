@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Archivo, Overpass_Mono } from 'next/font/google';
 
+import { FAMILY } from '@sct/tools';
+
 import { fr } from '@/lib/i18n/fr';
 
 import './globals.css';
@@ -39,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    siteName: fr.app.family,
+    siteName: FAMILY,
     title: fr.meta.title,
     description: fr.meta.description,
     url: '/',

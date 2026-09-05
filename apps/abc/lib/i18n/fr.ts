@@ -12,12 +12,10 @@ export const fr: AbcDictionary = {
   },
 
   app: {
-    family: 'Supply Chain Tools',
     tool: 'Analyse ABC',
     language: 'Langue',
     currency: 'Devise',
     siblings: 'Outils',
-    ordering: 'Commande de stock',
   },
 
   intro: {
