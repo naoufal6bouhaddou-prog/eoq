@@ -17,5 +17,19 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "out", ".next"]
+
+  // The test harness is excluded from the app's own project, and picked up by
+  // tsconfig.test.json instead. `next build` type-checks whatever this file
+  // includes, and a production install has no vitest and no playwright in it:
+  // leaving them here fails the build on a missing module that the shipped
+  // application never imports.
+  "exclude": [
+    "node_modules",
+    "out",
+    ".next",
+    "e2e",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "**/*.test.ts"
+  ]
 }
