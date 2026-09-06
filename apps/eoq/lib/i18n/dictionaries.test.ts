@@ -100,8 +100,8 @@ describe('the two dictionaries', () => {
 
   it('uses the French supply chain vocabulary, not a literal translation', () => {
     expect(fr.results.quantity).toBe('Quantité économique de commande');
-    expect(fr.results.orderingCost).toBe('Coût de passation');
-    expect(fr.results.holdingCost).toBe('Coût de possession');
+    expect(fr.fields.orderCost.label).toBe('Coût de passation par commande');
+    expect(fr.fields.holdingCostPerUnit.label).toBe('Coût de possession unitaire');
     expect(fr.results.safetyStock).toBe('Stock de sécurité');
     expect(fr.sections.casePack).toBe('Conditionnement');
     expect(fr.fields.safetyStock.label).toContain('Stock de sécurité');

@@ -59,10 +59,6 @@ export const fr: Dictionary = {
     quantityShort: 'Q*',
     ordersPerYear: 'Commandes par an',
     daysBetween: 'Jours entre deux commandes',
-    orderingCost: 'Coût de passation',
-    holdingCost: 'Coût de possession',
-    cycleHoldingCost: 'Possession du stock de cycle',
-    safetyStockHoldingCost: 'Possession du stock de sécurité',
     relevantCost: 'Coût total pertinent',
     relevantCostShort: 'CTP',
     purchaseCost: 'Coût d’achat',
@@ -71,9 +67,7 @@ export const fr: Dictionary = {
     safetyStock: 'Stock de sécurité',
     practicalQuantity: 'Quantité arrondie',
     penalty: 'Coût de l’arrondi',
-    balanced: 'À Q*, le coût de passation égale le coût de possession',
-    notBalanced: 'Les deux coûts diffèrent, cette quantité n’est donc pas Q*',
-    closedForm: 'CTP = √(2·D·S·H)',
+    closedForm: 'CTP',
     orderWhole: 'Commander en unités entières : arrondir à',
     beforeRounding: 'avant arrondi',
   },
@@ -108,8 +102,6 @@ export const fr: Dictionary = {
 
   profile: {
     title: 'Évolution du stock',
-    caption:
-      'Le stock diminue au rythme de la demande jusqu’au stock de sécurité, où la livraison le reconstitue. Ce plancher est la part payée toute l’année et jamais vendue.',
     cycle: 'Cycle',
     axisTime: 'Temps',
     axisLevel: 'Stock disponible',
@@ -130,7 +122,7 @@ export const fr: Dictionary = {
     total: 'total',
     optimum: 'Q*',
     readoutHint:
-      'Déplacez le curseur sur le graphique, ou utilisez les flèches, pour lire le coût à une quantité donnée.',
+      'Déplacez le curseur sur le graphique pour lire le coût à une quantité donnée.',
     readoutQuantity: 'À Q',
     readoutCost: 'Coût',
     readoutPenalty: 'Écart à l’optimum',

@@ -68,23 +68,6 @@ export function AnswerPanel({ eoq, practical, missingLabels }: AnswerPanelProps)
     <section id={ANSWER_PANEL_ID} className="panel" aria-label={t.a11y.resultsRegion}>
       <div className="panel-head">
         <h2 className="t-label">{t.results.quantity}</h2>
-        <p className="t-micro flex flex-wrap items-baseline gap-x-1.5 text-[color:var(--text-2)]">
-          <span>{t.results.orderingCost}</span>
-          <Figure
-            value={eoq.orderingCost}
-            decimals={2}
-            className="text-[color:var(--text)]"
-            testId="result-ordering"
-          />
-          <span aria-hidden="true">{eoq.costsBalanced ? '=' : '≠'}</span>
-          <span>{t.results.cycleHoldingCost}</span>
-          <Figure
-            value={eoq.cycleHoldingCost}
-            decimals={2}
-            className="text-[color:var(--text)]"
-            testId="result-holding"
-          />
-        </p>
       </div>
 
       <div className="panel-body">
@@ -97,10 +80,6 @@ export function AnswerPanel({ eoq, practical, missingLabels }: AnswerPanelProps)
             testId="result-quantity"
           />
         </p>
-        <p className="note t-micro mt-1 text-[color:var(--text-2)]">
-          {eoq.costsBalanced ? t.results.balanced : t.results.notBalanced}
-        </p>
-
         <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[color:var(--line)] pt-3 sm:grid-cols-3">
           <Stat label={t.results.ordersPerYear}>
             <Measure

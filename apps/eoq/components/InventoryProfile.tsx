@@ -115,9 +115,6 @@ export function InventoryProfile({
     <section className="panel" aria-label={t.profile.title}>
       <div className="panel-head">
         <h2 className="t-label">{t.profile.title}</h2>
-        <p className="note t-micro text-[color:var(--text-2)]">
-          {t.profile.caption}
-        </p>
       </div>
 
       <div ref={wrapper} className="px-2 pb-1">

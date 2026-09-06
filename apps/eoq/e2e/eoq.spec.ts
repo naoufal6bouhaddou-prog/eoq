@@ -65,14 +65,6 @@ test('reproduces the first verification case', async ({ page }) => {
   await expectFigure(page, 'result-trc', '1,414.21');
 });
 
-test('shows ordering cost and holding cost meeting at the optimum', async ({ page }) => {
-  await page.goto(VERIFICATION_CASE);
-
-  await expectFigure(page, 'result-ordering', '707.11');
-  await expectFigure(page, 'result-holding', '707.11');
-  await expect(page.getByText('At Q*, ordering cost equals holding cost')).toBeVisible();
-});
-
 test('updates as the user types, with nothing to submit', async ({ page }) => {
   await page.goto(VERIFICATION_CASE);
   await expectFigure(page, 'result-quantity', '707.1');
