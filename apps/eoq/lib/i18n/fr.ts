@@ -10,7 +10,7 @@ export const fr: Dictionary = {
   meta: {
     title: 'Calculateur de commande de stock',
     description:
-      'Quantité économique de commande, point de commande et remises sur quantité, calculés dans le navigateur.',
+      'Quantité économique de commande, stock de sécurité et remises sur quantité, calculés dans le navigateur.',
   },
 
   app: {
@@ -32,7 +32,7 @@ export const fr: Dictionary = {
     demandAndCost: 'Demande et coûts',
     workingYear: 'Année de travail',
     casePack: 'Conditionnement',
-    reorder: 'Point de commande',
+    safetyStock: 'Stock de sécurité',
     breaks: 'Remises sur quantité',
     results: 'Résultats',
     chart: 'Courbe de coût',
@@ -48,11 +48,7 @@ export const fr: Dictionary = {
     unitCost: { symbol: 'C', label: 'Coût d’achat unitaire' },
     daysPerYear: { symbol: '', label: 'Jours ouvrés par an' },
     roundingMultiple: { symbol: '', label: 'Commander par multiples de' },
-    averageDemand: { symbol: 'd̄', label: 'Demande moyenne par période' },
-    leadTime: { symbol: 'L', label: 'Délai de livraison' },
-    demandStdDev: { symbol: 'σd', label: 'Écart-type de la demande par période' },
-    leadTimeStdDev: { symbol: 'σL', label: 'Écart-type du délai' },
-    cycleServiceLevel: { symbol: 'TS', label: 'Taux de service par cycle' },
+    safetyStock: { symbol: 'SS', label: 'Stock de sécurité conservé' },
   },
 
   holdingMode: {
@@ -62,23 +58,9 @@ export const fr: Dictionary = {
     derived: 'H = i × C',
   },
 
-  variability: {
-    legend: 'Ce qui varie',
-    demand: 'Demande variable, délai constant',
-    leadTime: 'Délai variable, demande constante',
-    both: 'Les deux varient',
-  },
 
-  period: {
-    legend: 'Période',
-    day: 'Jour',
-    week: 'Semaine',
-    days: 'jours',
-    weeks: 'semaines',
-  },
 
   toggles: {
-    reorderOn: 'Calculer un point de commande',
     discountsOn: 'Appliquer un barème de remises',
   },
 
@@ -97,10 +79,6 @@ export const fr: Dictionary = {
     totalCost: 'Coût annuel total',
     averageInventory: 'Stock moyen',
     safetyStock: 'Stock de sécurité',
-    reorderPoint: 'Point de commande',
-    safetyFactor: 'Coefficient de sécurité',
-    sigmaDdlt: 'Écart-type sur le délai',
-    demandDuringLeadTime: 'Demande pendant le délai',
     practicalQuantity: 'Quantité arrondie',
     penalty: 'Coût de l’arrondi',
     balanced: 'À Q*, le coût de passation égale le coût de possession',
@@ -108,8 +86,6 @@ export const fr: Dictionary = {
     closedForm: 'CTP = √(2·D·S·H)',
     orderWhole: 'Commander en unités entières : arrondir à',
     beforeRounding: 'avant arrondi',
-    serviceLevelNote:
-      'Probabilité de ne pas être en rupture pendant un cycle de réapprovisionnement. Ce n’est pas le taux de satisfaction.',
   },
 
   units: {
@@ -175,12 +151,7 @@ export const fr: Dictionary = {
   profile: {
     title: 'Évolution du stock',
     caption:
-      'Le stock diminue au rythme de la demande, atteint le point de commande, et la commande passée à ce moment arrive précisément quand le stock de sécurité est atteint.',
-    captionPlain:
-      'Le stock diminue au rythme de la demande et se reconstitue de Q à chaque rupture de cycle.',
-    orderPlaced: 'commande passée',
-    delivery: 'réception',
-    leadTimeSpan: 'délai',
+      'Le stock diminue au rythme de la demande jusqu’au stock de sécurité, où la livraison le reconstitue. Ce plancher est la part payée toute l’année et jamais vendue.',
     cycle: 'Cycle',
     axisTime: 'Temps',
     axisLevel: 'Stock disponible',
@@ -189,8 +160,7 @@ export const fr: Dictionary = {
     tableTime: 'Temps',
     tableLevel: 'Stock disponible',
     eventStart: 'Début de cycle, stock reconstitué',
-    eventOrder: 'Le stock atteint le point de commande, commande passée',
-    eventDelivery: 'Réception de la commande',
+    eventDelivery: 'Stock de sécurité atteint, réception',
   },
 
   chart: {
@@ -223,8 +193,6 @@ export const fr: Dictionary = {
     'must-be-positive': 'Doit être supérieur à 0',
     'must-be-non-negative': 'Doit être supérieur ou égal à 0',
     'rate-out-of-range': 'Doit être supérieur à 0 et au plus égal à 100',
-    'service-level-out-of-range':
-      'Doit être strictement compris entre 0 et 100. Un taux de service de 100 % exigerait un stock de sécurité infini.',
   },
 
   schedule: {
@@ -238,8 +206,6 @@ export const fr: Dictionary = {
   empty: {
     headline: 'Rien à calculer pour l’instant',
     needs: 'Encore nécessaire :',
-    reorderNeeds:
-      'Le point de commande demande une demande moyenne, un délai et un taux de service.',
     discountNeeds: 'La comparaison demande un barème de remises valide.',
   },
 

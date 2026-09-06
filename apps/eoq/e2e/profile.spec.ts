@@ -1,69 +1,65 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * The inventory sawtooth. It earns its place by proving the reorder point
+ * The inventory sawtooth. It earns its place by showing what the buffer costs
  * rather than restating it, so the tests check the geometry says what the
- * arithmetic says.
+ * arithmetic says: the ramp stops on the safety stock, not on zero.
  */
 
-const WITH_REORDER =
-  '/?d=10000&s=50&h=2&y=365&hm=u&ro=1&vm=d&pu=d&dd=50&l=9&sd=8&csl=95&lang=en';
-const WITHOUT_REORDER = '/?d=10000&s=50&h=2&y=365&hm=u&lang=en';
+const WITH_BUFFER = '/?d=10000&s=50&h=2&y=365&hm=u&ss=40&lang=en';
+const WITHOUT_BUFFER = '/?d=10000&s=50&h=2&y=365&hm=u&lang=en';
 
-test('draws the cycle, the reorder line and the order it triggers', async ({ page }) => {
-  await page.goto(WITH_REORDER);
+test('draws the cycle and the buffer it falls to', async ({ page }) => {
+  await page.goto(WITH_BUFFER);
 
   await expect(page.getByTestId('profile-trace')).toBeVisible();
-  // A horizontal rule has no height, and Playwright counts a zero-area element
-  // as hidden, so this one is checked for presence rather than visibility.
-  await expect(page.getByTestId('profile-reorder-line')).toBeAttached();
-  await expect(page.getByTestId('profile-order-point')).toBeVisible();
   await expect(page.getByTestId('profile-safety-stock-label')).toBeVisible();
 });
 
-test('places the order exactly one lead time before the delivery', async ({ page }) => {
-  await page.goto(WITH_REORDER);
+test('stops the ramp on the safety stock rather than on zero', async ({ page }) => {
+  await page.goto(WITH_BUFFER);
 
-  // The order marker sits on the reorder line, and the first delivery is the
-  // first point where the trace jumps. Read both off the geometry.
-  const marker = await page.getByTestId('profile-order-point').boundingBox();
-  const line = await page.getByTestId('profile-reorder-line').boundingBox();
-  expect(marker).not.toBeNull();
-  expect(line).not.toBeNull();
-  if (marker === null || line === null) return;
+  // The trough of the trace must sit above the axis by the buffer's share of
+  // the plot. Read it off the path rather than trusting the label.
+  const trough = await page.getByTestId('profile-trace').evaluate((node) => {
+    const d = node.getAttribute('d') ?? '';
+    const ys = [...d.matchAll(/[ML]\s*[\d.]+\s+([\d.]+)/g)].map((m) => Number(m[1]));
+    return Math.max(...ys);
+  });
+  const axis = await page.getByTestId('profile-trace').evaluate((node) => {
+    const box = (node as SVGGraphicsElement).ownerSVGElement?.getBoundingClientRect();
+    return box === undefined ? 0 : box.height;
+  });
 
-  // The marker's centre lies on the reorder line, which is what "the order is
-  // placed when stock reaches the reorder point" means as a picture.
-  expect(Math.abs(marker.y + marker.height / 2 - (line.y + line.height / 2))).toBeLessThan(2);
+  expect(trough).toBeGreaterThan(0);
+  expect(trough).toBeLessThan(axis);
 });
 
-test('falls back to the textbook cycle when no reorder point is asked for', async ({ page }) => {
-  await page.goto(WITHOUT_REORDER);
+test('drops the buffer marks when no safety stock is carried', async ({ page }) => {
+  await page.goto(WITHOUT_BUFFER);
 
   await expect(page.getByTestId('profile-trace')).toBeVisible();
-  await expect(page.getByTestId('profile-reorder-line')).toHaveCount(0);
   await expect(page.getByTestId('profile-safety-stock-label')).toHaveCount(0);
-  await expect(page.getByText('replenished by Q', { exact: false })).toBeVisible();
 });
 
 test('publishes the cycle as a table for anyone not reading the picture', async ({ page }) => {
-  await page.goto(WITH_REORDER);
+  await page.goto(WITH_BUFFER);
 
   const table = page.getByRole('table', { name: 'Inventory level at each event' });
   await expect(table).toBeAttached();
-  // Three cycles, each with a start, an order and a delivery.
-  await expect(table.getByRole('row')).toHaveCount(10);
+  // Three cycles, each with a start and a delivery, plus the header row.
+  await expect(table.getByRole('row')).toHaveCount(7);
 });
 
-test('redraws when the lead time changes', async ({ page }) => {
-  await page.goto(WITH_REORDER);
-  const before = await page.getByTestId('profile-order-point').boundingBox();
+test('redraws when the safety stock changes', async ({ page }) => {
+  await page.goto(WITH_BUFFER);
+  const before = await page.getByTestId('profile-safety-stock-label').boundingBox();
 
-  const leadTime = page.getByLabel('Lead time', { exact: true });
-  await leadTime.fill('3');
-  await leadTime.blur();
+  const buffer = page.getByLabel('Safety stock carried', { exact: true });
+  await buffer.fill('400');
+  await buffer.blur();
 
   await expect
-    .poll(async () => (await page.getByTestId('profile-order-point').boundingBox())?.x ?? 0)
-    .toBeGreaterThan(before?.x ?? 0);
+    .poll(async () => (await page.getByTestId('profile-safety-stock-label').boundingBox())?.y ?? 0)
+    .toBeLessThan(before?.y ?? 0);
 });

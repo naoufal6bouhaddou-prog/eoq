@@ -7,7 +7,7 @@ export const en = {
   meta: {
     title: 'Inventory ordering calculator',
     description:
-      'Economic order quantity, reorder point and all-units quantity discounts, calculated in the browser.',
+      'Economic order quantity, safety stock and all-units quantity discounts, calculated in the browser.',
   },
 
   app: {
@@ -29,7 +29,7 @@ export const en = {
     demandAndCost: 'Demand and cost',
     workingYear: 'Working year',
     casePack: 'Case pack',
-    reorder: 'Reorder point',
+    safetyStock: 'Safety stock',
     breaks: 'Price breaks',
     results: 'Results',
     chart: 'Cost curve',
@@ -45,11 +45,7 @@ export const en = {
     unitCost: { symbol: 'C', label: 'Unit purchase cost' },
     daysPerYear: { symbol: '', label: 'Working days per year' },
     roundingMultiple: { symbol: '', label: 'Order in multiples of' },
-    averageDemand: { symbol: 'd̄', label: 'Average demand per period' },
-    leadTime: { symbol: 'L', label: 'Lead time' },
-    demandStdDev: { symbol: 'σd', label: 'Std dev of demand per period' },
-    leadTimeStdDev: { symbol: 'σL', label: 'Std dev of lead time' },
-    cycleServiceLevel: { symbol: 'CSL', label: 'Cycle service level' },
+    safetyStock: { symbol: 'SS', label: 'Safety stock carried' },
   },
 
   holdingMode: {
@@ -59,23 +55,9 @@ export const en = {
     derived: 'H = i × C',
   },
 
-  variability: {
-    legend: 'What varies',
-    demand: 'Demand varies, lead time fixed',
-    leadTime: 'Lead time varies, demand fixed',
-    both: 'Both vary',
-  },
 
-  period: {
-    legend: 'Period',
-    day: 'Day',
-    week: 'Week',
-    days: 'days',
-    weeks: 'weeks',
-  },
 
   toggles: {
-    reorderOn: 'Calculate a reorder point',
     discountsOn: 'Apply a discount schedule',
   },
 
@@ -94,10 +76,6 @@ export const en = {
     totalCost: 'Total annual cost',
     averageInventory: 'Average inventory',
     safetyStock: 'Safety stock',
-    reorderPoint: 'Reorder point',
-    safetyFactor: 'Safety factor',
-    sigmaDdlt: 'Std dev over lead time',
-    demandDuringLeadTime: 'Demand during lead time',
     practicalQuantity: 'Rounded order quantity',
     penalty: 'Cost of rounding',
     balanced: 'At Q*, ordering cost equals holding cost',
@@ -105,8 +83,6 @@ export const en = {
     closedForm: 'TRC = √(2·D·S·H)',
     orderWhole: 'Order in whole units: round up to',
     beforeRounding: 'before rounding',
-    serviceLevelNote:
-      'The probability of not stocking out during a replenishment cycle. This is not fill rate.',
   },
 
   units: {
@@ -171,12 +147,7 @@ export const en = {
   profile: {
     title: 'Inventory over time',
     caption:
-      'Stock falls at the demand rate, reaches the reorder point, and the order placed there arrives exactly as the safety stock is reached.',
-    captionPlain:
-      'Stock falls at the demand rate and is replenished by Q each time it runs out.',
-    orderPlaced: 'order placed',
-    delivery: 'delivery',
-    leadTimeSpan: 'lead time',
+      'Stock falls at the demand rate down to the safety stock, where a delivery restores it. That floor is the stock paid for all year and never sold.',
     cycle: 'Cycle',
     axisTime: 'Time',
     axisLevel: 'Stock on hand',
@@ -185,8 +156,7 @@ export const en = {
     tableTime: 'Time',
     tableLevel: 'Stock on hand',
     eventStart: 'Cycle starts, stock replenished',
-    eventOrder: 'Stock reaches the reorder point, order placed',
-    eventDelivery: 'Delivery arrives',
+    eventDelivery: 'Safety stock reached, delivery arrives',
   },
 
   chart: {
@@ -216,8 +186,6 @@ export const en = {
     'must-be-positive': 'Must be greater than 0',
     'must-be-non-negative': 'Must be 0 or more',
     'rate-out-of-range': 'Must be greater than 0 and at most 100',
-    'service-level-out-of-range':
-      'Must be between 0 and 100, exclusive. A 100% service level needs infinite safety stock.',
   },
 
   schedule: {
@@ -231,7 +199,6 @@ export const en = {
   empty: {
     headline: 'Nothing to calculate yet',
     needs: 'Still needed:',
-    reorderNeeds: 'The reorder point needs average demand, lead time and a service level.',
     discountNeeds: 'The comparison needs a valid price break schedule.',
   },
 

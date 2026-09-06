@@ -11,15 +11,12 @@ import { useSettings } from './Settings';
 export interface InventoryProfileProps {
   /** Q: the quantity each replenishment brings in. */
   orderQuantity: number;
-  /** Demand per period, in the same period as the lead time. */
+  /** Demand per period. */
   demandRate: number;
+  /** The buffer the buyer has decided to carry; the floor of the sawtooth. */
   safetyStock: number;
-  reorderPoint: number;
-  leadTime: number;
-  /** What one period is called: days or weeks. */
+  /** What one period is called. */
   periodLabel: string;
-  /** True when a reorder point is being calculated, not assumed to be zero. */
-  hasReorderPoint: boolean;
 }
 
 const PAD = { top: 18, right: 16, bottom: 30, left: 58 };
@@ -29,23 +26,16 @@ const CYCLES = 3;
  * Inventory over time: the sawtooth.
  *
  * This is the diagram the subject is taught with, and the tool already holds
- * every quantity it needs. It earns its place by proving the reorder point
- * rather than restating it: because ROP = d·L + SS, the falling line crosses
- * the reorder mark exactly one lead time before it reaches the buffer, so the
- * delivery lands as the safety stock is reached. Someone who does not believe
- * the number can read that off the picture.
- *
- * The reorder line is the only marked colour here, and it is the same red that
- * marks the reorder point in the results.
+ * every quantity it needs. It earns its place by showing what the safety stock
+ * costs rather than merely stating it: the ramp stops at the buffer instead of
+ * at zero, so the flat floor is the stock paid for all year and, in an
+ * ordinary cycle, never sold.
  */
 export function InventoryProfile({
   orderQuantity,
   demandRate,
   safetyStock,
-  reorderPoint,
-  leadTime,
   periodLabel,
-  hasReorderPoint,
 }: InventoryProfileProps) {
   const { locale, t } = useSettings();
   const wrapper = useRef<HTMLDivElement>(null);
@@ -64,14 +54,7 @@ export function InventoryProfile({
   const height = Math.round(clamp(width * 0.34, 190, 280));
 
   const view = useMemo(() => {
-    const profile = sampleInventoryProfile(
-      orderQuantity,
-      demandRate,
-      safetyStock,
-      reorderPoint,
-      leadTime,
-      CYCLES,
-    );
+    const profile = sampleInventoryProfile(orderQuantity, demandRate, safetyStock, CYCLES);
 
     const plotLeft = PAD.left;
     const plotRight = width - PAD.right;
@@ -98,39 +81,18 @@ export function InventoryProfile({
       timeTicks: niceTicks(0, profile.horizon, width < 520 ? 3 : 6),
       levelTicks: niceTicks(0, profile.peak * 1.08, 3),
     };
-  }, [orderQuantity, demandRate, safetyStock, reorderPoint, leadTime, width, height]);
+  }, [orderQuantity, demandRate, safetyStock, width, height]);
 
   const { profile } = view;
-  const firstCycle = profile.cycles[0];
-  const showReorderMarks = hasReorderPoint && leadTime > 0 && firstCycle !== undefined;
 
   /**
-   * The reorder point and the safety stock are two horizontal rules that can
-   * sit at almost the same height, and when Q dwarfs both they very nearly
-   * coincide. Their labels are anchored to opposite ends of the plot so they
-   * can never overlap whatever the numbers do.
-   *
-   * The last time ticks are dropped where the period name goes, for the same
-   * reason: one legible label beats two on top of each other.
+   * The last time ticks are dropped where the period name goes: one legible
+   * label beats two on top of each other.
    */
   const PERIOD_LABEL_ROOM = 54;
   const timeTicks = view.timeTicks.filter(
     (tick) => view.x(tick) < view.plotRight - PERIOD_LABEL_ROOM,
   );
-
-  /**
-   * The order marker falls early in the first cycle when the lead time is short
-   * against the cycle, which on a narrow plot puts its label straight through
-   * the safety stock label. The dot and its drop line already say where the
-   * order goes, and the event table says it in words, so the label is the part
-   * that gives way when there is no room for it.
-   */
-  const SAFETY_LABEL_ROOM = safetyStock > 0 ? 118 : 12;
-  const showOrderLabel =
-    showReorderMarks &&
-    firstCycle !== undefined &&
-    width >= 520 &&
-    view.x(firstCycle.orderPlacedAt) > view.plotLeft + SAFETY_LABEL_ROOM;
 
   const events = useMemo(
     () =>
@@ -138,14 +100,6 @@ export function InventoryProfile({
         const rows = [
           { key: `start-${index}`, label: t.profile.eventStart, time: cycle.start, level: profile.peak },
         ];
-        if (showReorderMarks) {
-          rows.push({
-            key: `order-${index}`,
-            label: t.profile.eventOrder,
-            time: cycle.orderPlacedAt,
-            level: profile.reorderPoint,
-          });
-        }
         rows.push({
           key: `delivery-${index}`,
           label: t.profile.eventDelivery,
@@ -154,7 +108,7 @@ export function InventoryProfile({
         });
         return rows;
       }),
-    [profile, showReorderMarks, t],
+    [profile, t],
   );
 
   return (
@@ -162,7 +116,7 @@ export function InventoryProfile({
       <div className="panel-head">
         <h2 className="t-label">{t.profile.title}</h2>
         <p className="note t-micro text-[color:var(--text-2)]">
-          {showReorderMarks ? t.profile.caption : t.profile.captionPlain}
+          {t.profile.caption}
         </p>
       </div>
 
@@ -258,28 +212,6 @@ export function InventoryProfile({
             </g>
           ) : null}
 
-          {/* The reorder point: the one marked colour in this diagram. */}
-          {showReorderMarks ? (
-            <g>
-              <line
-                x1={view.plotLeft}
-                x2={view.plotRight}
-                y1={view.y(profile.reorderPoint)}
-                y2={view.y(profile.reorderPoint)}
-                stroke="var(--signal)"
-                strokeWidth={1}
-                data-testid="profile-reorder-line"
-              />
-              <text
-                x={view.plotRight - 4}
-                y={view.y(profile.reorderPoint) - 4}
-                textAnchor="end"
-                className="chart-threshold"
-              >
-                {t.results.reorderPoint}
-              </text>
-            </g>
-          ) : null}
 
           <path
             d={view.path}
@@ -290,67 +222,6 @@ export function InventoryProfile({
             data-testid="profile-trace"
           />
 
-          {/* One cycle is annotated, not all three: the pattern repeats and a
-              second copy of the labels would only be noise. */}
-          {showReorderMarks && firstCycle !== undefined ? (
-            <g>
-              <circle
-                cx={view.x(firstCycle.orderPlacedAt)}
-                cy={view.y(profile.reorderPoint)}
-                r={3.5}
-                fill="var(--signal)"
-                data-testid="profile-order-point"
-              />
-              <line
-                x1={view.x(firstCycle.orderPlacedAt)}
-                x2={view.x(firstCycle.orderPlacedAt)}
-                y1={view.y(profile.reorderPoint)}
-                y2={view.plotBottom}
-                stroke="var(--signal)"
-                strokeWidth={1}
-                strokeDasharray="2 3"
-              />
-              <line
-                x1={view.x(firstCycle.end)}
-                x2={view.x(firstCycle.end)}
-                y1={view.plotTop}
-                y2={view.plotBottom}
-                stroke="var(--line-strong)"
-                strokeWidth={1}
-                strokeDasharray="2 3"
-              />
-
-              {/* The lead time, drawn as the span it actually occupies. */}
-              <line
-                x1={view.x(firstCycle.orderPlacedAt)}
-                x2={view.x(firstCycle.end)}
-                y1={view.plotTop + 6}
-                y2={view.plotTop + 6}
-                stroke="var(--text-2)"
-                strokeWidth={1}
-              />
-              <text
-                x={(view.x(firstCycle.orderPlacedAt) + view.x(firstCycle.end)) / 2}
-                y={view.plotTop + 1}
-                textAnchor="middle"
-                className="chart-label"
-              >
-                {t.profile.leadTimeSpan}
-              </text>
-              {/* Inside the plot, not under the axis: the axis line is where
-                  the time ticks live and the two would collide. */}
-              {showOrderLabel ? (
-                <text
-                  x={view.x(firstCycle.orderPlacedAt) + 4}
-                  y={view.plotBottom - 6}
-                  textAnchor="start"
-                  className="chart-label"
-                >
-                  {t.profile.orderPlaced}
-                </text>
-              ) : null}
-            </g>
-          ) : null}
         </svg>
       </div>
 

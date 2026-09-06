@@ -5,7 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
  *
  * This is not a hypothetical: an axis tick and the Q* mark share a row, so
  * whenever Q* fell on a round number the two printed over one another; and the
- * reorder point and the safety stock are two horizontal rules that very nearly
+ * safety stock rule and the trace are two marks that very nearly
  * coincide when Q dwarfs both, which put their labels in the same place. Both
  * were reported from real use.
  *
@@ -14,7 +14,14 @@ import { expect, test, type Page } from '@playwright/test';
  */
 
 async function ready(page: Page): Promise<void> {
-  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+  // A generous budget, because this is not waiting on the application. The
+  // development server compiles a route the first time it is asked for one,
+  // and a request arriving during that compile waits on the compiler. Against
+  // a warm server it resolves at once; against a cold one the five-second
+  // default was losing whole tests to the compiler rather than to a defect.
+  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true', {
+    timeout: 30_000,
+  });
 }
 
 /** Every pair of labels in a diagram that share screen space. */
@@ -50,18 +57,17 @@ async function collisions(page: Page): Promise<string[]> {
 
 /**
  * Cases chosen because they broke: Q* landing exactly on a round tick, and a
- * reorder point dwarfed by the order quantity so its rule sits on the safety
- * stock rule.
+ * safety stock dwarfed by the order quantity so its rule sits on the axis.
  */
 const CASES: Record<string, string> = {
-  'Q* on a round tick, reorder point dwarfed by Q':
-    '/?d=1000000&s=50&h=1&y=365&hm=u&ro=1&vm=d&pu=w&dd=2.5&l=100&sd=5&csl=95&lang=fr',
+  'Q* on a round tick, buffer dwarfed by Q':
+    '/?d=1000000&s=50&h=1&y=365&hm=u&ss=250&lang=fr',
   'the worked example':
-    '/?d=24000&s=450&i=22&c=38.5&y=300&m=120&hm=r&br=1:38.5,1500:37.2,4000:36.1&ro=1&vm=b&pu=d&dd=80&l=12&sd=14&sl=2&csl=95&lang=en',
-  'the classic case, no reorder point':
+    '/?d=24000&s=450&i=22&c=38.5&y=300&m=120&hm=r&br=1:38.5,1500:37.2,4000:36.1&ss=275&lang=en',
+  'the classic case, no buffer':
     '/?d=10000&s=50&h=2&y=365&hm=u&lang=en',
   'French, where the words are longest':
-    '/?d=10000&s=50&h=2&y=365&hm=u&ro=1&vm=d&pu=d&dd=50&l=9&sd=8&csl=95&lang=fr',
+    '/?d=10000&s=50&h=2&y=365&hm=u&ss=40&lang=fr',
 };
 
 for (const [name, url] of Object.entries(CASES)) {
@@ -99,16 +105,18 @@ test('keeps the scale complete and marks Q* above the curve', async ({ page }) =
   expect(markBox.y + markBox.height).toBeLessThan(axisRow.y - 20);
 });
 
-test('sends the two stock rules to opposite ends so they cannot collide', async ({ page }) => {
-  await page.goto('/?d=1000000&s=50&h=1&y=365&hm=u&ro=1&vm=d&pu=w&dd=2.5&l=100&sd=5&csl=95&lang=en');
+test('keeps the buffer label clear of the time axis', async ({ page }) => {
+  await page.goto('/?d=1000000&s=50&h=1&y=365&hm=u&ss=250&lang=en');
   await ready(page);
 
   const safety = await page.getByTestId('profile-safety-stock-label').boundingBox();
-  const reorder = await page.locator('.chart-threshold').boundingBox();
+  const axisRow = await page.getByTestId('profile-trace').evaluate((node) => {
+    const svg = (node as SVGGraphicsElement).ownerSVGElement;
+    return svg === null ? 0 : svg.getBoundingClientRect().bottom;
+  });
   expect(safety).not.toBeNull();
-  expect(reorder).not.toBeNull();
-  if (safety === null || reorder === null) return;
+  if (safety === null) return;
 
-  // One anchored left, the other right, with clear air between them.
-  expect(reorder.x).toBeGreaterThan(safety.x + safety.width);
+  // The label sits inside the plot, not on the row the ticks occupy.
+  expect(safety.y + safety.height).toBeLessThan(axisRow - 12);
 });

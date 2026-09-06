@@ -6,12 +6,9 @@
  * lib/derive.ts, against the active locale.
  */
 
-import type { VariabilityMode } from './eoq';
 import { formatForInput, parseNumber, type Locale } from '@sct/shared/lib/format';
 
 export type HoldingMode = 'perUnit' | 'rate';
-export type PeriodUnit = 'day' | 'week';
-
 export interface PriceBreakRow {
   minQty: string;
   unitCost: string;
@@ -28,15 +25,8 @@ export interface ToolState {
   daysPerYear: string;
   roundingMultiple: string;
 
-  reorderEnabled: boolean;
-  variabilityMode: VariabilityMode;
-  periodUnit: PeriodUnit;
-  averageDemand: string;
-  leadTime: string;
-  demandStdDev: string;
-  leadTimeStdDev: string;
-  /** Entered as a percentage: 95 means a 95% cycle service level. */
-  cycleServiceLevel: string;
+  /** Entered directly: the buffer the buyer has decided to carry. */
+  safetyStock: string;
 
   discountsEnabled: boolean;
   priceBreaks: PriceBreakRow[];
@@ -52,14 +42,7 @@ export const BLANK_STATE: ToolState = {
   daysPerYear: '365',
   roundingMultiple: '',
 
-  reorderEnabled: false,
-  variabilityMode: 'demand',
-  periodUnit: 'day',
-  averageDemand: '',
-  leadTime: '',
-  demandStdDev: '',
-  leadTimeStdDev: '',
-  cycleServiceLevel: '95',
+  safetyStock: '',
 
   discountsEnabled: false,
   priceBreaks: [
@@ -73,10 +56,9 @@ export const BLANK_STATE: ToolState = {
  * opens on a clear field.
  *
  * A distributor buying a mid-value part: 300 working days at 80 units a day is
- * the 24 000 annual demand, so the reorder inputs and the EOQ inputs describe
- * the same item rather than two unrelated ones. The discount schedule is chosen
- * to show all three tier outcomes at once — one tier infeasible, one solved at
- * its own EOQ, and the winner bought up to a break.
+ * the 24 000 annual demand. The discount schedule is chosen to show all three
+ * tier outcomes at once — one tier infeasible, one solved at its own EOQ, and
+ * the winner bought up to a break.
  */
 export const EXAMPLE_STATE: ToolState = {
   annualDemand: '24000',
@@ -88,14 +70,7 @@ export const EXAMPLE_STATE: ToolState = {
   daysPerYear: '300',
   roundingMultiple: '120',
 
-  reorderEnabled: true,
-  variabilityMode: 'both',
-  periodUnit: 'day',
-  averageDemand: '80',
-  leadTime: '12',
-  demandStdDev: '14',
-  leadTimeStdDev: '2',
-  cycleServiceLevel: '95',
+  safetyStock: '275',
 
   discountsEnabled: true,
   priceBreaks: [
@@ -122,25 +97,10 @@ const KEYS = {
   unitCost: 'c',
   daysPerYear: 'y',
   roundingMultiple: 'm',
-  averageDemand: 'dd',
-  leadTime: 'l',
-  demandStdDev: 'sd',
-  leadTimeStdDev: 'sl',
-  cycleServiceLevel: 'csl',
+  safetyStock: 'ss',
 } as const;
 
 type NumericKey = keyof typeof KEYS;
-
-const VARIABILITY: Record<string, VariabilityMode> = {
-  d: 'demand',
-  l: 'lead-time',
-  b: 'both',
-};
-const VARIABILITY_CODE: Record<VariabilityMode, string> = {
-  demand: 'd',
-  'lead-time': 'l',
-  both: 'b',
-};
 
 function canonical(raw: string, locale: Locale): string | null {
   const value = parseNumber(raw, locale);
@@ -157,11 +117,6 @@ export function encodeState(state: ToolState, locale: Locale): string {
   }
 
   params.set('hm', state.holdingMode === 'rate' ? 'r' : 'u');
-  if (state.reorderEnabled) {
-    params.set('ro', '1');
-    params.set('vm', VARIABILITY_CODE[state.variabilityMode]);
-    params.set('pu', state.periodUnit === 'week' ? 'w' : 'd');
-  }
 
   if (state.discountsEnabled) {
     const rows = state.priceBreaks
@@ -184,7 +139,7 @@ export function encodeState(state: ToolState, locale: Locale): string {
  */
 export function decodeState(search: string, locale: Locale): ToolState | null {
   const params = new URLSearchParams(search);
-  const known = [...Object.values(KEYS), 'hm', 'ro', 'br'];
+  const known = [...Object.values(KEYS), 'hm', 'br'];
   if (!known.some((key) => params.has(key))) return null;
 
   const state: ToolState = { ...BLANK_STATE, priceBreaks: [] };
@@ -198,13 +153,6 @@ export function decodeState(search: string, locale: Locale): ToolState | null {
   }
 
   state.holdingMode = params.get('hm') === 'r' ? 'rate' : 'perUnit';
-
-  state.reorderEnabled = params.get('ro') === '1';
-  const variability = params.get('vm');
-  if (variability !== null && variability in VARIABILITY) {
-    state.variabilityMode = VARIABILITY[variability];
-  }
-  state.periodUnit = params.get('pu') === 'w' ? 'week' : 'day';
 
   const breaks = params.get('br');
   if (breaks !== null && breaks !== '') {
@@ -241,11 +189,7 @@ export function reformatState(state: ToolState, from: Locale, to: Locale): ToolS
     unitCost: convert(state.unitCost),
     daysPerYear: convert(state.daysPerYear),
     roundingMultiple: convert(state.roundingMultiple),
-    averageDemand: convert(state.averageDemand),
-    leadTime: convert(state.leadTime),
-    demandStdDev: convert(state.demandStdDev),
-    leadTimeStdDev: convert(state.leadTimeStdDev),
-    cycleServiceLevel: convert(state.cycleServiceLevel),
+    safetyStock: convert(state.safetyStock),
     priceBreaks: state.priceBreaks.map((row) => ({
       minQty: convert(row.minQty),
       unitCost: convert(row.unitCost),

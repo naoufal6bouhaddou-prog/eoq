@@ -11,9 +11,7 @@ import {
   roundUpToMultiple,
   sampleDiscountCurve,
   sampleInventoryProfile,
-  sigmaDemandDuringLeadTime,
   solveEoq,
-  solveReorderPoint,
   totalRelevantCost,
   totalRelevantCostAtOptimum,
   type EoqInput,
@@ -104,31 +102,6 @@ describe('verification case 2 — D=1200, S=25, i=0.20, C=5', () => {
 /* ================================================================== */
 /* Verification case 3: safety stock and reorder point                */
 /* ================================================================== */
-
-describe('verification case 3 — d=50/day, sigma_d=8, L=9 days, CSL=95%', () => {
-  const result = solveReorderPoint({
-    mode: 'demand',
-    averageDemand: 50,
-    leadTime: 9,
-    demandStdDev: 8,
-    leadTimeStdDev: 0,
-    cycleServiceLevel: 0.95,
-  });
-
-  it('gives sigma over the lead time = 24.00', () => {
-    expect(result.sigmaDdlt).toBeCloseTo(24, 10);
-  });
-
-  it('gives safety stock = 39.48, which a buyer orders as 40', () => {
-    expect(result.safetyStock).toBeCloseTo(39.48, 2);
-    expect(Math.ceil(result.safetyStock)).toBe(40);
-  });
-
-  it('gives a reorder point of 489.48, which a buyer sets at 490', () => {
-    expect(result.reorderPoint).toBeCloseTo(489.48, 2);
-    expect(Math.ceil(result.reorderPoint)).toBe(490);
-  });
-});
 
 /* ================================================================== */
 /* The two properties that must hold at the optimum                   */
@@ -425,80 +398,6 @@ describe('the discount cost curve', () => {
 });
 
 /* ================================================================== */
-/* Reorder point across the three variability modes                   */
-/* ================================================================== */
-
-describe('demand during lead time', () => {
-  it('scales demand variability by the square root of the lead time', () => {
-    expect(sigmaDemandDuringLeadTime('demand', 50, 9, 8, 3)).toBeCloseTo(24, 10);
-  });
-
-  it('scales lead-time variability by average demand', () => {
-    expect(sigmaDemandDuringLeadTime('lead-time', 50, 9, 8, 3)).toBeCloseTo(150, 10);
-  });
-
-  it('combines both sources in quadrature', () => {
-    expect(sigmaDemandDuringLeadTime('both', 50, 9, 8, 3)).toBeCloseTo(
-      Math.sqrt(9 * 64 + 2500 * 9),
-      10,
-    );
-    expect(sigmaDemandDuringLeadTime('both', 50, 9, 8, 3)).toBeCloseTo(151.90787, 4);
-  });
-
-  it('reduces to the single-source cases when the other sigma is zero', () => {
-    expect(sigmaDemandDuringLeadTime('both', 50, 9, 8, 0)).toBeCloseTo(24, 10);
-    expect(sigmaDemandDuringLeadTime('both', 50, 9, 0, 3)).toBeCloseTo(150, 10);
-  });
-});
-
-describe('reorder point', () => {
-  it('is demand over the lead time plus safety stock', () => {
-    const result = solveReorderPoint({
-      mode: 'both',
-      averageDemand: 50,
-      leadTime: 9,
-      demandStdDev: 8,
-      leadTimeStdDev: 3,
-      cycleServiceLevel: 0.95,
-    });
-    expect(result.demandDuringLeadTime).toBe(450);
-    expect(result.safetyStock).toBeCloseTo(1.6448536 * 151.9078, 3);
-    expect(result.reorderPoint).toBeCloseTo(450 + result.safetyStock, 10);
-  });
-
-  it('carries no safety stock at a 50% service level', () => {
-    const result = solveReorderPoint({
-      mode: 'demand',
-      averageDemand: 50,
-      leadTime: 9,
-      demandStdDev: 8,
-      leadTimeStdDev: 0,
-      cycleServiceLevel: 0.5,
-    });
-    expect(result.safetyStock).toBeCloseTo(0, 9);
-    expect(result.reorderPoint).toBeCloseTo(450, 9);
-  });
-
-  it('asks for more safety stock as the service level rises', () => {
-    const levels = [0.8, 0.9, 0.95, 0.99];
-    const stocks = levels.map(
-      (level) =>
-        solveReorderPoint({
-          mode: 'demand',
-          averageDemand: 50,
-          leadTime: 9,
-          demandStdDev: 8,
-          leadTimeStdDev: 0,
-          cycleServiceLevel: level,
-        }).safetyStock,
-    );
-    for (let i = 1; i < stocks.length; i += 1) {
-      expect(stocks[i]).toBeGreaterThan(stocks[i - 1]);
-    }
-  });
-});
-
-/* ================================================================== */
 /* Cost penalty                                                       */
 /* ================================================================== */
 
@@ -538,8 +437,8 @@ describe('cost penalty of ordering the wrong quantity', () => {
 /* ================================================================== */
 
 describe('the inventory sawtooth', () => {
-  // 700 units at 50 a day, 40 units of buffer, ordering 9 days ahead.
-  const profile = sampleInventoryProfile(700, 50, 40, 490, 9, 3);
+  // 700 units at 50 a day, on a 40-unit buffer.
+  const profile = sampleInventoryProfile(700, 50, 40, 3);
 
   it('peaks at Q above the safety stock and troughs on it', () => {
     expect(profile.peak).toBe(740);
@@ -553,22 +452,6 @@ describe('the inventory sawtooth', () => {
     expect(profile.horizon).toBeCloseTo(42, 10);
   });
 
-  it('places each order exactly one lead time before the delivery', () => {
-    for (const cycle of profile.cycles) {
-      expect(cycle.end - cycle.orderPlacedAt).toBeCloseTo(9, 10);
-    }
-    expect(profile.cycles[0].orderPlacedAt).toBeCloseTo(5, 10);
-  });
-
-  it('crosses the reorder point at the moment the order goes out', () => {
-    // Falling from the peak at the demand rate, the level at the order time
-    // must be the reorder point itself. That identity is the whole diagram.
-    for (const cycle of profile.cycles) {
-      const elapsed = cycle.orderPlacedAt - cycle.start;
-      expect(profile.peak - 50 * elapsed).toBeCloseTo(profile.reorderPoint, 8);
-    }
-  });
-
   it('draws a delivery as a jump, not as a ramp', () => {
     // Two vertices share the time at which stock is restored.
     expect(profile.points[1].time).toBeCloseTo(profile.points[2].time, 10);
@@ -577,9 +460,17 @@ describe('the inventory sawtooth', () => {
   });
 
   it('carries no safety stock when none is asked for', () => {
-    const bare = sampleInventoryProfile(707.11, 27.4, 0, 0, 0, 2);
+    const bare = sampleInventoryProfile(707.11, 27.4, 0, 2);
     expect(bare.low).toBe(0);
     expect(bare.peak).toBeCloseTo(707.11, 8);
-    expect(bare.cycles[0].orderPlacedAt).toBeCloseTo(bare.cycles[0].end, 10);
+  });
+
+  it('holds the buffer as a floor the ramp never goes below', () => {
+    // The point of the diagram: every trough is the safety stock, so the
+    // flat floor is stock paid for all year and never sold.
+    for (const point of profile.points) {
+      expect(point.level).toBeGreaterThanOrEqual(profile.low);
+    }
+    expect(Math.min(...profile.points.map((point) => point.level))).toBe(40);
   });
 });

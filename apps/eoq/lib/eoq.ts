@@ -1,6 +1,6 @@
 /**
  * Inventory ordering models: economic order quantity, all-units quantity
- * discounts, reorder point / safety stock, and the cost-penalty table.
+ * discounts, the cost-penalty table and the stock profile.
  *
  * Everything here takes plain numbers and returns plain numbers or typed
  * objects. No React, no Intl, no formatting, no user-facing text. The only
@@ -12,7 +12,6 @@
  * input they return the natural IEEE result rather than throwing.
  */
 
-import { inverseNormalCdf } from './stats';
 
 /* ------------------------------------------------------------------ */
 /* Classic EOQ                                                         */
@@ -354,82 +353,6 @@ export function analyseAllUnitsDiscounts(
 }
 
 /* ------------------------------------------------------------------ */
-/* Reorder point and safety stock                                       */
-/* ------------------------------------------------------------------ */
-
-/** Which source of variability the reorder point accounts for. */
-export type VariabilityMode = 'demand' | 'lead-time' | 'both';
-
-export interface ReorderInput {
-  mode: VariabilityMode;
-  /** d-bar, average demand per period. */
-  averageDemand: number;
-  /** L, lead time in the same periods as demand. */
-  leadTime: number;
-  /** Standard deviation of demand per period. */
-  demandStdDev: number;
-  /** Standard deviation of lead time, in periods. */
-  leadTimeStdDev: number;
-  /**
-   * Cycle service level as a fraction: the probability of not stocking out
-   * during a replenishment cycle. This is not fill rate.
-   */
-  cycleServiceLevel: number;
-}
-
-export interface ReorderResult {
-  /** Safety factor z for the cycle service level. */
-  z: number;
-  /** Standard deviation of demand during lead time. */
-  sigmaDdlt: number;
-  safetyStock: number;
-  demandDuringLeadTime: number;
-  reorderPoint: number;
-}
-
-/** Standard deviation of demand during lead time, by variability mode. */
-export function sigmaDemandDuringLeadTime(
-  mode: VariabilityMode,
-  averageDemand: number,
-  leadTime: number,
-  demandStdDev: number,
-  leadTimeStdDev: number,
-): number {
-  switch (mode) {
-    case 'demand':
-      return demandStdDev * Math.sqrt(leadTime);
-    case 'lead-time':
-      return averageDemand * leadTimeStdDev;
-    case 'both':
-      return Math.sqrt(
-        leadTime * demandStdDev * demandStdDev +
-          averageDemand * averageDemand * leadTimeStdDev * leadTimeStdDev,
-      );
-  }
-}
-
-export function solveReorderPoint(input: ReorderInput): ReorderResult {
-  const z = inverseNormalCdf(input.cycleServiceLevel);
-  const sigmaDdlt = sigmaDemandDuringLeadTime(
-    input.mode,
-    input.averageDemand,
-    input.leadTime,
-    input.demandStdDev,
-    input.leadTimeStdDev,
-  );
-  const safetyStock = z * sigmaDdlt;
-  const demandDuringLeadTime = input.averageDemand * input.leadTime;
-
-  return {
-    z,
-    sigmaDdlt,
-    safetyStock,
-    demandDuringLeadTime,
-    reorderPoint: demandDuringLeadTime + safetyStock,
-  };
-}
-
-/* ------------------------------------------------------------------ */
 /* Cost penalty                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -599,8 +522,6 @@ export interface InventoryCycle {
   start: number;
   /** When stock reaches its low point and the replenishment lands. */
   end: number;
-  /** When the order is placed: the moment stock falls through the reorder point. */
-  orderPlacedAt: number;
 }
 
 export interface InventoryProfile {
@@ -608,10 +529,8 @@ export interface InventoryProfile {
   peak: number;
   /** SS: the level just before one. */
   low: number;
-  reorderPoint: number;
   /** Q / demand rate: how long one cycle lasts, in periods. */
   cycleLength: number;
-  leadTime: number;
   cycles: InventoryCycle[];
   /** Vertices of the sawtooth, in order. A delivery is two points at one time. */
   points: Array<{ time: number; level: number }>;
@@ -619,22 +538,19 @@ export interface InventoryProfile {
 }
 
 /**
- * The sawtooth: stock falling at the demand rate, reaching the reorder point,
- * an order going out, the lead time elapsing, and the delivery restoring the
- * level. It is the diagram every inventory course draws, and it is built here
- * from quantities the rest of this file already computes.
+ * The sawtooth: stock falling at the demand rate from Q + SS down to the
+ * safety stock, where a delivery restores it. It is the diagram every
+ * inventory course draws, and it is built from quantities the rest of this
+ * file already computes.
  *
- * The geometry proves the reorder point rather than merely showing it: because
- * ROP = d * L + SS, stock crosses the reorder line exactly one lead time before
- * it reaches the safety stock, so the order arrives as the buffer is reached
- * and not before or after.
+ * What it shows is the role of the buffer: the ramp stops at SS rather than at
+ * zero, so the height of the flat floor is the stock that is paid for all year
+ * and, in the ordinary cycle, never sold.
  */
 export function sampleInventoryProfile(
   orderQuantity: number,
   demandRate: number,
   safetyStock: number,
-  reorderPoint: number,
-  leadTime: number,
   cycleCount: number,
 ): InventoryProfile {
   const peak = orderQuantity + safetyStock;
@@ -646,7 +562,7 @@ export function sampleInventoryProfile(
   for (let index = 0; index < cycleCount; index += 1) {
     const start = index * cycleLength;
     const end = start + cycleLength;
-    cycles.push({ start, end, orderPlacedAt: end - leadTime });
+    cycles.push({ start, end });
 
     // Two points at the same time where a delivery lands: the sawtooth is
     // discontinuous there, and drawing it as a ramp would be a lie about how
@@ -658,9 +574,7 @@ export function sampleInventoryProfile(
   return {
     peak,
     low: safetyStock,
-    reorderPoint,
     cycleLength,
-    leadTime,
     cycles,
     points,
     horizon: cycleCount * cycleLength,

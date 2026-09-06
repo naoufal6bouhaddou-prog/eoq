@@ -18,19 +18,14 @@ export type FieldName =
   | 'unitCost'
   | 'daysPerYear'
   | 'roundingMultiple'
-  | 'averageDemand'
-  | 'leadTime'
-  | 'demandStdDev'
-  | 'leadTimeStdDev'
-  | 'cycleServiceLevel';
+  | 'safetyStock';
 
 export type IssueCode =
   | 'required'
   | 'not-a-number'
   | 'must-be-positive'
   | 'must-be-non-negative'
-  | 'rate-out-of-range'
-  | 'service-level-out-of-range';
+  | 'rate-out-of-range';
 
 export interface FieldIssue {
   field: FieldName;
@@ -42,10 +37,8 @@ export interface FieldIssue {
  *   positive     strictly greater than zero
  *   nonNegative  zero or more
  *   rate         a share of unit value: greater than 0, at most 1
- *   probability  strictly between 0 and 1, because a 100% cycle service level
- *                needs infinite safety stock and is not attainable
  */
-export type FieldRule = 'positive' | 'nonNegative' | 'rate' | 'probability';
+export type FieldRule = 'positive' | 'nonNegative' | 'rate';
 
 export interface FieldSpec {
   rule: FieldRule;
@@ -89,11 +82,6 @@ export function checkField(
     case 'rate':
       if (!(value > 0 && value <= 1)) {
         return { value: null, issue: { field, code: 'rate-out-of-range' } };
-      }
-      break;
-    case 'probability':
-      if (!(value > 0 && value < 1)) {
-        return { value: null, issue: { field, code: 'service-level-out-of-range' } };
       }
       break;
   }

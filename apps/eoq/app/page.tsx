@@ -9,7 +9,6 @@ import { DiscountTable } from '@/components/DiscountTable';
 import { InventoryProfile } from '@/components/InventoryProfile';
 import { Figure } from '@sct/shared/ui/Figure';
 import { InputRail } from '@/components/InputRail';
-import { ReorderPanel } from '@/components/ReorderPanel';
 import { PinnedAnswer } from '@/components/PinnedAnswer';
 import { CostPenaltyTable } from '@/components/CostPenaltyTable';
 import { SettingsProvider } from '@/components/Settings';
@@ -131,55 +130,23 @@ export default function Page() {
 
   // Split what is still missing by the section that is waiting on it, so each
   // empty state names its own gaps rather than the whole form's.
-  const REORDER_FIELDS: FieldName[] = [
-    'averageDemand',
-    'leadTime',
-    'demandStdDev',
-    'leadTimeStdDev',
-    'cycleServiceLevel',
-  ];
-  const missingLabels = derived.missing
-    .filter((field) => !REORDER_FIELDS.includes(field))
-    .map(labelFor);
-  const missingReorderLabels = derived.missing
-    .filter((field) => REORDER_FIELDS.includes(field))
-    .map(labelFor);
+  const missingLabels = derived.missing.map(labelFor);
 
   const settings = useMemo(() => ({ locale, currency, t }), [locale, currency, t]);
 
   /**
-   * What the sawtooth needs. With a reorder point in play the rate and the lead
-   * time come straight from it. Without one, the demand rate is still knowable
-   * as D over the working year, and the diagram degenerates to the textbook
-   * case: no buffer, no lead time, replenish on reaching zero.
+   * What the sawtooth needs. The demand rate is D over the working year, and
+   * the floor is whatever buffer the buyer entered — zero if they entered none.
    */
   const profileInput = useMemo(() => {
     if (derived.eoq === null || derived.eoqInput === null) return null;
     const { annualDemand, daysPerYear } = derived.eoqInput;
-
-    if (derived.reorder !== null && state.reorderEnabled) {
-      const averageDemand = derived.values.averageDemand;
-      const leadTime = derived.values.leadTime;
-      if (averageDemand === undefined || leadTime === undefined) return null;
-      return {
-        demandRate: averageDemand,
-        leadTime,
-        safetyStock: derived.reorder.safetyStock,
-        reorderPoint: derived.reorder.reorderPoint,
-        periodLabel: state.periodUnit === 'week' ? t.units.weeks : t.units.days,
-        hasReorderPoint: true,
-      };
-    }
-
     return {
       demandRate: annualDemand / daysPerYear,
-      leadTime: 0,
-      safetyStock: 0,
-      reorderPoint: 0,
+      safetyStock: derived.values.safetyStock ?? 0,
       periodLabel: t.units.days,
-      hasReorderPoint: false,
     };
-  }, [derived, state.reorderEnabled, state.periodUnit, t]);
+  }, [derived, t]);
 
   // The chart draws the discount curve only when there is a valid schedule to
   // draw; otherwise it shows the three classic traces.
@@ -274,23 +241,13 @@ export default function Page() {
               />
             ) : null}
 
-            {state.reorderEnabled ? (
-              <ReorderPanel
-                reorder={derived.reorder}
-                eoq={derived.eoq}
-                missingLabels={missingReorderLabels}
-              />
-            ) : null}
 
             {derived.eoq === null || profileInput === null ? null : (
               <InventoryProfile
                 orderQuantity={derived.eoq.quantity}
                 demandRate={profileInput.demandRate}
                 safetyStock={profileInput.safetyStock}
-                reorderPoint={profileInput.reorderPoint}
-                leadTime={profileInput.leadTime}
                 periodLabel={profileInput.periodLabel}
-                hasReorderPoint={profileInput.hasReorderPoint}
               />
             )}
 

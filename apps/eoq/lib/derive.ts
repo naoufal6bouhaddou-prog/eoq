@@ -12,7 +12,6 @@ import {
   holdingCostFromRate,
   practicalQuantity,
   solveEoq,
-  solveReorderPoint,
   type CostPenaltyRow,
   type DiscountAnalysis,
   type EoqInput,
@@ -20,7 +19,6 @@ import {
   type HoldingBasis,
   type PracticalQuantity,
   type PriceBreak,
-  type ReorderResult,
 } from './eoq';
 import { parseNumber, type Locale } from '@sct/shared/lib/format';
 import type { ToolState } from './state';
@@ -50,7 +48,6 @@ export interface Derived {
   eoqInput: EoqInput | null;
   eoq: EoqResult | null;
   practical: PracticalQuantity | null;
-  reorder: ReorderResult | null;
   discounts: DiscountAnalysis | null;
   /** The parsed schedule, so the chart draws exactly what the table compares. */
   priceBreaks: PriceBreak[];
@@ -60,13 +57,10 @@ export interface Derived {
 /**
  * Which rule each field follows, and whether it is required, given the modes
  * currently switched on. A field that is not in play is not required, so
- * turning the reorder point off does not fill the rail with errors.
+ * turning the discount schedule off does not fill the rail with errors.
  */
 export function fieldSpecs(state: ToolState): Record<FieldName, FieldSpec> {
   const byRate = state.holdingMode === 'rate';
-  const reorder = state.reorderEnabled;
-  const needsDemandSigma = state.variabilityMode !== 'lead-time';
-  const needsLeadTimeSigma = state.variabilityMode !== 'demand';
 
   return {
     annualDemand: { rule: 'positive', required: true },
@@ -77,11 +71,7 @@ export function fieldSpecs(state: ToolState): Record<FieldName, FieldSpec> {
     unitCost: { rule: 'positive', required: byRate },
     daysPerYear: { rule: 'positive', required: true },
     roundingMultiple: { rule: 'positive', required: false },
-    averageDemand: { rule: 'positive', required: reorder },
-    leadTime: { rule: 'positive', required: reorder },
-    demandStdDev: { rule: 'nonNegative', required: reorder && needsDemandSigma },
-    leadTimeStdDev: { rule: 'nonNegative', required: reorder && needsLeadTimeSigma },
-    cycleServiceLevel: { rule: 'probability', required: reorder, percent: true },
+    safetyStock: { rule: 'nonNegative', required: false },
   };
 }
 
@@ -93,11 +83,7 @@ const RAW: Record<FieldName, (state: ToolState) => string> = {
   unitCost: (s) => s.unitCost,
   daysPerYear: (s) => s.daysPerYear,
   roundingMultiple: (s) => s.roundingMultiple,
-  averageDemand: (s) => s.averageDemand,
-  leadTime: (s) => s.leadTime,
-  demandStdDev: (s) => s.demandStdDev,
-  leadTimeStdDev: (s) => s.leadTimeStdDev,
-  cycleServiceLevel: (s) => s.cycleServiceLevel,
+  safetyStock: (s) => s.safetyStock,
 };
 
 /** Parse the price break rows. Anything unreadable becomes NaN, which the
@@ -141,31 +127,6 @@ export function derive(state: ToolState, locale: Locale): Derived {
         ? { kind: 'fixed', holdingCostPerUnit }
         : null;
 
-  /* Reorder point first: its safety stock feeds the holding cost below. */
-  let reorder: ReorderResult | null = null;
-  if (state.reorderEnabled) {
-    const averageDemand = values.averageDemand;
-    const leadTime = values.leadTime;
-    const cycleServiceLevel = values.cycleServiceLevel;
-    if (
-      averageDemand !== undefined &&
-      leadTime !== undefined &&
-      cycleServiceLevel !== undefined &&
-      (state.variabilityMode === 'lead-time' || values.demandStdDev !== undefined) &&
-      (state.variabilityMode === 'demand' || values.leadTimeStdDev !== undefined)
-    ) {
-      const candidate = solveReorderPoint({
-        mode: state.variabilityMode,
-        averageDemand,
-        leadTime,
-        demandStdDev: values.demandStdDev ?? 0,
-        leadTimeStdDev: values.leadTimeStdDev ?? 0,
-        cycleServiceLevel,
-      });
-      if (Number.isFinite(candidate.reorderPoint)) reorder = candidate;
-    }
-  }
-
   const annualDemand = values.annualDemand;
   const orderCost = values.orderCost;
   const daysPerYear = values.daysPerYear;
@@ -187,7 +148,7 @@ export function derive(state: ToolState, locale: Locale): Derived {
       holdingCostPerUnit,
       daysPerYear,
       unitCost,
-      safetyStock: reorder?.safetyStock ?? 0,
+      safetyStock: values.safetyStock ?? 0,
     };
     eoq = solveEoq(eoqInput);
     if (values.roundingMultiple !== undefined) {
@@ -225,7 +186,6 @@ export function derive(state: ToolState, locale: Locale): Derived {
     eoqInput,
     eoq,
     practical,
-    reorder,
     discounts,
     priceBreaks,
     penaltyRows,

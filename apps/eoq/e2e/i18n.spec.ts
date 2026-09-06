@@ -29,7 +29,14 @@ async function switchTo(page: Page, code: 'FR' | 'EN'): Promise<void> {
 
 /** Wait until React has hydrated and read the URL. */
 async function ready(page: Page): Promise<void> {
-  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+  // A generous budget, because this is not waiting on the application. The
+  // development server compiles a route the first time it is asked for one,
+  // and a request arriving during that compile waits on the compiler. Against
+  // a warm server it resolves at once; against a cold one the five-second
+  // default was losing whole tests to the compiler rather than to a defect.
+  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true', {
+    timeout: 30_000,
+  });
 }
 
 /**
@@ -138,16 +145,16 @@ test('reports errors in the active language', async ({ page }) => {
 
 test('uses the French supply chain vocabulary throughout', async ({ page }) => {
   await page.goto(
-    '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&br=1:38.5,1500:37.2,4000:36.1&ro=1&vm=d&pu=d&dd=80&l=12&sd=14&csl=95&lang=fr',
+    '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&br=1:38.5,1500:37.2,4000:36.1&ss=275&lang=fr',
   );
 
   for (const term of [
     'Coût de passation',
     'Coût de possession',
-    'Point de commande',
     'Stock de sécurité',
+    'Quantité économique de commande',
     'Remises sur quantité',
-    'Taux de service par cycle',
+    'Conditionnement',
   ]) {
     await expect(shown(page, term)).toBeVisible();
   }

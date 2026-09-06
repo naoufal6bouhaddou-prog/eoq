@@ -18,7 +18,7 @@ describe('field checks', () => {
   });
 
   it('allows zero for a standard deviation', () => {
-    const result = checkField('demandStdDev', '0', 'en', { rule: 'nonNegative', required: false });
+    const result = checkField('safetyStock', '0', 'en', { rule: 'nonNegative', required: false });
     expect(result.value).toBe(0);
     expect(result.issue).toBeNull();
   });
@@ -37,16 +37,6 @@ describe('field checks', () => {
     expect(checkField('holdingRate', '1', 'en', { rule: 'rate', required: true }).issue).toBeNull();
   });
 
-  it('refuses a 100% cycle service level, which needs infinite safety stock', () => {
-    const spec = { rule: 'probability', required: true } as const;
-    expect(checkField('cycleServiceLevel', '0.95', 'en', spec).value).toBeCloseTo(0.95, 10);
-    expect(checkField('cycleServiceLevel', '1', 'en', spec).issue?.code).toBe(
-      'service-level-out-of-range',
-    );
-    expect(checkField('cycleServiceLevel', '0', 'en', spec).issue?.code).toBe(
-      'service-level-out-of-range',
-    );
-  });
 
   it('separates an empty required field from unreadable text', () => {
     expect(checkField('annualDemand', '', 'en', { rule: 'positive', required: true }).issue?.code).toBe(

@@ -36,10 +36,7 @@ const SHARED_BY_DESIGN = new Set([
   'fields.unitCost.symbol',
   'fields.daysPerYear.symbol',
   'fields.roundingMultiple.symbol',
-  'fields.averageDemand.symbol',
-  'fields.leadTime.symbol',
-  'fields.demandStdDev.symbol',
-  'fields.leadTimeStdDev.symbol',
+  'fields.safetyStock.symbol',
   'holdingMode.derived',
   // A product name, not a phrase to translate.
   'app.family',
@@ -96,7 +93,6 @@ describe('the two dictionaries', () => {
       'must-be-positive',
       'must-be-non-negative',
       'rate-out-of-range',
-      'service-level-out-of-range',
     ] as const;
     for (const code of codes) {
       expect(en.errors[code]).toBeTruthy();
@@ -120,10 +116,10 @@ describe('the two dictionaries', () => {
     expect(fr.results.quantity).toBe('Quantité économique de commande');
     expect(fr.results.orderingCost).toBe('Coût de passation');
     expect(fr.results.holdingCost).toBe('Coût de possession');
-    expect(fr.results.reorderPoint).toBe('Point de commande');
+    expect(fr.results.safetyStock).toBe('Stock de sécurité');
     expect(fr.results.safetyStock).toBe('Stock de sécurité');
     expect(fr.sections.breaks).toBe('Remises sur quantité');
-    expect(fr.fields.cycleServiceLevel.label).toContain('Taux de service');
+    expect(fr.fields.safetyStock.label).toContain('Stock de sécurité');
   });
 
   it('keeps the copy free of the words the brief rules out', () => {
