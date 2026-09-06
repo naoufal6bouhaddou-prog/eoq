@@ -21,10 +21,6 @@ export const en = {
   actions: {
     loadExample: 'Load example',
     clear: 'Clear all fields',
-    copyLink: 'Copy link to these inputs',
-    linkCopied: 'Link copied',
-    downloadCsv: 'Download CSV',
-    print: 'Print or save as PDF',
     addTier: 'Add tier',
     removeTier: 'Remove tier',
   },
@@ -239,21 +235,7 @@ export const en = {
     discountNeeds: 'The comparison needs a valid price break schedule.',
   },
 
-  print: {
-    generated: 'Generated',
-    assumptions: 'Input assumptions',
-    model: 'All-units discount model. Cycle service level, not fill rate.',
-  },
 
-  csv: {
-    section: 'Section',
-    inputs: 'Inputs',
-    results: 'Results',
-    field: 'Field',
-    symbol: 'Symbol',
-    value: 'Value',
-    unit: 'Unit',
-  },
 
   a11y: {
     skipToResults: 'Skip to results',

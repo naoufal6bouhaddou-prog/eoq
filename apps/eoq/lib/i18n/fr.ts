@@ -24,10 +24,6 @@ export const fr: Dictionary = {
   actions: {
     loadExample: 'Charger un exemple',
     clear: 'Vider les champs',
-    copyLink: 'Copier le lien vers ces données',
-    linkCopied: 'Lien copié',
-    downloadCsv: 'Télécharger le CSV',
-    print: 'Imprimer ou enregistrer en PDF',
     addTier: 'Ajouter un palier',
     removeTier: 'Supprimer le palier',
   },
@@ -247,21 +243,7 @@ export const fr: Dictionary = {
     discountNeeds: 'La comparaison demande un barème de remises valide.',
   },
 
-  print: {
-    generated: 'Établi le',
-    assumptions: 'Hypothèses de saisie',
-    model: 'Remises à tarif uniforme. Taux de service par cycle, et non taux de satisfaction.',
-  },
 
-  csv: {
-    section: 'Section',
-    inputs: 'Données saisies',
-    results: 'Résultats',
-    field: 'Champ',
-    symbol: 'Symbole',
-    value: 'Valeur',
-    unit: 'Unité',
-  },
 
   a11y: {
     skipToResults: 'Aller aux résultats',

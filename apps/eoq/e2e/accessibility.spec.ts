@@ -10,7 +10,14 @@ const FULL =
   '/?d=24000&s=450&i=22&c=38.5&y=300&m=120&hm=r&br=1:38.5,1500:37.2,4000:36.1&ro=1&vm=b&pu=d&dd=80&l=12&sd=14&sl=2&csl=95&lang=en';
 
 async function ready(page: Page): Promise<void> {
-  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+  // A generous budget, because this is not waiting on the application. The
+  // development server compiles a route the first time it is asked for one,
+  // and a request arriving during that compile waits on the compiler. Against
+  // a warm server it resolves at once; against a cold one the five-second
+  // default was losing whole tests to the compiler rather than to a defect.
+  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true', {
+    timeout: 30_000,
+  });
 }
 
 test('names every form control', async ({ page }) => {
@@ -94,14 +101,22 @@ test('shows a visible focus ring on everything reachable', async ({ page }) => {
   await page.goto(FULL);
   await ready(page);
 
-  for (const selector of ['#annual-demand', '#currency', '[data-testid="download-csv"]']) {
-    await page.locator(selector).focus();
-    const outline = await page.locator(selector).evaluate((node) => {
+  // A text field, a select and a button: the three shapes of control on the
+  // page, since each takes its ring from a different rule.
+  const controls: [string, ReturnType<typeof page.locator>][] = [
+    ['text field', page.locator('#annual-demand')],
+    ['select', page.locator('#currency')],
+    ['button', page.getByRole('button', { name: 'Load example', exact: true })],
+  ];
+
+  for (const [name, control] of controls) {
+    await control.focus();
+    const outline = await control.evaluate((node) => {
       const style = getComputedStyle(node);
       return { width: style.outlineWidth, style: style.outlineStyle };
     });
-    expect(outline.style, selector).not.toBe('none');
-    expect(Number.parseFloat(outline.width), selector).toBeGreaterThanOrEqual(2);
+    expect(outline.style, name).not.toBe('none');
+    expect(Number.parseFloat(outline.width), name).toBeGreaterThanOrEqual(2);
   }
 });
 

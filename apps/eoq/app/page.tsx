@@ -7,12 +7,10 @@ import { AppShell } from '@sct/shared/ui/AppShell';
 import { CostCurve } from '@/components/CostCurve';
 import { DiscountTable } from '@/components/DiscountTable';
 import { InventoryProfile } from '@/components/InventoryProfile';
-import { ExportActions } from '@/components/ExportActions';
 import { Figure } from '@sct/shared/ui/Figure';
 import { InputRail } from '@/components/InputRail';
 import { ReorderPanel } from '@/components/ReorderPanel';
 import { PinnedAnswer } from '@/components/PinnedAnswer';
-import { PrintFooter, PrintHeader } from '@/components/PrintSheet';
 import { CostPenaltyTable } from '@/components/CostPenaltyTable';
 import { SettingsProvider } from '@/components/Settings';
 import { derive } from '@/lib/derive';
@@ -236,7 +234,6 @@ export default function Page() {
             >
               {t.actions.clear}
             </button>
-            <ExportActions state={state} derived={derived} />
           </>
         }
       />
@@ -244,8 +241,6 @@ export default function Page() {
       <PinnedAnswer eoq={derived.eoq} />
 
       <main className="mx-auto max-w-[1440px] px-4 pb-16 pt-4 sm:px-6">
-        <PrintHeader />
-
         <div className="grid items-start gap-4 lg:grid-cols-[340px_minmax(0,1fr)]">
           <form
             aria-label={t.a11y.inputRail}
@@ -314,7 +309,6 @@ export default function Page() {
           </div>
         </div>
 
-        <PrintFooter state={state} derived={derived} />
       </main>
     </SettingsProvider>
   );
