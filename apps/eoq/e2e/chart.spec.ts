@@ -2,16 +2,11 @@ import { expect, test, type Page } from '@playwright/test';
 
 /**
  * The cost curve. What matters here is not that pixels landed somewhere, but
- * that the chart says the right thing: the crossing sits at Q*, the readout
- * tracks pointer and keyboard, and a discount schedule breaks the curve into
- * separate segments instead of joining them up.
+ * that the chart says the right thing: the crossing sits at Q*, and the
+ * readout tracks pointer and keyboard.
  */
 
 const CLASSIC = '/?d=10000&s=50&h=2&y=365&hm=u&lang=en';
-
-/** The worked example: three tiers at 1, 1500 and 4000. */
-const WITH_DISCOUNTS =
-  '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&br=1:38.5,1500:37.2,4000:36.1&lang=en';
 
 async function figure(page: Page, name: string): Promise<string> {
   const text = await page.locator(`[data-testid="${name}"]:visible`).textContent();
@@ -24,7 +19,6 @@ test('draws the three classic traces', async ({ page }) => {
   await expect(page.getByTestId('trace-ordering')).toBeVisible();
   await expect(page.getByTestId('trace-holding')).toBeVisible();
   await expect(page.getByTestId('trace-total')).toBeVisible();
-  await expect(page.getByTestId('discount-segment')).toHaveCount(0);
 });
 
 test('opens its readout at the optimum, where the penalty is nil', async ({ page }) => {
@@ -73,57 +67,4 @@ test('publishes the curve as a table for anyone not reading the picture', async 
   const table = page.getByRole('table', { name: 'Cost curve values' });
   await expect(table).toBeAttached();
   await expect(table.getByRole('row')).toHaveCount(13); // header plus twelve samples
-});
-
-test('breaks the curve into one segment per tier when discounts apply', async ({ page }) => {
-  await page.goto(WITH_DISCOUNTS);
-
-  await expect(page.getByTestId('discount-segment')).toHaveCount(3);
-  await expect(page.getByTestId('trace-ordering')).toHaveCount(0);
-});
-
-test('closes each segment where its tier starts and opens it where the next begins', async ({
-  page,
-}) => {
-  await page.goto(WITH_DISCOUNTS);
-
-  // Tier 1 starts at quantity 1, off the left of the chart, so only the two
-  // tiers whose breaks are in view get a filled endpoint.
-  await expect(page.getByTestId('endpoint-closed')).toHaveCount(2);
-  await expect(page.getByTestId('endpoint-open')).toHaveCount(2);
-});
-
-test('drops at a price break rather than joining up across it', async ({ page }) => {
-  await page.goto(WITH_DISCOUNTS);
-
-  const open = page.getByTestId('endpoint-open').first();
-  const closed = page.getByTestId('endpoint-closed').first();
-
-  const openBox = await open.boundingBox();
-  const closedBox = await closed.boundingBox();
-  expect(openBox).not.toBeNull();
-  expect(closedBox).not.toBeNull();
-  if (openBox === null || closedBox === null) return;
-
-  // Same quantity, lower cost: the pair sits at one x and the closed endpoint
-  // is further down the page, which on an inverted axis means cheaper.
-  expect(Math.abs(openBox.x - closedBox.x)).toBeLessThan(2);
-  expect(closedBox.y).toBeGreaterThan(openBox.y + 4);
-});
-
-test('names the unit cost in force at the quantity being read', async ({ page }) => {
-  await page.goto(WITH_DISCOUNTS);
-
-  const plot = page.getByRole('slider');
-  await plot.focus();
-  await plot.press('End');
-
-  // The far right of the chart is past the last break, so the cheapest tier.
-  // Scoped to the chart's own readout: the comparison table names 36.10 too.
-  await expect.poll(() => figure(page, 'readout-unit-cost')).toBe('36.10');
-});
-
-test('says that the discount total carries purchase cost', async ({ page }) => {
-  await page.goto(WITH_DISCOUNTS);
-  await expect(page.getByText('the curve drops at each break', { exact: false })).toBeVisible();
 });

@@ -43,14 +43,12 @@ const SHARED_BY_DESIGN = new Set([
   // Cognates: the French word is the English word.
   'penalty.optimum',
   'profile.cycle',
-  'csv.section',
   'results.quantityShort',
   'penalty.columns.ratio',
   'penalty.columns.quantity',
   'units.percent',
   'chart.optimum',
   'chart.total',
-  'discounts.columns.total',
 ]);
 
 describe('the two dictionaries', () => {
@@ -98,18 +96,6 @@ describe('the two dictionaries', () => {
       expect(en.errors[code]).toBeTruthy();
       expect(fr.errors[code]).toBeTruthy();
     }
-
-    const scheduleCodes = [
-      'schedule-empty',
-      'first-tier-must-start-at-one',
-      'min-qty-must-be-whole-and-positive',
-      'min-qty-must-ascend',
-      'unit-cost-must-be-positive',
-    ] as const;
-    for (const code of scheduleCodes) {
-      expect(en.schedule[code]).toBeTruthy();
-      expect(fr.schedule[code]).toBeTruthy();
-    }
   });
 
   it('uses the French supply chain vocabulary, not a literal translation', () => {
@@ -117,8 +103,7 @@ describe('the two dictionaries', () => {
     expect(fr.results.orderingCost).toBe('Coût de passation');
     expect(fr.results.holdingCost).toBe('Coût de possession');
     expect(fr.results.safetyStock).toBe('Stock de sécurité');
-    expect(fr.results.safetyStock).toBe('Stock de sécurité');
-    expect(fr.sections.breaks).toBe('Remises sur quantité');
+    expect(fr.sections.casePack).toBe('Conditionnement');
     expect(fr.fields.safetyStock.label).toContain('Stock de sécurité');
   });
 

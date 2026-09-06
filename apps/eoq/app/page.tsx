@@ -5,9 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { AnswerPanel } from '@/components/AnswerPanel';
 import { AppShell } from '@sct/shared/ui/AppShell';
 import { CostCurve } from '@/components/CostCurve';
-import { DiscountTable } from '@/components/DiscountTable';
 import { InventoryProfile } from '@/components/InventoryProfile';
-import { Figure } from '@sct/shared/ui/Figure';
 import { InputRail } from '@/components/InputRail';
 import { PinnedAnswer } from '@/components/PinnedAnswer';
 import { CostPenaltyTable } from '@/components/CostPenaltyTable';
@@ -148,20 +146,6 @@ export default function Page() {
     };
   }, [derived, t]);
 
-  // The chart draws the discount curve only when there is a valid schedule to
-  // draw; otherwise it shows the three classic traces.
-  const discountChart = useMemo(
-    () =>
-      derived.discounts !== null && derived.basis !== null
-        ? {
-            basis: derived.basis,
-            breaks: derived.priceBreaks,
-            analysis: derived.discounts,
-          }
-        : null,
-    [derived.discounts, derived.basis, derived.priceBreaks],
-  );
-
   return (
     <SettingsProvider value={settings}>
       <a href="#results" className="sr-only">
@@ -221,7 +205,6 @@ export default function Page() {
               state={state}
               patch={patch}
               issues={derived.issues}
-              scheduleIssues={derived.scheduleIssues}
               revealErrors={revealErrors}
             />
           </form>
@@ -233,15 +216,6 @@ export default function Page() {
               missingLabels={missingLabels}
             />
 
-            {state.discountsEnabled ? (
-              <DiscountTable
-                analysis={derived.discounts}
-                basis={derived.basis}
-                hasRoundingMultiple={derived.values.roundingMultiple !== undefined}
-              />
-            ) : null}
-
-
             {derived.eoq === null || profileInput === null ? null : (
               <InventoryProfile
                 orderQuantity={derived.eoq.quantity}
@@ -252,11 +226,7 @@ export default function Page() {
             )}
 
             {derived.eoq === null || derived.eoqInput === null ? null : (
-              <CostCurve
-                input={derived.eoqInput}
-                eoq={derived.eoq}
-                discounts={discountChart}
-              />
+              <CostCurve input={derived.eoqInput} eoq={derived.eoq} />
             )}
 
             {derived.penaltyRows.length === 0 ? null : (

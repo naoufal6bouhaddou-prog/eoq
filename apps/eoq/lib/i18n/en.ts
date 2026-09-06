@@ -7,7 +7,7 @@ export const en = {
   meta: {
     title: 'Inventory ordering calculator',
     description:
-      'Economic order quantity, safety stock and all-units quantity discounts, calculated in the browser.',
+      'Economic order quantity, safety stock and the cost of ordering off the optimum, calculated in the browser.',
   },
 
   app: {
@@ -21,8 +21,6 @@ export const en = {
   actions: {
     loadExample: 'Load example',
     clear: 'Clear all fields',
-    addTier: 'Add tier',
-    removeTier: 'Remove tier',
   },
 
   sections: {
@@ -30,10 +28,8 @@ export const en = {
     workingYear: 'Working year',
     casePack: 'Case pack',
     safetyStock: 'Safety stock',
-    breaks: 'Price breaks',
     results: 'Results',
     chart: 'Cost curve',
-    discounts: 'All-units discount comparison',
     penalty: 'Cost of ordering the wrong quantity',
   },
 
@@ -53,12 +49,6 @@ export const en = {
     perUnit: 'Amount per unit',
     rate: 'Rate on unit cost',
     derived: 'H = i × C',
-  },
-
-
-
-  toggles: {
-    discountsOn: 'Apply a discount schedule',
   },
 
   results: {
@@ -101,36 +91,6 @@ export const en = {
     percentOfUnitCost: '% of unit cost',
   },
 
-  discounts: {
-    model:
-      'All-units model: reaching a break re-prices the whole order. Incremental schedules behave differently and are not calculated here.',
-    holdingNote: 'Holding cost follows the tier price, so each tier has its own H.',
-    roundingNote:
-      'The case pack multiple applies to the classic result above, not to this comparison.',
-    columns: {
-      tier: 'Tier',
-      range: 'Quantity range',
-      unitCost: 'Unit cost',
-      tierEoq: 'Tier EOQ',
-      candidate: 'Order quantity',
-      purchase: 'Purchase',
-      ordering: 'Ordering',
-      holding: 'Holding',
-      total: 'Total annual cost',
-      status: 'Why',
-    },
-    status: {
-      inRange: 'EOQ falls in range',
-      raised: 'Raised to the break',
-      infeasible: 'EOQ above this range',
-    },
-    recommended: 'Lowest total cost',
-    withSchedule: 'With this schedule, order',
-    minQty: 'Quantity from',
-    at: 'at',
-    noneFeasible: 'No tier has a feasible order quantity.',
-  },
-
   penalty: {
     caption:
       'The cost curve is flat near its minimum. Ordering 20% away from Q* costs about 2% more.',
@@ -142,7 +102,6 @@ export const en = {
     },
     optimum: 'Optimum',
   },
-
 
   profile: {
     title: 'Inventory over time',
@@ -171,8 +130,6 @@ export const en = {
     readoutQuantity: 'At Q',
     readoutCost: 'Cost',
     readoutPenalty: 'Versus optimum',
-    priceBreak: 'Price break',
-    includesPurchase: 'Total includes purchase cost, so the curve drops at each break.',
     tableCaption: 'Cost curve values',
     tableQuantity: 'Order quantity',
     tableOrdering: 'Ordering cost',
@@ -188,28 +145,16 @@ export const en = {
     'rate-out-of-range': 'Must be greater than 0 and at most 100',
   },
 
-  schedule: {
-    'schedule-empty': 'Add at least one tier, starting at quantity 1',
-    'first-tier-must-start-at-one': 'The first tier must start at quantity 1',
-    'min-qty-must-be-whole-and-positive': 'Quantity must be a whole number of 1 or more',
-    'min-qty-must-ascend': 'Each tier must start above the one before it',
-    'unit-cost-must-be-positive': 'Unit cost must be greater than 0',
-  },
-
   empty: {
     headline: 'Nothing to calculate yet',
     needs: 'Still needed:',
-    discountNeeds: 'The comparison needs a valid price break schedule.',
   },
-
-
 
   a11y: {
     skipToResults: 'Skip to results',
     inputRail: 'Inputs',
     resultsRegion: 'Results',
     chartRegion: 'Cost curve',
-    removeTierAt: 'Remove the tier starting at',
   },
 };
 

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  analyseAllUnitsDiscounts,
   costPenaltyRatio,
   costPenaltyTable,
   economicOrderQuantity,
@@ -9,13 +8,11 @@ import {
   holdingCostFromRate,
   practicalQuantity,
   roundUpToMultiple,
-  sampleDiscountCurve,
   sampleInventoryProfile,
   solveEoq,
   totalRelevantCost,
   totalRelevantCostAtOptimum,
   type EoqInput,
-  type PriceBreak,
 } from './eoq';
 
 /** The tool's stated inputs, with the optional ones switched off. */
@@ -202,198 +199,6 @@ describe('rounding to a case pack', () => {
 
   it('declines a multiple of zero rather than dividing by it', () => {
     expect(practicalQuantity(input(), 0)).toBeNull();
-  });
-});
-
-/* ================================================================== */
-/* All-units quantity discounts                                       */
-/* ================================================================== */
-
-describe('all-units discounts with a cost-dependent holding rate', () => {
-  const breaks: PriceBreak[] = [
-    { minQty: 1, unitCost: 5.0 },
-    { minQty: 1000, unitCost: 4.85 },
-    { minQty: 2000, unitCost: 4.75 },
-  ];
-  const analysis = analyseAllUnitsDiscounts(5000, 49, { kind: 'rate', rate: 0.2 }, breaks);
-
-  it('gives each tier its own holding cost', () => {
-    expect(analysis.tiers[0].holdingCostPerUnit).toBeCloseTo(1.0, 10);
-    expect(analysis.tiers[1].holdingCostPerUnit).toBeCloseTo(0.97, 10);
-    expect(analysis.tiers[2].holdingCostPerUnit).toBeCloseTo(0.95, 10);
-  });
-
-  it('keeps tier 1 at its own EOQ of 700', () => {
-    expect(analysis.tiers[0].tierEoq).toBeCloseTo(700, 8);
-    expect(analysis.tiers[0].candidateQuantity).toBeCloseTo(700, 8);
-    expect(analysis.tiers[0].status).toBe('eoq-in-range');
-    expect(analysis.tiers[0].totalCost).toBeCloseTo(25_700, 6);
-  });
-
-  it('buys tier 2 up to its break at 1000', () => {
-    expect(analysis.tiers[1].tierEoq).toBeCloseTo(710.74, 2);
-    expect(analysis.tiers[1].candidateQuantity).toBe(1000);
-    expect(analysis.tiers[1].status).toBe('raised-to-break');
-    expect(analysis.tiers[1].totalCost).toBeCloseTo(24_980, 6);
-  });
-
-  it('buys tier 3 up to its break at 2000', () => {
-    expect(analysis.tiers[2].candidateQuantity).toBe(2000);
-    expect(analysis.tiers[2].status).toBe('raised-to-break');
-    expect(analysis.tiers[2].totalCost).toBeCloseTo(24_822.5, 6);
-  });
-
-  it('recommends the cheapest tier overall, not the cheapest unit price alone', () => {
-    expect(analysis.bestIndex).toBe(2);
-    expect(analysis.best?.totalCost).toBeCloseTo(24_822.5, 6);
-  });
-
-  it('reports the displayed upper bound one unit below the next break', () => {
-    expect(analysis.tiers[0].maxQty).toBe(999);
-    expect(analysis.tiers[1].maxQty).toBe(1999);
-    expect(analysis.tiers[2].maxQty).toBeNull();
-  });
-
-  it('adds purchase, ordering and holding to the tier total', () => {
-    const tier = analysis.tiers[0];
-    expect((tier.purchaseCost ?? 0) + (tier.orderingCost ?? 0) + (tier.holdingCost ?? 0)).toBeCloseTo(
-      tier.totalCost ?? 0,
-      8,
-    );
-  });
-});
-
-describe('all-units discounts with a flat holding cost', () => {
-  const breaks: PriceBreak[] = [
-    { minQty: 1, unitCost: 10 },
-    { minQty: 100, unitCost: 9.5 },
-    { minQty: 500, unitCost: 9 },
-  ];
-  const analysis = analyseAllUnitsDiscounts(
-    10_000,
-    50,
-    { kind: 'fixed', holdingCostPerUnit: 2 },
-    breaks,
-  );
-
-  it('gives every tier the same EOQ', () => {
-    for (const tier of analysis.tiers) expect(tier.tierEoq).toBeCloseTo(707.1067812, 6);
-  });
-
-  it('discards tiers whose EOQ sits above their own price range', () => {
-    expect(analysis.tiers[0].status).toBe('infeasible');
-    expect(analysis.tiers[0].totalCost).toBeNull();
-    expect(analysis.tiers[1].status).toBe('infeasible');
-    expect(analysis.tiers[1].totalCost).toBeNull();
-  });
-
-  it('settles on the unbounded tier, where the EOQ is feasible', () => {
-    expect(analysis.tiers[2].status).toBe('eoq-in-range');
-    expect(analysis.tiers[2].candidateQuantity).toBeCloseTo(707.1067812, 6);
-    expect(analysis.bestIndex).toBe(2);
-    expect(analysis.best?.totalCost).toBeCloseTo(90_000 + 1414.2135624, 5);
-  });
-});
-
-describe('tier ranges are half-open, so a fractional Q just under a break stays put', () => {
-  // D * S chosen so that Q* lands on exactly 99.5 with H = 2.
-  const analysis = analyseAllUnitsDiscounts(
-    9900.25,
-    1,
-    { kind: 'fixed', holdingCostPerUnit: 2 },
-    [
-      { minQty: 1, unitCost: 10 },
-      { minQty: 100, unitCost: 9 },
-    ],
-  );
-
-  it('places Q* = 99.5 inside the tier that runs to 99', () => {
-    expect(analysis.tiers[0].tierEoq).toBeCloseTo(99.5, 10);
-    expect(analysis.tiers[0].maxQty).toBe(99);
-    expect(analysis.tiers[0].status).toBe('eoq-in-range');
-    expect(analysis.tiers[0].candidateQuantity).toBeCloseTo(99.5, 10);
-  });
-
-  it('marks a tier infeasible only once Q* reaches the next break', () => {
-    const atBreak = analyseAllUnitsDiscounts(
-      5000,
-      1,
-      { kind: 'fixed', holdingCostPerUnit: 1 },
-      [
-        { minQty: 1, unitCost: 10 },
-        { minQty: 100, unitCost: 9 },
-      ],
-    );
-    expect(atBreak.tiers[0].tierEoq).toBeCloseTo(100, 10);
-    expect(atBreak.tiers[0].status).toBe('infeasible');
-  });
-});
-
-describe('the discount cost curve', () => {
-  const breaks: PriceBreak[] = [
-    { minQty: 1, unitCost: 5.0 },
-    { minQty: 1000, unitCost: 4.85 },
-  ];
-  const segments = sampleDiscountCurve(5000, 49, { kind: 'rate', rate: 0.2 }, breaks, 1, 3000, 40);
-
-  it('returns one segment per tier', () => {
-    expect(segments).toHaveLength(2);
-    expect(segments[0].from).toBe(1);
-    expect(segments[0].to).toBe(1000);
-    expect(segments[1].from).toBe(1000);
-    expect(segments[1].to).toBe(3000);
-  });
-
-  it('marks a segment closed where its tier starts and open where the next begins', () => {
-    expect(segments[0].startsAtBreak).toBe(true);
-    expect(segments[0].endsAtBreak).toBe(true);
-    // The last tier runs off the edge of the chart, not into another break.
-    expect(segments[1].endsAtBreak).toBe(false);
-  });
-
-  it('clips to the visible window instead of drawing off the edge', () => {
-    const clipped = sampleDiscountCurve(
-      5000,
-      49,
-      { kind: 'rate', rate: 0.2 },
-      breaks,
-      600,
-      1400,
-      20,
-    );
-    expect(clipped[0].from).toBe(600);
-    expect(clipped[0].startsAtBreak).toBe(false);
-    expect(clipped[0].to).toBe(1000);
-    expect(clipped[0].endsAtBreak).toBe(true);
-    expect(clipped[1].from).toBe(1000);
-    expect(clipped[1].startsAtBreak).toBe(true);
-    expect(clipped[1].to).toBe(1400);
-    for (const point of clipped.flatMap((segment) => segment.points)) {
-      expect(point.quantity).toBeGreaterThanOrEqual(600);
-      expect(point.quantity).toBeLessThanOrEqual(1400);
-    }
-  });
-
-  it('drops a tier entirely when it falls outside the window', () => {
-    const narrow = sampleDiscountCurve(
-      5000,
-      49,
-      { kind: 'rate', rate: 0.2 },
-      breaks,
-      1200,
-      2000,
-      20,
-    );
-    expect(narrow).toHaveLength(1);
-    expect(narrow[0].tierIndex).toBe(1);
-  });
-
-  it('drops at the price break rather than joining up', () => {
-    const endOfFirst = segments[0].points[segments[0].points.length - 1];
-    const startOfSecond = segments[1].points[0];
-    expect(endOfFirst.quantity).toBeCloseTo(startOfSecond.quantity, 8);
-    expect(startOfSecond.total).toBeLessThan(endOfFirst.total);
-    expect(endOfFirst.total - startOfSecond.total).toBeGreaterThan(700);
   });
 });
 

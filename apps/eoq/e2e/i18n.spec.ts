@@ -145,7 +145,7 @@ test('reports errors in the active language', async ({ page }) => {
 
 test('uses the French supply chain vocabulary throughout', async ({ page }) => {
   await page.goto(
-    '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&br=1:38.5,1500:37.2,4000:36.1&ss=275&lang=fr',
+    '/?d=24000&s=450&i=22&c=38.5&y=300&hm=r&ss=275&lang=fr',
   );
 
   for (const term of [
@@ -153,7 +153,6 @@ test('uses the French supply chain vocabulary throughout', async ({ page }) => {
     'Coût de possession',
     'Stock de sécurité',
     'Quantité économique de commande',
-    'Remises sur quantité',
     'Conditionnement',
   ]) {
     await expect(shown(page, term)).toBeVisible();

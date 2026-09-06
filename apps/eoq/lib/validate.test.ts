@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { checkField, validatePriceBreaks } from './validate';
+import { checkField } from './validate';
 
 describe('field checks', () => {
   it('accepts a positive value and hands back the parsed number', () => {
@@ -51,66 +51,5 @@ describe('field checks', () => {
     const result = checkField('unitCost', '', 'en', { rule: 'positive', required: false });
     expect(result.value).toBeNull();
     expect(result.issue).toBeNull();
-  });
-});
-
-describe('price break schedule', () => {
-  const good = [
-    { minQty: 1, unitCost: 5 },
-    { minQty: 1000, unitCost: 4.85 },
-    { minQty: 2000, unitCost: 4.75 },
-  ];
-
-  it('passes a well-formed schedule', () => {
-    expect(validatePriceBreaks(good)).toEqual([]);
-  });
-
-  it('requires the first tier to start at 1', () => {
-    const issues = validatePriceBreaks([
-      { minQty: 10, unitCost: 5 },
-      { minQty: 100, unitCost: 4 },
-    ]);
-    expect(issues).toContainEqual({ code: 'first-tier-must-start-at-one', row: 0 });
-  });
-
-  it('requires quantities to ascend', () => {
-    const issues = validatePriceBreaks([
-      { minQty: 1, unitCost: 5 },
-      { minQty: 1000, unitCost: 4.85 },
-      { minQty: 500, unitCost: 4.75 },
-    ]);
-    expect(issues).toContainEqual({ code: 'min-qty-must-ascend', row: 2 });
-  });
-
-  it('rejects two tiers starting at the same quantity', () => {
-    const issues = validatePriceBreaks([
-      { minQty: 1, unitCost: 5 },
-      { minQty: 100, unitCost: 4.85 },
-      { minQty: 100, unitCost: 4.75 },
-    ]);
-    expect(issues).toContainEqual({ code: 'min-qty-must-ascend', row: 2 });
-  });
-
-  it('rejects fractional and non-positive break quantities', () => {
-    expect(validatePriceBreaks([{ minQty: 1.5, unitCost: 5 }])).toContainEqual({
-      code: 'min-qty-must-be-whole-and-positive',
-      row: 0,
-    });
-    expect(validatePriceBreaks([{ minQty: 0, unitCost: 5 }])).toContainEqual({
-      code: 'min-qty-must-be-whole-and-positive',
-      row: 0,
-    });
-  });
-
-  it('rejects a unit cost of zero or less', () => {
-    const issues = validatePriceBreaks([
-      { minQty: 1, unitCost: 5 },
-      { minQty: 100, unitCost: 0 },
-    ]);
-    expect(issues).toContainEqual({ code: 'unit-cost-must-be-positive', row: 1 });
-  });
-
-  it('reports an empty schedule once, not row by row', () => {
-    expect(validatePriceBreaks([])).toEqual([{ code: 'schedule-empty', row: null }]);
   });
 });

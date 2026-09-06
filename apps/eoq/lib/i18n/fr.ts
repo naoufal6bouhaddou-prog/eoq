@@ -10,7 +10,7 @@ export const fr: Dictionary = {
   meta: {
     title: 'Calculateur de commande de stock',
     description:
-      'Quantité économique de commande, stock de sécurité et remises sur quantité, calculés dans le navigateur.',
+      'Quantité économique de commande, stock de sécurité et coût d’une commande hors optimum, calculés dans le navigateur.',
   },
 
   app: {
@@ -24,8 +24,6 @@ export const fr: Dictionary = {
   actions: {
     loadExample: 'Charger un exemple',
     clear: 'Vider les champs',
-    addTier: 'Ajouter un palier',
-    removeTier: 'Supprimer le palier',
   },
 
   sections: {
@@ -33,10 +31,8 @@ export const fr: Dictionary = {
     workingYear: 'Année de travail',
     casePack: 'Conditionnement',
     safetyStock: 'Stock de sécurité',
-    breaks: 'Remises sur quantité',
     results: 'Résultats',
     chart: 'Courbe de coût',
-    discounts: 'Comparaison des remises à tarif uniforme',
     penalty: 'Coût d’une quantité de commande erronée',
   },
 
@@ -56,12 +52,6 @@ export const fr: Dictionary = {
     perUnit: 'Montant par unité',
     rate: 'Taux sur le coût unitaire',
     derived: 'H = i × C',
-  },
-
-
-
-  toggles: {
-    discountsOn: 'Appliquer un barème de remises',
   },
 
   results: {
@@ -104,37 +94,6 @@ export const fr: Dictionary = {
     percentOfUnitCost: '% du coût unitaire',
   },
 
-  discounts: {
-    model:
-      'Modèle à tarif uniforme : franchir un palier retarife la commande entière. Les remises progressives suivent une autre logique et ne sont pas calculées ici.',
-    holdingNote:
-      'Le coût de possession suit le prix du palier, chaque palier a donc son propre H.',
-    roundingNote:
-      'Le multiple de conditionnement s’applique au résultat classique ci-dessus, pas à cette comparaison.',
-    columns: {
-      tier: 'Palier',
-      range: 'Plage de quantité',
-      unitCost: 'Coût unitaire',
-      tierEoq: 'QEC du palier',
-      candidate: 'Quantité à commander',
-      purchase: 'Achat',
-      ordering: 'Passation',
-      holding: 'Possession',
-      total: 'Coût annuel total',
-      status: 'Motif',
-    },
-    status: {
-      inRange: 'QEC dans la plage',
-      raised: 'Relevée au palier',
-      infeasible: 'QEC au-dessus de la plage',
-    },
-    recommended: 'Coût total le plus bas',
-    withSchedule: 'Avec ce barème, commander',
-    minQty: 'Quantité à partir de',
-    at: 'à',
-    noneFeasible: 'Aucun palier ne donne de quantité réalisable.',
-  },
-
   penalty: {
     caption:
       'La courbe de coût est plate autour de son minimum. Commander à 20 % de Q* coûte environ 2 % de plus.',
@@ -146,7 +105,6 @@ export const fr: Dictionary = {
     },
     optimum: 'Optimum',
   },
-
 
   profile: {
     title: 'Évolution du stock',
@@ -176,9 +134,6 @@ export const fr: Dictionary = {
     readoutQuantity: 'À Q',
     readoutCost: 'Coût',
     readoutPenalty: 'Écart à l’optimum',
-    priceBreak: 'Palier de remise',
-    includesPurchase:
-      'Le total inclut le coût d’achat, la courbe chute donc à chaque palier.',
     tableCaption: 'Valeurs de la courbe de coût',
     tableQuantity: 'Quantité commandée',
     tableOrdering: 'Coût de passation',
@@ -195,27 +150,15 @@ export const fr: Dictionary = {
     'rate-out-of-range': 'Doit être supérieur à 0 et au plus égal à 100',
   },
 
-  schedule: {
-    'schedule-empty': 'Ajoutez au moins un palier, commençant à la quantité 1',
-    'first-tier-must-start-at-one': 'Le premier palier doit commencer à la quantité 1',
-    'min-qty-must-be-whole-and-positive': 'La quantité doit être un entier supérieur ou égal à 1',
-    'min-qty-must-ascend': 'Chaque palier doit commencer au-dessus du précédent',
-    'unit-cost-must-be-positive': 'Le coût unitaire doit être supérieur à 0',
-  },
-
   empty: {
     headline: 'Rien à calculer pour l’instant',
     needs: 'Encore nécessaire :',
-    discountNeeds: 'La comparaison demande un barème de remises valide.',
   },
-
-
 
   a11y: {
     skipToResults: 'Aller aux résultats',
     inputRail: 'Données saisies',
     resultsRegion: 'Résultats',
     chartRegion: 'Courbe de coût',
-    removeTierAt: 'Supprimer le palier commençant à',
   },
 };

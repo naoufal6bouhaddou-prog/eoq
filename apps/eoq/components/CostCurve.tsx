@@ -5,14 +5,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   annualCycleHoldingCost,
   annualOrderingCost,
-  holdingCostForTier,
   sampleCostCurve,
-  sampleDiscountCurve,
-  type DiscountAnalysis,
   type EoqInput,
   type EoqResult,
-  type HoldingBasis,
-  type PriceBreak,
 } from '@/lib/eoq';
 import { currencySymbol, formatMoney, formatQuantity } from '@sct/shared/lib/format';
 import { clamp, invertLinear, linearScale, niceTicks } from '@sct/shared/lib/scale';
@@ -20,16 +15,9 @@ import { clamp, invertLinear, linearScale, niceTicks } from '@sct/shared/lib/sca
 import { Figure } from '@sct/shared/ui/Figure';
 import { useSettings } from './Settings';
 
-export interface DiscountChartInput {
-  basis: HoldingBasis;
-  breaks: PriceBreak[];
-  analysis: DiscountAnalysis;
-}
-
 export interface CostCurveProps {
   input: EoqInput;
   eoq: EoqResult;
-  discounts: DiscountChartInput | null;
 }
 
 const PAD = { top: 18, right: 16, bottom: 32, left: 62 };
@@ -41,25 +29,17 @@ interface Readout {
   holding: number | null;
   total: number;
   penaltyPercent: number;
-  unitCost: number | null;
 }
 
 /**
  * Annual cost against order quantity, drawn by hand.
  *
- * Three traces in the classic case: ordering cost falling as D·S/Q, holding
- * cost rising as Q·H/2, and their sum. They cross at exactly Q*, and that
- * crossing is the whole argument of the model, so it is marked rather than
- * left for the reader to find.
- *
- * With a discount schedule the picture changes: purchase cost dominates and
- * the total drops each time a break re-prices the whole order. The curve is
- * then genuinely discontinuous, and is drawn as separate segments with a
- * filled endpoint where a tier's price starts to apply and a hollow one where
- * it stops. The component traces are dropped in that mode: against a purchase
- * cost two orders of magnitude larger they would sit flat on the axis.
+ * Three traces: ordering cost falling as D·S/Q, holding cost rising as
+ * Q·H/2, and their sum. They cross at exactly Q*, and that crossing is the
+ * whole argument of the model, so it is marked rather than left for the reader
+ * to find.
  */
-export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
+export function CostCurve({ input, eoq }: CostCurveProps) {
   const { locale, currency, t } = useSettings();
   const symbol = currencySymbol(currency, locale);
 
@@ -89,22 +69,8 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
     const plotTop = PAD.top;
     const plotBottom = height - PAD.bottom;
 
-    let xMin: number;
-    let xMax: number;
-
-    if (discounts !== null && discounts.breaks.length > 0) {
-      const lastBreak = discounts.breaks[discounts.breaks.length - 1].minQty;
-      const candidates = discounts.analysis.tiers
-        .map((tier) => tier.candidateQuantity)
-        .filter((value): value is number => value !== null);
-      const smallest = Math.min(optimum, ...candidates);
-      const largest = Math.max(optimum, lastBreak, ...candidates);
-      xMin = Math.max(1, smallest * 0.4);
-      xMax = largest * 1.35;
-    } else {
-      xMin = Math.max(optimum / 4, 1e-6);
-      xMax = optimum * 2.5;
-    }
+    const xMin = Math.max(optimum / 4, 1e-6);
+    const xMax = optimum * 2.5;
 
     const classic = sampleCostCurve(
       annualDemand,
@@ -115,35 +81,10 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
       SAMPLES,
     );
 
-    const segments =
-      discounts === null
-        ? []
-        : sampleDiscountCurve(
-            annualDemand,
-            orderCost,
-            discounts.basis,
-            discounts.breaks,
-            xMin,
-            xMax,
-            80,
-          );
-
-    // Classic: measure from zero, because the reader is comparing two costs
-    // that both start there. Discounts: the interesting variation is a few
-    // percent on top of a large purchase cost, so the axis is fitted to it.
-    let yMin: number;
-    let yMax: number;
-    if (discounts === null) {
-      yMin = 0;
-      yMax = Math.max(...classic.map((point) => point.total)) * 1.04;
-    } else {
-      const totals = segments.flatMap((segment) => segment.points.map((point) => point.total));
-      const low = Math.min(...totals);
-      const high = Math.max(...totals);
-      const margin = (high - low) * 0.12 || Math.abs(high) * 0.02 || 1;
-      yMin = low - margin;
-      yMax = high + margin;
-    }
+    // Measured from zero, because the reader is comparing two costs that both
+    // start there.
+    const yMin = 0;
+    const yMax = Math.max(...classic.map((point) => point.total)) * 1.04;
 
     const x = linearScale([xMin, xMax], [plotLeft, plotRight]);
     const y = linearScale([yMin, yMax], [plotBottom, plotTop]);
@@ -170,43 +111,18 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
       y,
       xFromPixel,
       classic,
-      segments,
       orderingPath: path(classic.map((p) => ({ quantity: p.quantity, value: p.ordering }))),
       holdingPath: path(classic.map((p) => ({ quantity: p.quantity, value: p.holding }))),
       totalPath: path(classic.map((p) => ({ quantity: p.quantity, value: p.total }))),
-      segmentPaths: segments.map((segment) =>
-        path(segment.points.map((p) => ({ quantity: p.quantity, value: p.total }))),
-      ),
       xTicks: niceTicks(xMin, xMax, width < 520 ? 3 : 6),
       yTicks: niceTicks(yMin, yMax, 4),
     };
-  }, [input, eoq.optimalQuantity, discounts, width, height]);
+  }, [input, eoq.optimalQuantity, width, height]);
 
-  /** Cost at any quantity, in whichever mode the chart is drawn. */
+  /** Cost at any quantity. */
   const readAt = useCallback(
     (quantity: number): Readout => {
       const { annualDemand, orderCost, holdingCostPerUnit } = input;
-
-      if (discounts !== null) {
-        // The tier whose range contains this quantity, ranges being half-open.
-        let tier = discounts.breaks[0];
-        for (const candidate of discounts.breaks) {
-          if (quantity >= candidate.minQty) tier = candidate;
-        }
-        const tierHolding = holdingCostForTier(discounts.basis, tier.unitCost);
-        const ordering = annualOrderingCost(annualDemand, orderCost, quantity);
-        const holding = annualCycleHoldingCost(quantity, tierHolding);
-        const total = annualDemand * tier.unitCost + ordering + holding;
-        const best = discounts.analysis.best?.totalCost ?? total;
-        return {
-          quantity,
-          ordering,
-          holding,
-          total,
-          penaltyPercent: (total / best - 1) * 100,
-          unitCost: tier.unitCost,
-        };
-      }
 
       const ordering = annualOrderingCost(annualDemand, orderCost, quantity);
       const holding = annualCycleHoldingCost(quantity, holdingCostPerUnit);
@@ -217,10 +133,9 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
         holding,
         total,
         penaltyPercent: (total / eoq.relevantCostCore - 1) * 100,
-        unitCost: null,
       };
     },
-    [input, discounts, eoq.relevantCostCore],
+    [input, eoq.relevantCostCore],
   );
 
   const activeQuantity = cursor ?? eoq.optimalQuantity;
@@ -287,7 +202,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
       <div className="panel-head">
         <h2 className="t-label">{t.sections.chart}</h2>
         <p className="note t-micro text-[color:var(--text-2)]">
-          {discounts === null ? t.chart.readoutHint : t.chart.includesPurchase}
+          {t.chart.readoutHint}
         </p>
       </div>
 
@@ -375,8 +290,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
               strokeWidth={1}
             />
 
-            {discounts === null ? (
-              <g fill="none">
+            <g fill="none">
                 <path
                   d={geometry.orderingPath}
                   stroke="var(--trace-2)"
@@ -398,69 +312,12 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                   strokeWidth={1.75}
                   data-testid="trace-total"
                 />
-              </g>
-            ) : (
-              <g fill="none">
-                {geometry.segmentPaths.map((segmentPath, index) => (
-                  <path
-                    key={`seg-${index}`}
-                    d={segmentPath}
-                    stroke="var(--trace)"
-                    strokeWidth={1.75}
-                    data-testid="discount-segment"
-                  />
-                ))}
-              </g>
-            )}
-
-            {/* Price breaks: a rule where the schedule re-prices the order, a
-                filled endpoint where a tier's price starts to apply and a
-                hollow one where it stops. */}
-            {geometry.segments.map((segment) => {
-              const first = segment.points[0];
-              const last = segment.points[segment.points.length - 1];
-              if (first === undefined || last === undefined) return null;
-              return (
-                <g key={`ends-${segment.tierIndex}`}>
-                  {segment.startsAtBreak ? (
-                    <>
-                      <line
-                        x1={geometry.x(segment.from)}
-                        x2={geometry.x(segment.from)}
-                        y1={geometry.plotTop}
-                        y2={geometry.plotBottom}
-                        stroke="var(--line)"
-                        strokeWidth={1}
-                        strokeDasharray="2 4"
-                      />
-                      <circle
-                        cx={geometry.x(first.quantity)}
-                        cy={geometry.y(first.total)}
-                        r={3}
-                        fill="var(--trace)"
-                        data-testid="endpoint-closed"
-                      />
-                    </>
-                  ) : null}
-                  {segment.endsAtBreak ? (
-                    <circle
-                      cx={geometry.x(last.quantity)}
-                      cy={geometry.y(last.total)}
-                      r={3}
-                      fill="var(--surface)"
-                      stroke="var(--trace)"
-                      strokeWidth={1.25}
-                      data-testid="endpoint-open"
-                    />
-                  ) : null}
-                </g>
-              );
-            })}
+            </g>
 
             {/* Red is the ink of the diagrams: it marks the point that matters
                 on a chart, here Q* and its projection down to the axis. What it
                 never does is set a figure, which would read as an error. */}
-            {inRange && discounts === null ? (
+            {inRange ? (
               <g>
                 <line
                   x1={optimumX}
@@ -497,8 +354,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
             ) : null}
 
             {/* Inline end labels, the way a plotted chart is labelled. */}
-            {discounts === null ? (
-              <g className="chart-label">
+            <g className="chart-label">
                 <text x={geometry.plotRight - 4} y={geometry.y(geometry.classic[geometry.classic.length - 1].total) - 7} textAnchor="end">
                   {t.chart.total}
                 </text>
@@ -508,8 +364,7 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
                 <text x={geometry.plotRight - 4} y={geometry.y(geometry.classic[geometry.classic.length - 1].ordering) - 7} textAnchor="end">
                   {t.chart.ordering}
                 </text>
-              </g>
-            ) : null}
+            </g>
 
             {/* Crosshair */}
             {cursor === null ? null : (
@@ -586,19 +441,6 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
           />
           <span className="unit">%</span>
         </span>
-        {readout.unitCost === null ? null : (
-          <span className="t-micro flex items-baseline gap-1.5 text-[color:var(--text-2)]">
-            {t.discounts.columns.unitCost}
-            <Figure
-              value={readout.unitCost}
-              decimals={2}
-              width={7}
-              className="text-[color:var(--text)]"
-              testId="readout-unit-cost"
-            />
-            <span className="unit">{symbol}</span>
-          </span>
-        )}
       </div>
 
       {/* Wrapped rather than hidden directly: a table box will not shrink
@@ -610,8 +452,8 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
           <thead>
             <tr>
               <th scope="col">{t.chart.tableQuantity}</th>
-              {discounts === null ? <th scope="col">{t.chart.tableOrdering}</th> : null}
-              {discounts === null ? <th scope="col">{t.chart.tableHolding}</th> : null}
+              <th scope="col">{t.chart.tableOrdering}</th>
+              <th scope="col">{t.chart.tableHolding}</th>
               <th scope="col">{t.chart.tableTotal}</th>
             </tr>
           </thead>
@@ -619,8 +461,8 @@ export function CostCurve({ input, eoq, discounts }: CostCurveProps) {
             {tableRows.map((row) => (
               <tr key={row.quantity}>
                 <td>{formatQuantity(row.quantity, locale)}</td>
-                {discounts === null ? <td>{formatMoney(row.ordering ?? 0, locale)}</td> : null}
-                {discounts === null ? <td>{formatMoney(row.holding ?? 0, locale)}</td> : null}
+                <td>{formatMoney(row.ordering ?? 0, locale)}</td>
+                <td>{formatMoney(row.holding ?? 0, locale)}</td>
                 <td>{formatMoney(row.total, locale)}</td>
               </tr>
             ))}

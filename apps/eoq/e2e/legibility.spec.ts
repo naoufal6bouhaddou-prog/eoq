@@ -63,7 +63,7 @@ const CASES: Record<string, string> = {
   'Q* on a round tick, buffer dwarfed by Q':
     '/?d=1000000&s=50&h=1&y=365&hm=u&ss=250&lang=fr',
   'the worked example':
-    '/?d=24000&s=450&i=22&c=38.5&y=300&m=120&hm=r&br=1:38.5,1500:37.2,4000:36.1&ss=275&lang=en',
+    '/?d=24000&s=450&i=22&c=38.5&y=300&m=120&hm=r&ss=275&lang=en',
   'the classic case, no buffer':
     '/?d=10000&s=50&h=2&y=365&hm=u&lang=en',
   'French, where the words are longest':

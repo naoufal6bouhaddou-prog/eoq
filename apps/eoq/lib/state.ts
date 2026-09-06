@@ -9,10 +9,6 @@
 import { formatForInput, parseNumber, type Locale } from '@sct/shared/lib/format';
 
 export type HoldingMode = 'perUnit' | 'rate';
-export interface PriceBreakRow {
-  minQty: string;
-  unitCost: string;
-}
 
 export interface ToolState {
   annualDemand: string;
@@ -27,9 +23,6 @@ export interface ToolState {
 
   /** Entered directly: the buffer the buyer has decided to carry. */
   safetyStock: string;
-
-  discountsEnabled: boolean;
-  priceBreaks: PriceBreakRow[];
 }
 
 export const BLANK_STATE: ToolState = {
@@ -43,12 +36,6 @@ export const BLANK_STATE: ToolState = {
   roundingMultiple: '',
 
   safetyStock: '',
-
-  discountsEnabled: false,
-  priceBreaks: [
-    { minQty: '1', unitCost: '' },
-    { minQty: '', unitCost: '' },
-  ],
 };
 
 /**
@@ -56,9 +43,7 @@ export const BLANK_STATE: ToolState = {
  * opens on a clear field.
  *
  * A distributor buying a mid-value part: 300 working days at 80 units a day is
- * the 24 000 annual demand. The discount schedule is chosen to show all three
- * tier outcomes at once — one tier infeasible, one solved at its own EOQ, and
- * the winner bought up to a break.
+ * the 24 000 annual demand, ordered in pallets of 120.
  */
 export const EXAMPLE_STATE: ToolState = {
   annualDemand: '24000',
@@ -71,13 +56,6 @@ export const EXAMPLE_STATE: ToolState = {
   roundingMultiple: '120',
 
   safetyStock: '275',
-
-  discountsEnabled: true,
-  priceBreaks: [
-    { minQty: '1', unitCost: '38.50' },
-    { minQty: '1500', unitCost: '37.20' },
-    { minQty: '4000', unitCost: '36.10' },
-  ],
 };
 
 /* ------------------------------------------------------------------ */
@@ -118,17 +96,6 @@ export function encodeState(state: ToolState, locale: Locale): string {
 
   params.set('hm', state.holdingMode === 'rate' ? 'r' : 'u');
 
-  if (state.discountsEnabled) {
-    const rows = state.priceBreaks
-      .map((row) => {
-        const minQty = canonical(row.minQty, locale);
-        const unitCost = canonical(row.unitCost, locale);
-        return minQty === null || unitCost === null ? null : `${minQty}:${unitCost}`;
-      })
-      .filter((row): row is string => row !== null);
-    if (rows.length > 0) params.set('br', rows.join(','));
-  }
-
   return params.toString();
 }
 
@@ -139,10 +106,10 @@ export function encodeState(state: ToolState, locale: Locale): string {
  */
 export function decodeState(search: string, locale: Locale): ToolState | null {
   const params = new URLSearchParams(search);
-  const known = [...Object.values(KEYS), 'hm', 'br'];
+  const known = [...Object.values(KEYS), 'hm'];
   if (!known.some((key) => params.has(key))) return null;
 
-  const state: ToolState = { ...BLANK_STATE, priceBreaks: [] };
+  const state: ToolState = { ...BLANK_STATE };
 
   for (const [field, key] of Object.entries(KEYS) as Array<[NumericKey, string]>) {
     const raw = params.get(key);
@@ -153,22 +120,6 @@ export function decodeState(search: string, locale: Locale): ToolState | null {
   }
 
   state.holdingMode = params.get('hm') === 'r' ? 'rate' : 'perUnit';
-
-  const breaks = params.get('br');
-  if (breaks !== null && breaks !== '') {
-    state.priceBreaks = breaks.split(',').map((row) => {
-      const [minQty, unitCost] = row.split(':');
-      const parsedQty = parseNumber(minQty ?? '', 'en');
-      const parsedCost = parseNumber(unitCost ?? '', 'en');
-      return {
-        minQty: parsedQty === null ? '' : formatForInput(parsedQty, locale),
-        unitCost: parsedCost === null ? '' : formatForInput(parsedCost, locale),
-      };
-    });
-    state.discountsEnabled = true;
-  }
-
-  if (state.priceBreaks.length === 0) state.priceBreaks = BLANK_STATE.priceBreaks.map((r) => ({ ...r }));
 
   return state;
 }
@@ -190,9 +141,5 @@ export function reformatState(state: ToolState, from: Locale, to: Locale): ToolS
     daysPerYear: convert(state.daysPerYear),
     roundingMultiple: convert(state.roundingMultiple),
     safetyStock: convert(state.safetyStock),
-    priceBreaks: state.priceBreaks.map((row) => ({
-      minQty: convert(row.minQty),
-      unitCost: convert(row.unitCost),
-    })),
   };
 }

@@ -7,29 +7,18 @@
  */
 
 import {
-  analyseAllUnitsDiscounts,
   costPenaltyTable,
   holdingCostFromRate,
   practicalQuantity,
   solveEoq,
   type CostPenaltyRow,
-  type DiscountAnalysis,
   type EoqInput,
   type EoqResult,
-  type HoldingBasis,
   type PracticalQuantity,
-  type PriceBreak,
 } from './eoq';
-import { parseNumber, type Locale } from '@sct/shared/lib/format';
+import type { Locale } from '@sct/shared/lib/format';
 import type { ToolState } from './state';
-import {
-  checkField,
-  validatePriceBreaks,
-  type FieldName,
-  type FieldSpec,
-  type IssueCode,
-  type ScheduleIssue,
-} from './validate';
+import { checkField, type FieldName, type FieldSpec, type IssueCode } from './validate';
 
 export type FieldIssues = Partial<Record<FieldName, IssueCode>>;
 export type FieldValues = Partial<Record<FieldName, number>>;
@@ -39,25 +28,20 @@ export interface Derived {
   issues: FieldIssues;
   /** Required fields still empty. Distinct from fields holding something wrong. */
   missing: FieldName[];
-  scheduleIssues: ScheduleIssue[];
 
   holdingCostPerUnit: number | null;
   unitCost: number | null;
-  basis: HoldingBasis | null;
 
   eoqInput: EoqInput | null;
   eoq: EoqResult | null;
   practical: PracticalQuantity | null;
-  discounts: DiscountAnalysis | null;
-  /** The parsed schedule, so the chart draws exactly what the table compares. */
-  priceBreaks: PriceBreak[];
   penaltyRows: CostPenaltyRow[];
 }
 
 /**
- * Which rule each field follows, and whether it is required, given the modes
- * currently switched on. A field that is not in play is not required, so
- * turning the discount schedule off does not fill the rail with errors.
+ * Which rule each field follows, and whether it is required, given the holding
+ * mode currently switched on. A field that is not in play is not required, so
+ * the rail never asks for a number the model will not use.
  */
 export function fieldSpecs(state: ToolState): Record<FieldName, FieldSpec> {
   const byRate = state.holdingMode === 'rate';
@@ -86,15 +70,6 @@ const RAW: Record<FieldName, (state: ToolState) => string> = {
   safetyStock: (s) => s.safetyStock,
 };
 
-/** Parse the price break rows. Anything unreadable becomes NaN, which the
- *  schedule check then reports rather than silently dropping. */
-export function parsePriceBreaks(state: ToolState, locale: Locale): PriceBreak[] {
-  return state.priceBreaks.map((row) => ({
-    minQty: parseNumber(row.minQty, locale) ?? NaN,
-    unitCost: parseNumber(row.unitCost, locale) ?? NaN,
-  }));
-}
-
 export function derive(state: ToolState, locale: Locale): Derived {
   const specs = fieldSpecs(state);
   const values: FieldValues = {};
@@ -117,15 +92,6 @@ export function derive(state: ToolState, locale: Locale): Derived {
         ? holdingCostFromRate(values.holdingRate, unitCost)
         : null
       : (values.holdingCostPerUnit ?? null);
-
-  const basis: HoldingBasis | null =
-    state.holdingMode === 'rate'
-      ? values.holdingRate !== undefined
-        ? { kind: 'rate', rate: values.holdingRate }
-        : null
-      : holdingCostPerUnit !== null
-        ? { kind: 'fixed', holdingCostPerUnit }
-        : null;
 
   const annualDemand = values.annualDemand;
   const orderCost = values.orderCost;
@@ -157,37 +123,15 @@ export function derive(state: ToolState, locale: Locale): Derived {
     penaltyRows = costPenaltyTable(annualDemand, orderCost, holdingCostPerUnit);
   }
 
-  /* Discounts. */
-  let scheduleIssues: ScheduleIssue[] = [];
-  let discounts: DiscountAnalysis | null = null;
-  let priceBreaks: PriceBreak[] = [];
-  if (state.discountsEnabled) {
-    const breaks = parsePriceBreaks(state, locale);
-    priceBreaks = breaks;
-    scheduleIssues = validatePriceBreaks(breaks);
-    if (
-      scheduleIssues.length === 0 &&
-      annualDemand !== undefined &&
-      orderCost !== undefined &&
-      basis !== null
-    ) {
-      discounts = analyseAllUnitsDiscounts(annualDemand, orderCost, basis, breaks);
-    }
-  }
-
   return {
     values,
     issues,
     missing,
-    scheduleIssues,
     holdingCostPerUnit,
     unitCost,
-    basis,
     eoqInput,
     eoq,
     practical,
-    discounts,
-    priceBreaks,
     penaltyRows,
   };
 }

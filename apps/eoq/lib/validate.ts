@@ -7,7 +7,6 @@
  * the rule it describes.
  */
 
-import type { PriceBreak } from './eoq';
 import { parseNumber, type Locale } from '@sct/shared/lib/format';
 
 export type FieldName =
@@ -87,53 +86,4 @@ export function checkField(
   }
 
   return { value, issue: null };
-}
-
-/* ------------------------------------------------------------------ */
-/* Price break schedule                                                */
-/* ------------------------------------------------------------------ */
-
-export type ScheduleIssueCode =
-  | 'schedule-empty'
-  | 'first-tier-must-start-at-one'
-  | 'min-qty-must-be-whole-and-positive'
-  | 'min-qty-must-ascend'
-  | 'unit-cost-must-be-positive';
-
-export interface ScheduleIssue {
-  code: ScheduleIssueCode;
-  /** Index of the offending row, or null when the whole schedule is at fault. */
-  row: number | null;
-}
-
-/**
- * A well-formed all-units schedule starts at quantity 1, rises strictly, and
- * prices every tier above zero. Anything else would make the tier ranges
- * overlap or leave a gap, so it is reported rather than repaired.
- */
-export function validatePriceBreaks(breaks: readonly PriceBreak[]): ScheduleIssue[] {
-  const issues: ScheduleIssue[] = [];
-
-  if (breaks.length === 0) {
-    return [{ code: 'schedule-empty', row: null }];
-  }
-
-  breaks.forEach((tier, index) => {
-    if (!Number.isFinite(tier.minQty) || !Number.isInteger(tier.minQty) || tier.minQty < 1) {
-      issues.push({ code: 'min-qty-must-be-whole-and-positive', row: index });
-    } else if (index === 0 && tier.minQty !== 1) {
-      issues.push({ code: 'first-tier-must-start-at-one', row: 0 });
-    }
-
-    if (!Number.isFinite(tier.unitCost) || tier.unitCost <= 0) {
-      issues.push({ code: 'unit-cost-must-be-positive', row: index });
-    }
-
-    const previous = breaks[index - 1];
-    if (previous !== undefined && tier.minQty <= previous.minQty) {
-      issues.push({ code: 'min-qty-must-ascend', row: index });
-    }
-  });
-
-  return issues;
 }

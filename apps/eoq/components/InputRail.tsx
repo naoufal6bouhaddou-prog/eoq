@@ -3,18 +3,15 @@
 import type { FieldIssues } from '@/lib/derive';
 import { currencySymbol } from '@sct/shared/lib/format';
 import type { HoldingMode, ToolState } from '@/lib/state';
-import type { ScheduleIssue } from '@/lib/validate';
 
-import { ChoiceGroup, RailSection, SectionToggle } from '@sct/shared/ui/Controls';
+import { ChoiceGroup, RailSection } from '@sct/shared/ui/Controls';
 import { Field } from '@sct/shared/ui/Field';
-import { PriceBreakEditor } from './PriceBreakEditor';
 import { useSettings } from './Settings';
 
 export interface InputRailProps {
   state: ToolState;
   patch: (patch: Partial<ToolState>) => void;
   issues: FieldIssues;
-  scheduleIssues: ScheduleIssue[];
   revealErrors: boolean;
 }
 
@@ -27,7 +24,6 @@ export function InputRail({
   state,
   patch,
   issues,
-  scheduleIssues,
   revealErrors,
 }: InputRailProps) {
   const { locale, currency, t } = useSettings();
@@ -159,26 +155,6 @@ export function InputRail({
           error={message('safetyStock')}
           revealErrors={revealErrors}
         />
-      </RailSection>
-
-      <RailSection
-        title={t.sections.breaks}
-        action={
-          <SectionToggle
-            id="discounts-enabled"
-            label={t.toggles.discountsOn}
-            checked={state.discountsEnabled}
-            onChange={(checked) => patch({ discountsEnabled: checked })}
-          />
-        }
-      >
-        {state.discountsEnabled ? (
-          <PriceBreakEditor
-            rows={state.priceBreaks}
-            onChange={(priceBreaks) => patch({ priceBreaks })}
-            issues={scheduleIssues}
-          />
-        ) : null}
       </RailSection>
     </div>
   );
