@@ -10,7 +10,26 @@ import { expect, test, type Page } from '@playwright/test';
 const PAGE = '/?lang=en';
 
 async function ready(page: Page): Promise<void> {
-  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+  // A generous budget, because this is not waiting on the application. The
+  // development server compiles a route the first time it is asked for one,
+  // and a request arriving during that compile waits on the compiler. Against
+  // a warm server it resolves at once; against a cold one the five-second
+  // default was losing whole tests to the compiler rather than to a defect.
+  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true', {
+    timeout: 30_000,
+  });
+}
+
+/**
+ * The tool opens empty, so anything checked against the worked example has to
+ * ask for it first. One helper rather than a fixture: the two tests that are
+ * about the opening state itself must not have it applied behind their backs.
+ */
+async function withExample(page: Page): Promise<void> {
+  await page.goto(PAGE);
+  await ready(page);
+  await page.locator('[data-testid="load-example"]').click();
+  await expect(page.locator('[data-testid="item-row"]')).toHaveCount(30);
 }
 
 /** The row inputs, in the order the table currently shows them. */
@@ -18,11 +37,22 @@ function nameInputs(page: Page) {
   return page.locator('[data-testid="item-row"] input[id^="name-"]');
 }
 
-test('opens already analysed, on the sample', async ({ page }) => {
+test('opens empty, on one row waiting to be typed into', async ({ page }) => {
   await page.goto(PAGE);
   await ready(page);
 
-  await expect(page.locator('[data-testid="item-row"]')).toHaveCount(30);
+  await expect(page.locator('[data-testid="item-row"]')).toHaveCount(1);
+  await expect(nameInputs(page).nth(0)).toHaveValue('');
+  await expect(page.locator('[data-testid="empty-state"]')).toBeVisible();
+  await expect(page.locator('svg[role="img"]')).toHaveCount(0);
+  await expect(page.locator('[data-testid="class-summary"]')).toHaveCount(0);
+  // Nothing is invented where there is nothing to divide.
+  await expect(page.locator('main')).not.toContainText('NaN');
+});
+
+test('puts the whole worked example one button away', async ({ page }) => {
+  await withExample(page);
+
   await expect(page.locator('[data-testid="pareto-bar"]')).toHaveCount(30);
   await expect(page.locator('[data-testid="empty-state"]')).toHaveCount(0);
 
@@ -34,8 +64,7 @@ test('opens already analysed, on the sample', async ({ page }) => {
 });
 
 test('sorts by annual value descending, not by unit price', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   await expect(nameInputs(page).nth(0)).toHaveValue('Espresso beans, house blend');
   await expect(nameInputs(page).nth(2)).toHaveValue('Takeaway cups, 12 oz');
@@ -52,16 +81,14 @@ test('sorts by annual value descending, not by unit price', async ({ page }) => 
 });
 
 test('draws a marker for each threshold', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   await expect(page.locator('[data-testid="threshold-line"]')).toHaveCount(2);
   await expect(page.locator('[data-testid="cumulative-trace"]')).toHaveCount(1);
 });
 
 test('recomputes on every keystroke, with no button to press', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   const total = page.locator('[data-testid="total-value"]');
   await expect(total).toContainText('660,686.00');
@@ -78,8 +105,7 @@ test('recomputes on every keystroke, with no button to press', async ({ page }) 
 });
 
 test('keeps the caret in the cell when the sort moves the row', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   // The knock box is last by value. Typing a large usage into it should carry
   // it to the top without the input being torn down under the cursor.
@@ -95,8 +121,7 @@ test('keeps the caret in the cell when the sort moves the row', async ({ page })
 });
 
 test('treats an unparseable cell as zero rather than showing NaN', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   const beans = page.locator('[data-testid="item-row"]', {
     has: page.locator('input[value="Espresso beans, house blend"]'),
@@ -108,8 +133,7 @@ test('treats an unparseable cell as zero rather than showing NaN', async ({ page
 });
 
 test('clears to one blank row and an empty state, and comes back', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   await page.locator('[data-testid="clear-all"]').click();
 
@@ -131,7 +155,6 @@ test('classifies the one row a cleared table leaves as A', async ({ page }) => {
   await page.goto(PAGE);
   await ready(page);
 
-  await page.locator('[data-testid="clear-all"]').click();
   const row = page.locator('[data-testid="item-row"]').first();
   await row.locator('input[id^="name-"]').fill('Sole item');
   await row.locator('input[id^="usage-"]').fill('10');
@@ -142,8 +165,7 @@ test('classifies the one row a cleared table leaves as A', async ({ page }) => {
 });
 
 test('adds and removes rows, and never removes the last one', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   await page.locator('[data-testid="add-row"]').click();
   await expect(page.locator('[data-testid="item-row"]')).toHaveCount(31);
@@ -160,7 +182,6 @@ test('allows duplicate names without merging them', async ({ page }) => {
   await page.goto(PAGE);
   await ready(page);
 
-  await page.locator('[data-testid="clear-all"]').click();
   const first = page.locator('[data-testid="item-row"]').first();
   await first.locator('input[id^="name-"]').fill('Oat milk');
   await first.locator('input[id^="usage-"]').fill('100');
@@ -184,6 +205,8 @@ test('follows the browser language, and starts in dirhams', async ({ page }) => 
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByLabel('Currency')).toHaveValue('MAD');
+
+  await page.locator('[data-testid="load-example"]').click();
   await expect(page.locator('[data-testid="total-value"]')).toContainText('660,686.00');
 });
 
@@ -192,7 +215,14 @@ test('answers a French browser in French, and in dirhams', async ({ browser }) =
   const page = await context.newPage();
 
   await page.goto('/');
-  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true');
+  // A generous budget, because this is not waiting on the application. The
+  // development server compiles a route the first time it is asked for one,
+  // and a request arriving during that compile waits on the compiler. Against
+  // a warm server it resolves at once; against a cold one the five-second
+  // default was losing whole tests to the compiler rather than to a defect.
+  await expect(page.locator('html')).toHaveAttribute('data-ready', 'true', {
+    timeout: 30_000,
+  });
 
   await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
   await expect(page.getByLabel('Devise')).toHaveValue('MAD');
@@ -203,6 +233,7 @@ test('answers a French browser in French, and in dirhams', async ({ browser }) =
 test('reads its figures in French and switches without losing them', async ({ page }) => {
   await page.goto('/?lang=fr');
   await ready(page);
+  await page.locator('[data-testid="load-example"]').click();
 
   await expect(page.locator('[data-testid="total-value"]')).toContainText('660 686,00');
   await expect(page.getByRole('heading', { name: 'Analyse ABC des stocks' })).toBeVisible();
@@ -237,8 +268,8 @@ test('never scrolls sideways, at any of the sizes it claims to support', async (
 
   for (const width of [360, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 800 });
-    await page.goto(PAGE);
-    await ready(page);
+    // With the example loaded: an empty table is not what once overflowed.
+    await withExample(page);
     await page.waitForTimeout(250);
 
     const overflow = await page.evaluate(
@@ -249,8 +280,7 @@ test('never scrolls sideways, at any of the sizes it claims to support', async (
 });
 
 test('names every control and every diagram', async ({ page }) => {
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   const unnamed = await page.evaluate(() => {
     const named = (element: Element): boolean => {
@@ -298,8 +328,7 @@ test('has one first-level heading and no gaps in the levels below it', async ({ 
 test('gives every target enough room to hit', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile', 'target size matters where fingers are');
 
-  await page.goto(PAGE);
-  await ready(page);
+  await withExample(page);
 
   const small = await page.evaluate(() => {
     const targets = [

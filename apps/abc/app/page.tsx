@@ -7,6 +7,7 @@ import { getAbcDictionary } from '@/lib/i18n';
 import {
   blankRow,
   exampleRows,
+  openingRows,
   reformatRows,
   toItems,
   type ItemRow,
@@ -48,13 +49,13 @@ export default function AbcPage() {
   const [locale, setLocale] = useState<Locale>('fr');
   const [currency, setCurrency] = useState<CurrencyCode>('MAD');
 
-  // The page opens analysed. There is no reading of an empty table, and a
-  // visitor who will spend ninety seconds here should spend none of them
-  // wondering what to type.
-  const [rows, setRows] = useState<ItemRow[]>(() => exampleRows('fr'));
+  // The tool opens on an empty row, ready for the reader's own numbers, with
+  // the worked example one button away. The sibling calculator opens the same
+  // way, so the family does not ask to be learned twice.
+  const [rows, setRows] = useState<ItemRow[]>(() => openingRows());
   const ready = useRef(false);
 
-  /* ---- First load: stored settings, then the example in that language ---- */
+  /* ---- First load: the reader's language and currency ---- */
   useBeforePaint(() => {
     const stored = readStoredSettings();
     const params = new URLSearchParams(window.location.search);
@@ -72,10 +73,6 @@ export default function AbcPage() {
 
     setLocale(resolved);
     if (stored.currency !== undefined) setCurrency(stored.currency);
-
-    // Nothing has been typed yet, so the example is rebuilt outright rather
-    // than reformatted: its names are still the tool's, not the reader's.
-    setRows(exampleRows(resolved));
     ready.current = true;
 
     // A hook for the end-to-end suite: React attaches its handlers during

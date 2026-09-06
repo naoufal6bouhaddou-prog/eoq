@@ -22,9 +22,9 @@ export interface ItemRow {
 }
 
 /**
- * Ids for rows the user adds. The sample carries its own, so a page that opens
- * on the example and is never edited renders identically on the server and on
- * the client, and hydration has nothing to disagree about.
+ * Ids for rows the user adds. The sample carries its own, so a page that is
+ * never edited renders identically on the server and on the client, and
+ * hydration has nothing to disagree about.
  */
 let created = 0;
 
@@ -35,6 +35,18 @@ export function newRowId(): string {
 
 export function blankRow(): ItemRow {
   return { id: newRowId(), name: '', usage: '', cost: '' };
+}
+
+/**
+ * What the tool opens on: one empty row, waiting.
+ *
+ * The id is fixed rather than drawn from the counter above. This row is built
+ * during the prerender and again during hydration, in two module instances
+ * that each start counting at zero, and a row whose identity depended on that
+ * count would be a hydration mismatch waiting for the first edit.
+ */
+export function openingRows(): ItemRow[] {
+  return [{ id: 'row-first', name: '', usage: '', cost: '' }];
 }
 
 /** The worked example, with its figures written in the reader's convention. */
