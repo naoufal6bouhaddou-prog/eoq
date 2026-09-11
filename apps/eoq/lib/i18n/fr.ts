@@ -58,7 +58,7 @@ export const fr: Dictionary = {
     quantity: 'Quantité économique de commande',
     quantityShort: 'Q*',
     ordersPerYear: 'Commandes par an',
-    daysBetween: 'Jours entre deux commandes',
+    daysBetween: 'Jours entre commandes',
     relevantCost: 'Coût total pertinent',
     relevantCostShort: 'CTP',
     purchaseCost: 'Coût d’achat',
