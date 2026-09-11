@@ -12,7 +12,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'export',
   reactStrictMode: true,
-  transpilePackages: ['@sct/shared', '@sct/tools'],
+  transpilePackages: ['@sct/shared'],
 };
 
 export default nextConfig;

@@ -24,7 +24,6 @@ import {
 import type { FieldName } from '@/lib/validate';
 
 import { SETTINGS_STORAGE_KEY } from '@sct/shared/ui/settings';
-import { FAMILY, siblingsOf } from '@sct/tools';
 
 /**
  * Layout effects run after the DOM is committed but before the browser paints,
@@ -154,13 +153,11 @@ export default function Page() {
 
       <AppShell
         labels={{
-          family: FAMILY,
+          family: t.app.family,
           tool: t.app.tool,
           language: t.app.language,
           currency: t.app.currency,
-          siblings: t.app.siblings,
         }}
-        siblings={siblingsOf('eoq', locale)}
         onLocaleChange={changeLocale}
         onCurrencyChange={setCurrency}
         actions={
