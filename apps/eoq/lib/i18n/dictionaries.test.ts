@@ -38,8 +38,6 @@ const SHARED_BY_DESIGN = new Set([
   'fields.roundingMultiple.symbol',
   'fields.safetyStock.symbol',
   'holdingMode.derived',
-  // A product name, not a phrase to translate.
-  'app.family',
   // Cognates: the French word is the English word.
   'penalty.optimum',
   'profile.cycle',

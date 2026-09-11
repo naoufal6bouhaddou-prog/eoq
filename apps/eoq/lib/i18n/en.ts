@@ -11,7 +11,6 @@ export const en = {
   },
 
   app: {
-    family: 'Supply Chain Tools',
     name: 'Inventory ordering calculator',
     tool: 'Inventory ordering',
     language: 'Language',

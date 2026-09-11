@@ -14,7 +14,6 @@ export const fr: Dictionary = {
   },
 
   app: {
-    family: 'Supply Chain Tools',
     name: 'Calculateur de commande de stock',
     tool: 'Commande de stock',
     language: 'Langue',

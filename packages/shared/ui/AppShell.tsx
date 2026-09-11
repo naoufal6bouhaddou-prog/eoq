@@ -12,7 +12,11 @@ import { useSettings } from './settings';
  * This is the whole boundary, expressed as a type.
  */
 export interface AppShellLabels {
-  family: string;
+  /**
+   * The family a tool belongs to, shown before its own name. Omitted by a
+   * tool that stands alone, which then names only itself.
+   */
+  family?: string;
   tool: string;
   language: string;
   currency: string;
@@ -41,10 +45,12 @@ export interface AppShellProps {
 const LOCALE_LABEL: Record<Locale, string> = { fr: 'FR', en: 'EN' };
 
 /**
- * The shell every tool in the family shares.
+ * The shell every tool shares.
  *
- * It names the family first and the tool second, because a reader arriving from
- * a sibling tool needs to know where they are before what they are looking at.
+ * Where a family is given, it is named first and the tool second, because a
+ * reader arriving from a sibling tool needs to know where they are before what
+ * they are looking at. A tool deployed on its own gives none, and the header
+ * carries a single name rather than a path to a place no link leads.
  */
 export function AppShell({
   labels,
@@ -60,10 +66,14 @@ export function AppShell({
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-2.5 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <h1 className="flex flex-wrap items-baseline gap-x-2">
-            <span className="t-label text-[color:var(--text-2)]">{labels.family}</span>
-            <span aria-hidden="true" className="t-label text-[color:var(--line-strong)]">
-              /
-            </span>
+            {labels.family === undefined ? null : (
+              <>
+                <span className="t-label text-[color:var(--text-2)]">{labels.family}</span>
+                <span aria-hidden="true" className="t-label text-[color:var(--line-strong)]">
+                  /
+                </span>
+              </>
+            )}
             <span className="t-body font-semibold">{labels.tool}</span>
           </h1>
 

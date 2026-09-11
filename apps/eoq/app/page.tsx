@@ -153,7 +153,6 @@ export default function Page() {
 
       <AppShell
         labels={{
-          family: t.app.family,
           tool: t.app.tool,
           language: t.app.language,
           currency: t.app.currency,
